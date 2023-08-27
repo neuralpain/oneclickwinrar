@@ -1,11 +1,11 @@
 <# :# DO NOT REMOVE THIS LINE
 
-:: oneclickrar.cmd, version 0.2.0
+:: oneclickrar.cmd, version 0.2.1
 :: Copyright (c) 2023, neuralpain
 :: Install and license WinRAR
 
 @echo off
-title oneclickrar v0.2.0
+title oneclickrar v0.2.1
 :: uses PwshBatch.cmd <https://gist.github.com/neuralpain/4ca8a6c9aca4f0a1af2440f474e92d05>
 setlocal EnableExtensions DisableDelayedExpansion
 set ARGS=%*
@@ -42,6 +42,7 @@ if ($null -eq $installer) {
   } else { Write-Host "No internet."; Pause; exit 1 }
 }
 
-Invoke-Installer (Get-Installer)
 Write-License
+Invoke-Installer (Get-Installer)
+Remove-Item $rarreg
 exit
