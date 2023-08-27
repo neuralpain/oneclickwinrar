@@ -1,0 +1,11 @@
+oneclickwinrar - install and license WinRAR
+-------------------------------------------
+
+there was a need for something versatile // so why not?
+
+oneclickrar.cmd - download, install and license WinRAR
+installrar.cmd - download and install WinRAR
+licenserar.cmd - license WinRAR if installed
+
+- all operations are done at `C:\Program Files\WinRAR`
+- check the releases page for downloads (or download from the repository; whichever you prefer)
