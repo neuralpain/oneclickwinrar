@@ -3,9 +3,11 @@ oneclickwinrar - install and license WinRAR
 
 there was a need for something versatile // so why not?
 
-oneclickrar.cmd - download, install and license WinRAR
-installrar.cmd - download and install WinRAR
-licenserar.cmd - license WinRAR if installed
+`oneclickrar.cmd` - download, install and license WinRAR
+`installrar.cmd` - download and install WinRAR
+`licenserar.cmd` - license WinRAR if installed
 
-- all operations are done at `C:\Program Files\WinRAR`
+- can only download WinRAR v6.23 (64-bit)
+- will install and license any version available in the current directory
+- all operations are done at `C:\Program Files\WinRAR` for 64-bit operating systems unless a 32-bit WinRAR installer is provided
 - check the releases page for downloads (or download from the repository; whichever you prefer)
