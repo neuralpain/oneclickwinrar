@@ -1,11 +1,11 @@
 <# :# DO NOT REMOVE THIS LINE
 
-:: oneclickrar.cmd, version 0.2.1
+:: oneclickrar.cmd, version 0.2.2
 :: Copyright (c) 2023, neuralpain
 :: Install and license WinRAR
 
 @echo off
-title oneclickrar v0.2.1
+title oneclickrar v0.2.2
 :: uses PwshBatch.cmd <https://gist.github.com/neuralpain/4ca8a6c9aca4f0a1af2440f474e92d05>
 setlocal EnableExtensions DisableDelayedExpansion
 set ARGS=%*
@@ -32,12 +32,10 @@ function Get-Installer {
   foreach ($file in $files) { if ($file -match $winrar) { return $file } }
 }
 
-$installer = (Get-Installer) # use available installer
-
-if ($null -eq $installer) {
+if ($null -eq (Get-Installer)) {
   Write-Host "Testing connection... " -NoNewLine
   if (Test-Connection www.google.com -Quiet) {
-    Write-Host "OK.`nDownloading..."
+    Write-Host "OK.`nDownloading WinRAR..."
     Start-BitsTransfer "https://www.rarlab.com/rar/winrar-x64-623.exe" $pwd\
   } else { Write-Host "No internet."; Pause; exit 1 }
 }
