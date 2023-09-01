@@ -1,11 +1,11 @@
 <# :# DO NOT REMOVE THIS LINE
 
-:: licenserar.cmd, version 0.2.0
+:: licenserar.cmd, version 0.2.1
 :: Copyright (c) 2023, neuralpain
 :: License WinRAR
 
 @echo off
-title licenserar v0.2.0
+title licenserar v0.2.1
 :: uses PwshBatch.cmd <https://gist.github.com/neuralpain/4ca8a6c9aca4f0a1af2440f474e92d05>
 setlocal EnableExtensions DisableDelayedExpansion
 set ARGS=%*
@@ -42,4 +42,5 @@ $rarg32 = "${env:ProgramFiles(x86)}\WinRAR\rarreg.key"
 
 if (Test-Path "$env:ProgramFiles\WinRAR\WinRAR.exe" -PathType Leaf) { [IO.File]::WriteAllLines($rarreg, $rarkey) }
 elseif (Test-Path "${env:ProgramFiles(x86)}\WinRAR\WinRAR.exe" -PathType Leaf) { [IO.File]::WriteAllLines($rarg32, $rarkey) }
+else { Write-Host "WinRAR is not installed."; Pause; exit 1 }
 exit
