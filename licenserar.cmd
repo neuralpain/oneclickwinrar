@@ -1,11 +1,13 @@
 <# :# DO NOT REMOVE THIS LINE
 
-:: licenserar.cmd, version 0.2.1
+:: licenserar.cmd
+:: oneclickwinrar, version 0.3.0
 :: Copyright (c) 2023, neuralpain
 :: License WinRAR
 
 @echo off
-title licenserar v0.2.1
+mode 44,8
+title licenserar (v0.3.0)
 :: uses PwshBatch.cmd <https://gist.github.com/neuralpain/4ca8a6c9aca4f0a1af2440f474e92d05>
 setlocal EnableExtensions DisableDelayedExpansion
 set ARGS=%*
@@ -16,7 +18,7 @@ if defined ARGS set ARGS=%ARGS:'=''%
 fsutil dirty query %systemdrive% >nul
 if %ERRORLEVEL% NEQ 0 (
   cls & echo.
-  echo This script requires administrative priviledges.
+  echo Please grant admin priviledges.
   echo Attempting to elevate...
   goto UAC_Prompt
 ) else ( goto :begin_script )
@@ -40,7 +42,17 @@ $rarkey = "RAR registration data`r`nTechTools.net`r`nUnlimited Company License`r
 $rarreg = "$env:ProgramFiles\WinRAR\rarreg.key"
 $rarg32 = "${env:ProgramFiles(x86)}\WinRAR\rarreg.key"
 
-if (Test-Path "$env:ProgramFiles\WinRAR\WinRAR.exe" -PathType Leaf) { [IO.File]::WriteAllLines($rarreg, $rarkey) }
-elseif (Test-Path "${env:ProgramFiles(x86)}\WinRAR\WinRAR.exe" -PathType Leaf) { [IO.File]::WriteAllLines($rarg32, $rarkey) }
-else { Write-Host "WinRAR is not installed."; Pause; exit 1 }
+if (Test-Path "$env:ProgramFiles\WinRAR\WinRAR.exe" -PathType Leaf) { 
+  [IO.File]::WriteAllLines($rarreg, $rarkey) 
+}
+elseif (Test-Path "${env:ProgramFiles(x86)}\WinRAR\WinRAR.exe" -PathType Leaf) { 
+  [IO.File]::WriteAllLines($rarg32, $rarkey) 
+}
+else { 
+  Write-Host "WinRAR is not installed." -ForegroundColor DarkRed
+  Pause; exit
+}
+
+Write-Host "WinRAR licensed successfully." -ForegroundColor Green
+Start-Sleep -Seconds 2
 exit
