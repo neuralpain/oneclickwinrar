@@ -1,13 +1,13 @@
 <# :# DO NOT REMOVE THIS LINE
 
 :: installrar.cmd
-:: oneclickwinrar, version 0.3.0
+:: oneclickwinrar, version 0.4.0.2407
 :: Copyright (c) 2023, neuralpain
 :: Install WinRAR
 
 @echo off
 mode 44,8
-title installrar (v0.3.0)
+title installrar (v0.4.0.2407)
 :: uses PwshBatch.cmd <https://gist.github.com/neuralpain/4ca8a6c9aca4f0a1af2440f474e92d05>
 setlocal EnableExtensions DisableDelayedExpansion
 set ARGS=%*
@@ -19,14 +19,14 @@ exit /b
 # --- PS --- #>
 
 $global:ProgressPreference = "SilentlyContinue"
-[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+[System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor [System.Net.SecurityProtocolType]::Tls12
 
 $Script:WINRAR_EXE = $null
 $Script:FETCH_WINRAR = $false
-$winrar = "winrar-x\d{2}-\d{3}\.exe"
+$winrar = "winrar-x\d{2}-\d{3}\w*\.exe" # catch any version for any language
 
 function Invoke-Installer($file) {
-  $x = (($file -replace('winrar-x\d{2}-')).Trim('.exe')) / 100
+  $x = if ($file -match "(?<version>\d{3})") { ($matches['version']) / 100 } # get WinRAR version number
   Write-Host "Installing WinRAR v${x}..."
   
   try {
@@ -34,7 +34,7 @@ function Invoke-Installer($file) {
     Write-Host "WinRAR installed successfully." -ForegroundColor Green
   }
   catch {
-    Write-Host "Installer ran into a problem." -ForegroundColor DarkRed
+    Write-Host "Installer ran into a problem." -ForegroundColor Red
     Write-Host "Please restart the script." -ForegroundColor Yellow
     Pause; exit
   }
@@ -52,9 +52,9 @@ if ($null -eq $Script:WINRAR_EXE) {
   Write-Host "Testing connection... " -NoNewLine
   if (Test-Connection www.google.com -Quiet) {
     Write-Host -NoNewLine "OK.`nDownloading WinRAR... "
-    try { Start-BitsTransfer "https://www.rarlab.com/rar/winrar-x64-623.exe" $pwd\ } 
+    try { Start-BitsTransfer "https://www.rarlab.com/rar/winrar-x64-701.exe" $pwd\ }
     catch {
-      Write-Host "`nDownloader ran into a problem." -ForegroundColor DarkRed
+      Write-Host "`nDownloader ran into a problem." -ForegroundColor Red
       Write-Host "Please check your internet connection." -ForegroundColor Yellow
       Pause; exit
     } 
