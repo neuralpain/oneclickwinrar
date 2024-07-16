@@ -1,13 +1,13 @@
 <# :# DO NOT REMOVE THIS LINE
 
 :: licenserar.cmd
-:: oneclickwinrar, version 0.3.0
+:: oneclickwinrar, version 0.4.0.2407
 :: Copyright (c) 2023, neuralpain
 :: License WinRAR
 
 @echo off
 mode 44,8
-title licenserar (v0.3.0)
+title licenserar (v0.4.0.2407)
 :: uses PwshBatch.cmd <https://gist.github.com/neuralpain/4ca8a6c9aca4f0a1af2440f474e92d05>
 setlocal EnableExtensions DisableDelayedExpansion
 set ARGS=%*
@@ -42,14 +42,14 @@ $rarkey = "RAR registration data`r`nTechTools.net`r`nUnlimited Company License`r
 $rarreg = "$env:ProgramFiles\WinRAR\rarreg.key"
 $rarg32 = "${env:ProgramFiles(x86)}\WinRAR\rarreg.key"
 
-if (Test-Path "$env:ProgramFiles\WinRAR\WinRAR.exe" -PathType Leaf) { 
+if (Test-Path "$env:ProgramFiles\WinRAR\WinRAR.exe" -PathType Leaf) {
   [IO.File]::WriteAllLines($rarreg, $rarkey) 
 }
-elseif (Test-Path "${env:ProgramFiles(x86)}\WinRAR\WinRAR.exe" -PathType Leaf) { 
+elseif (Test-Path "${env:ProgramFiles(x86)}\WinRAR\WinRAR.exe" -PathType Leaf) {
   [IO.File]::WriteAllLines($rarg32, $rarkey) 
 }
-else { 
-  Write-Host "WinRAR is not installed." -ForegroundColor DarkRed
+else {
+  Write-Host "WinRAR is not installed." -ForegroundColor Red
   Pause; exit
 }
 
