@@ -43,6 +43,17 @@ $global:ProgressPreference = "SilentlyContinue"
 
 $Script:WINRAR_EXE = $null
 $Script:FETCH_WINRAR = $false
+$winrar = "winrar-x\d{2}-\d{3}\w*\.exe" # catch any version for any language
+
+$Script:ARCH64 = $true;
+$Script:CUSTOM_LICENSE = $false;
+$Script:CUSTOM_DOWNLOAD = $false
+
+$Script:LICENSEE = $null # name of licensee
+$Script:LICENSE_TYPE = $null # type of license
+$Script:ARCH = $null # download architecture
+$Script:RARVER = $null # download version
+$Script:TAGS = $null # other download types, eg. language, beta, etc.
 
 function New-Toast {
   [CmdletBinding()]Param ([String]$ToastTitle, [String][parameter(ValueFromPipeline)]$ToastText)
@@ -54,78 +65,57 @@ function New-Toast {
   $Notifier = [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier("PowerShell"); $Notifier.Show($Toast);
 }
 
-function Invoke-Installer($file) {
-  $x = if ($file -match "(?<version>\d{3})") { ($matches['version']) / 100 } # get WinRAR version number
-  Write-Host "Installing WinRAR v${x}..."
-  try {
-    Start-Process $file "/s" -Wait
-    Write-Host "WinRAR installed successfully." -ForegroundColor Green
+function Get-WinRARData {  
+  $_data = [regex]::matches($CMD_NAME, '[^_]+')
+  # check for custom license and download
+  if ($_data.Count -eq 3 -and $_data[2].Value -eq "oneclickrar") {
+    $Script:CUSTOM_LICENSE = $true
+    $Script:LICENSEE = $_data[0].Value
+    $Script:LICENSE_TYPE = $_data[1].Value
+    # `$_data[2]` is the script name
   }
-  catch {
-    Write-Host "Installer ran into a problem." -ForegroundColor Red
-    Write-Host "Please restart the script." -ForegroundColor Yellow
-    Pause; exit
+  elseif ($_data.Count -ge 3 -and $_data[0].Value -eq "oneclickrar") {
+    $Script:CUSTOM_DOWNLOAD = $true
+    # `$_data[0]` is the script name
+    $Script:ARCH = $_data[1].Value
+    $Script:RARVER = $_data[2].Value
+    $Script:TAGS = $_data[3].Value
   }
-  finally {
-    if ($Script:FETCH_WINRAR) { Remove-Item $Script:WINRAR_EXE }
+  elseif ($_data.Count -ge 5 -and $_data[2].Value -eq "oneclickrar") {
+    $Script:CUSTOM_LICENSE = $true
+    $Script:CUSTOM_DOWNLOAD = $true
+    $Script:LICENSEE = $_data[0].Value
+    $Script:LICENSE_TYPE = $_data[1].Value
+    # `$_data[2]` is the script name
+    $Script:ARCH = $_data[3].Value
+    $Script:RARVER = $_data[4].Value
+    $Script:TAGS = $_data[5].Value
+  }
+  else {
+    New-Toast -ToastTitle "oneclickwinrar: Error" -ToastText "WinRAR data is invalid."; exit
+  }
+  
+  if ($Script:CUSTOM_DOWNLOAD) {
+    if ($Script:ARCH.Length -ne 3 -or $Script:RARVER.Length -ne 3) {
+      New-Toast -ToastTitle "oneclickwinrar: Error" -ToastText "Download data is invalid."; exit
+    }
+    if ($Script:ARCH -ne "x64" -and $Script:ARCH -ne "x86") {
+      New-Toast -ToastTitle "oneclickwinrar: Error" -ToastText "Download architecture is invalid."; exit
+    }
   }
 }
 
-function Write-License {
-  $Script:ARCH64 = $true;
-  $Script:CUSTOM_LICENSE = $false;
-
-  $rarkey = "RAR registration data`r`nEveryone`r`nGeneral Public License`r`nUID=119fdd47b4dbe9a41555`r`n6412212250155514920287d3b1cc8d9e41dfd22b78aaace2ba4386`r`n9152c1ac6639addbb73c60800b745269020dd21becbc46390d7cee`r`ncce48183d6d73d5e42e4605ab530f6edf8629596821ca042db83dd`r`n68035141fb21e5da4dcaf7bf57494e5455608abc8a9916ffd8e23d`r`n0a68ab79088aa7d5d5c2a0add4c9b3c27255740277f6edf8629596`r`n821ca04340a7c91e88b14ba087e0bfb04b57824193d842e660c419`r`nb8af4562cb13609a2ca469bf36fb8da2eda6f5e978bf1205660302"
-  $rarreg = "$env:ProgramFiles\WinRAR\rarreg.key"
-  $rarg32 = "${env:ProgramFiles(x86)}\WinRAR\rarreg.key"
-
-  $licensee = $null
-  $license_type = $null
-
-  # check for custom license
-  if ($CMD_NAME -ne "oneclickrar") {
-    $Script:CUSTOM_LICENSE = $true
-    $license_data = [regex]::matches($CMD_NAME, '[^_]+(?=_)')
-    $licensee = $license_data[0].Value
-    $license_type = $license_data[1].Value
-    if ($licensee.Length -eq 0 -or $license_type.Length -eq 0) {
-      New-Toast -ToastTitle "oneclickwinrar: License Error" -ToastText "Custom lincense data is invalid."; exit
-    }
+function Invoke-Installer($file) {
+  $version = if ($file -match "(?<version>\d{3})") { ($matches['version']) / 100 } # get WinRAR version number
+  Write-Host "Installing WinRAR v${version}..."
+  try {
+    Start-Process $file "/s" -Wait
   }
-
-  # check for WinRAR architecture
-  if (Test-Path "$env:ProgramFiles\WinRAR\WinRAR.exe" -PathType Leaf) {
-    $ARCH64 = $true
+  catch {
+    New-Toast -ToastTitle "oneclickwinrar: Installation Error" -ToastText "Please restart the script."; exit
   }
-  elseif (Test-Path "${env:ProgramFiles(x86)}\WinRAR\WinRAR.exe" -PathType Leaf) {
-    $ARCH64 = $false
-  }
-  else {
-    New-Toast -ToastTitle "oneclickwinrar: Erorr" -ToastText "WinRAR is not installed."; exit
-  }
-
-  # generate license
-  if ($ARCH64) {
-    if ($Script:CUSTOM_LICENSE) {
-      ./bin/winrar-keygen/winrar-keygen-x64.exe "$($licensee)" "$($license_type)" | Out-File -Encoding utf8 $rarreg
-    }
-    elseif (Test-Path "rarreg.key" -PathType Leaf) {
-      Copy-Item -Path "rarreg.key" -Destination $rarreg -Force
-    }
-    else {
-      [IO.File]::WriteAllLines($rarreg, $rarkey)
-    }
-  }
-  else {
-    if ($Script:CUSTOM_LICENSE) {
-      ./bin/winrar-keygen/winrar-keygen-x86.exe "$($licensee)" "$($license_type)" | Out-File -Encoding utf8 $rarg32
-    }
-    elseif (Test-Path "rarreg.key" -PathType Leaf) {
-      Copy-Item -Path "rarreg.key" -Destination $rarg32 -Force
-    }
-    else {
-      [IO.File]::WriteAllLines($rarg32, $rarkey)
-    }
+  finally {
+    if ($Script:FETCH_WINRAR) { Remove-Item $Script:WINRAR_EXE }
   }
 }
 
@@ -134,26 +124,82 @@ function Get-Installer {
   foreach ($file in $files) { if ($file -match $winrar) { return $file } }
 }
 
-$Script:WINRAR_EXE = (Get-Installer)
+if ($CMD_NAME -ne "oneclickrar") { Get-WinRARData }
 
+# --- INSTALLATION
+
+$Script:WINRAR_EXE = (Get-Installer)
 if ($null -eq $Script:WINRAR_EXE) {
   Write-Host "Testing connection... " -NoNewLine
   if (Test-Connection www.google.com -Quiet) {
     Write-Host -NoNewLine "OK.`nDownloading WinRAR... "
-    try { Start-BitsTransfer "https://www.rarlab.com/rar/winrar-x64-701.exe" $pwd\ } 
+    try {
+      if ($Script:CUSTOM_DOWNLOAD) { Start-BitsTransfer "https://www.rarlab.com/rar/winrar-${Script:ARCH}-${Script:RARVER}${Script:TAGS}.exe" $pwd\ }
+      else { Start-BitsTransfer "https://www.rarlab.com/rar/winrar-x64-701.exe" $pwd\ }
+    }
     catch {
-      Write-Host "`nDownloader ran into a problem." -ForegroundColor Red
-      Write-Host "Please check your internet connection." -ForegroundColor Yellow
-      Pause; exit
+      New-Toast -ToastTitle "oneclickwinrar: Download Error" -ToastText "Please check your internet connection."; exit
     } 
     $Script:WINRAR_EXE = (Get-Installer)
     $Script:FETCH_WINRAR = $true
     Write-Host "Done."
   }
-  else { Write-Host "No internet."; Pause; exit }
+  else {
+    New-Toast -ToastTitle "oneclickwinrar: Download Error" -ToastText "Please check your internet connection."; exit
+  }
 }
 
 Invoke-Installer $Script:WINRAR_EXE
-Write-License
-# Start-Sleep -Seconds 2
+
+# --- LICENSING
+
+$rarkey = "RAR registration data`r`nEveryone`r`nGeneral Public License`r`nUID=119fdd47b4dbe9a41555`r`n6412212250155514920287d3b1cc8d9e41dfd22b78aaace2ba4386`r`n9152c1ac6639addbb73c60800b745269020dd21becbc46390d7cee`r`ncce48183d6d73d5e42e4605ab530f6edf8629596821ca042db83dd`r`n68035141fb21e5da4dcaf7bf57494e5455608abc8a9916ffd8e23d`r`n0a68ab79088aa7d5d5c2a0add4c9b3c27255740277f6edf8629596`r`n821ca04340a7c91e88b14ba087e0bfb04b57824193d842e660c419`r`nb8af4562cb13609a2ca469bf36fb8da2eda6f5e978bf1205660302"
+$rarreg = "$env:ProgramFiles\WinRAR\rarreg.key"
+$rarg32 = "${env:ProgramFiles(x86)}\WinRAR\rarreg.key"
+
+# check for WinRAR architecture
+if (Test-Path "$env:ProgramFiles\WinRAR\WinRAR.exe" -PathType Leaf) {
+  $Script:ARCH64 = $true
+}
+elseif (Test-Path "${env:ProgramFiles(x86)}\WinRAR\WinRAR.exe" -PathType Leaf) {
+  $Script:ARCH64 = $false
+}
+else {
+  New-Toast -ToastTitle "oneclickwinrar: Erorr" -ToastText "WinRAR is not installed."; exit
+}
+
+# generate license
+if ($Script:ARCH64) {
+  if ($Script:CUSTOM_LICENSE) {
+    if (Test-Path "bin/winrar-keygen/winrar-keygen-x64.exe" -PathType Leaf) {
+      ./bin/winrar-keygen/winrar-keygen-x64.exe "$($Script:LICENSEE)" "$($Script:LICENSE_TYPE)" | Out-File -Encoding utf8 $rarreg
+    }
+    else {
+      New-Toast -ToastTitle "oneclickwinrar: Missing keygen" -ToastText "Unable to generate license."; exit
+    }
+  }
+  elseif (Test-Path "rarreg.key" -PathType Leaf) {
+    Copy-Item -Path "rarreg.key" -Destination $rarreg -Force
+  }
+  else {
+    [IO.File]::WriteAllLines($rarreg, $rarkey)
+  }
+}
+else {
+  if ($Script:CUSTOM_LICENSE) {
+    if (Test-Path "bin/winrar-keygen/winrar-keygen-x86.exe" -PathType Leaf) {
+      ./bin/winrar-keygen/winrar-keygen-x86.exe "$($Script:LICENSEE)" "$($Script:LICENSE_TYPE)" | Out-File -Encoding utf8 $rarg32
+    }
+    else {
+      New-Toast -ToastTitle "oneclickwinrar: Missing keygen" -ToastText "Unable to generate license."; exit
+    }
+  }
+  elseif (Test-Path "rarreg.key" -PathType Leaf) {
+    Copy-Item -Path "rarreg.key" -Destination $rarg32 -Force
+  }
+  else {
+    [IO.File]::WriteAllLines($rarg32, $rarkey)
+  }
+}
+
 New-Toast -ToastTitle "oneclickwinrar" -ToastText "WinRAR installed and licensed successfully."; exit
