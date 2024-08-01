@@ -1,13 +1,13 @@
 <# :# DO NOT REMOVE THIS LINE
 
 :: licenserar.cmd
-:: oneclickwinrar, version 0.4.0.2407
+:: oneclickwinrar, version 0.5.0.701
 :: Copyright (c) 2023, neuralpain
 :: License WinRAR
 
 @echo off
 mode 44,8
-title licenserar (v0.4.0.2407)
+title licenserar (v0.5.0.701)
 :: uses PwshBatch.cmd <https://gist.github.com/neuralpain/4ca8a6c9aca4f0a1af2440f474e92d05>
 setlocal EnableExtensions DisableDelayedExpansion
 set ARGS=%*
@@ -33,26 +33,75 @@ del "%tmp%\cmdUAC.vbs"
 goto :eof
 
 :begin_script
-PowerShell -NoP -C ^"Invoke-Expression ('^& {' + (get-content -raw '%~f0') + '} %ARGS%')"
+PowerShell -NoP -C ^"$CMD_NAME='%~n0';Invoke-Expression ('^& {' + (get-content -raw '%~f0') + '} %ARGS%')"
 exit /b
 
 # --- PS --- #>
 
-$rarkey = "RAR registration data`r`nTechTools.net`r`nUnlimited Company License`r`nUID=be495af2e04c51526b85`r`n64122122506b85be56d054210a35c74d3d4b85c98b58c1c03635b4`r`n931f702fd05f10d8593c60fce6cb5ffde62890079861be57638717`r`n7131ced835ed65cc743d9777f2ea71a8e32c7e593cf66794343565`r`nb41bcf56929486b8bcdac33d50ecf77399607b61cbd4c7c227f192`r`n2b3291c3cf4822a590ea57181b47bfe6cf92ddc40a7de2d2796819`r`n1781857ba6b1b67a2b15bc5f9dfb682cca338eaa5c606da560397f`r`n6c6efc340004788adcfe55aa8c331391a95957b7e7401955721377"
+$Script:ARCH64 = $true;
+$Script:CUSTOM_LICENSE = $false;
+
+$rarkey = "RAR registration data`r`nEveryone`r`nGeneral Public License`r`nUID=119fdd47b4dbe9a41555`r`n6412212250155514920287d3b1cc8d9e41dfd22b78aaace2ba4386`r`n9152c1ac6639addbb73c60800b745269020dd21becbc46390d7cee`r`ncce48183d6d73d5e42e4605ab530f6edf8629596821ca042db83dd`r`n68035141fb21e5da4dcaf7bf57494e5455608abc8a9916ffd8e23d`r`n0a68ab79088aa7d5d5c2a0add4c9b3c27255740277f6edf8629596`r`n821ca04340a7c91e88b14ba087e0bfb04b57824193d842e660c419`r`nb8af4562cb13609a2ca469bf36fb8da2eda6f5e978bf1205660302"
 $rarreg = "$env:ProgramFiles\WinRAR\rarreg.key"
 $rarg32 = "${env:ProgramFiles(x86)}\WinRAR\rarreg.key"
 
-if (Test-Path "$env:ProgramFiles\WinRAR\WinRAR.exe" -PathType Leaf) {
-  [IO.File]::WriteAllLines($rarreg, $rarkey) 
-}
-elseif (Test-Path "${env:ProgramFiles(x86)}\WinRAR\WinRAR.exe" -PathType Leaf) {
-  [IO.File]::WriteAllLines($rarg32, $rarkey) 
-}
-else {
-  Write-Host "WinRAR is not installed." -ForegroundColor Red
-  Pause; exit
+$licensee = $null
+$license_type = $null
+
+function New-Toast {
+  [CmdletBinding()]Param ([String]$ToastTitle, [String][parameter(ValueFromPipeline)]$ToastText)
+  [Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime] > $null
+  $Template = [Windows.UI.Notifications.ToastNotificationManager]::GetTemplateContent([Windows.UI.Notifications.ToastTemplateType]::ToastText02)
+  $RawXml = [xml] $Template.GetXml(); ($RawXml.toast.visual.binding.text | Where-Object { $_.id -eq "1" }).AppendChild($RawXml.CreateTextNode($ToastTitle)) > $null; ($RawXml.toast.visual.binding.text | Where-Object { $_.id -eq "2" }).AppendChild($RawXml.CreateTextNode($ToastText)) > $null
+  $SerializedXml = New-Object Windows.Data.Xml.Dom.XmlDocument; $SerializedXml.LoadXml($RawXml.OuterXml);
+  $Toast = [Windows.UI.Notifications.ToastNotification]::new($SerializedXml); $Toast.Tag = "PowerShell"; $Toast.Group = "PowerShell"; $Toast.ExpirationTime = [DateTimeOffset]::Now.AddMinutes(1)
+  $Notifier = [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier("PowerShell"); $Notifier.Show($Toast);
 }
 
-Write-Host "WinRAR licensed successfully." -ForegroundColor Green
-Start-Sleep -Seconds 2
-exit
+# check for custom license
+if ($CMD_NAME -ne "licenserar") {
+  $Script:CUSTOM_LICENSE = $true
+  $license_data = [regex]::matches($CMD_NAME, '[^_]+(?=_)')
+  $licensee = $license_data[0].Value
+  $license_type = $license_data[1].Value
+  if ($licensee.Length -eq 0 -or $license_type.Length -eq 0) {
+    New-Toast -ToastTitle "oneclickwinrar: License Error" -ToastText "Custom lincense data is invalid."; exit
+  }
+}
+
+# check for WinRAR architecture
+if (Test-Path "$env:ProgramFiles\WinRAR\WinRAR.exe" -PathType Leaf) {
+  $ARCH64 = $true
+}
+elseif (Test-Path "${env:ProgramFiles(x86)}\WinRAR\WinRAR.exe" -PathType Leaf) {
+  $ARCH64 = $false
+}
+else {
+  New-Toast -ToastTitle "oneclickwinrar: Erorr" -ToastText "WinRAR is not installed."; exit
+}
+
+# generate license
+if ($ARCH64) {
+  if ($Script:CUSTOM_LICENSE) {
+    ./bin/winrar-keygen/winrar-keygen-x64.exe "$($licensee)" "$($license_type)" | Out-File -Encoding utf8 $rarreg
+  }
+  elseif (Test-Path "rarreg.key" -PathType Leaf) {
+    Copy-Item -Path "rarreg.key" -Destination $rarreg -Force
+  }
+  else {
+    [IO.File]::WriteAllLines($rarreg, $rarkey)
+  }
+}
+else {
+  if ($Script:CUSTOM_LICENSE) {
+    ./bin/winrar-keygen/winrar-keygen-x86.exe "$($licensee)" "$($license_type)" | Out-File -Encoding utf8 $rarg32
+  }
+  elseif (Test-Path "rarreg.key" -PathType Leaf) {
+    Copy-Item -Path "rarreg.key" -Destination $rarg32 -Force
+  }
+  else {
+    [IO.File]::WriteAllLines($rarg32, $rarkey)
+  }
+}
+
+New-Toast -ToastTitle "oneclickwinrar" -ToastText "WinRAR licensed successfully."; exit

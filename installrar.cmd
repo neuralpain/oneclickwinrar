@@ -1,13 +1,13 @@
 <# :# DO NOT REMOVE THIS LINE
 
 :: installrar.cmd
-:: oneclickwinrar, version 0.4.0.2407
+:: oneclickwinrar, version 0.5.0.701
 :: Copyright (c) 2023, neuralpain
 :: Install WinRAR
 
 @echo off
 mode 44,8
-title installrar (v0.4.0.2407)
+title installrar (v0.5.0.701)
 :: uses PwshBatch.cmd <https://gist.github.com/neuralpain/4ca8a6c9aca4f0a1af2440f474e92d05>
 setlocal EnableExtensions DisableDelayedExpansion
 set ARGS=%*
@@ -42,7 +42,7 @@ function Invoke-Installer($file) {
 }
 
 function Get-Installer {
-  $files = Get-ChildItem -Path $pwd | Where-Object { $_.Name -match '^winrar' }
+  $files = Get-ChildItem -Path $pwd | Where-Object { $_.Name -match '^winrar-x' }
   foreach ($file in $files) { if ($file -match $winrar) { return $file } }
 }
 
