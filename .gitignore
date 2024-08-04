@@ -2,3 +2,6 @@
 *.exe
 *.zip
 !winrar-keygen*.exe
+
+# mac stuff
+.DS_Store
