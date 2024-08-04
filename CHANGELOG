@@ -1,0 +1,60 @@
+CHANGELOG
+
+0.6.0.701
+
+  - Fix downloading issue. "x86" was mistakenly used for downloading 32-bit
+    versions of WinRAR. This has been fixed.
+  - Add support for downloading without including a version number
+  - Fixed function name error in installrar.cmd
+  - Provide installrar.cmd with admin by default
+  - Improve error handling for oneclickrar.cmd
+  - Add protection against overwriting existing licenses
+  - Add option to overwrite existing licenses
+  - Add unlicenserar.cmd to remove WinRAR licenses for whatever reason
+  - Minor bug fixes
+
+0.5.0.701
+
+  - Allow users to generate custom licenses to activate WinRAR by modifying the
+    script's file name
+  - Allow users to download any version of WinRAR by modifying the script's
+    file name
+  
+0.4.0.2407
+
+  - Update WinRAR download version
+  - Update TLS security
+  - Add support for multiple languages
+  
+0.3.0
+
+  - Add error handling
+
+0.2.5
+
+  - Remove unnecessary `$rarkey` variable from installrar.cmd
+
+0.2.4
+
+  - Provide feedback if license is not installed
+
+0.2.3
+
+  - Replace `$silent` variable with "/s"
+
+0.2.2
+
+  - Moved `$installer = (Get-Installer)` into the if statement
+    `if ($null -eq (Get-Installer)) {`
+
+0.2.1
+
+  - Fix licensing issue
+
+0.2.0
+
+  - Add support for all versions of WinRAR
+
+0.1.0
+
+  - Initial release
