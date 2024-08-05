@@ -42,7 +42,7 @@ $script_name = "licenserar"
 $script_name_overwrite = "license-rar"
 
 $Script:CUSTOM_LICENSE = $false
-$OVERWRITE_LICENSE = $false
+$Script:OVERWRITE_LICENSE = $false
 
 $rarkey = "RAR registration data`r`nEveryone`r`nGeneral Public License`r`nUID=119fdd47b4dbe9a41555`r`n6412212250155514920287d3b1cc8d9e41dfd22b78aaace2ba4386`r`n9152c1ac6639addbb73c60800b745269020dd21becbc46390d7cee`r`ncce48183d6d73d5e42e4605ab530f6edf8629596821ca042db83dd`r`n68035141fb21e5da4dcaf7bf57494e5455608abc8a9916ffd8e23d`r`n0a68ab79088aa7d5d5c2a0add4c9b3c27255740277f6edf8629596`r`n821ca04340a7c91e88b14ba087e0bfb04b57824193d842e660c419`r`nb8af4562cb13609a2ca469bf36fb8da2eda6f5e978bf1205660302"
 $rarreg64 = "$env:ProgramFiles\WinRAR\rarreg.key"
@@ -125,7 +125,7 @@ else {
 }
 
 # install WinRAR license
-if (-not(Test-Path $rarreg -PathType Leaf) -or $OVERWRITE_LICENSE) {
+if (-not(Test-Path $rarreg -PathType Leaf) -or $Script:OVERWRITE_LICENSE) {
   if ($Script:CUSTOM_LICENSE) {
     if (Test-Path $keygen -PathType Leaf) {
       & $keygen "$($Script:LICENSEE)" "$($Script:LICENSE_TYPE)" | Out-File -Encoding utf8 $rarreg
