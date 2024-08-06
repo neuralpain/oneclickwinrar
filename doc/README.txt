@@ -11,7 +11,7 @@
             \ \ \ \ \ \ \/\ \ /' _ `\ \ ,  /\ \  __ \ \ ,  /                    
              \ \ \_/ \_\ \ \ \/\ \/\ \ \ \\ \\ \ \/\ \ \ \\ \                   
               \ `\___x___/\ \_\ \_\ \_\ \_\ \_\ \_\ \_\ \_\ \_\                 
-               '\/__//__/  \/_/\/_/\/_/\/_/\/ /\/_/\/_/\/_/\/ /  v0.6.0.701     
+               '\/__//__/  \/_/\/_/\/_/\/_/\/ /\/_/\/_/\/_/\/ /  v0.6.1.701     
 
 
 oneclickwinrar - install and license WinRAR
@@ -231,6 +231,11 @@ See the /bin/winrar-keygen/LICENSE file for more information.
 
 CHANGELOG
 ---------
+
+0.6.1.701
+
+  - Fix very minor bug in licenserar.cmd affecting overwriting licenses
+  - Fix toast message in oneclickrar.cmd
 
 0.6.0.701
 

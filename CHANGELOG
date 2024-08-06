@@ -1,5 +1,10 @@
 CHANGELOG
 
+0.6.1.701
+
+  - Fix very minor bug in licenserar.cmd affecting overwriting licenses
+  - Fix toast message in oneclickrar.cmd
+
 0.6.0.701
 
   - Fix downloading issue. "x86" was mistakenly used for downloading 32-bit
