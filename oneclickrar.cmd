@@ -263,7 +263,9 @@ if (-not(Test-Path $rarreg -PathType Leaf) -or $Script:OVERWRITE_LICENSE) {
   }
 }
 else {
-  New-Toast -ToastTitle "oneclickwinrar: Error" -ToastText "A WinRAR license already exists."; exit
+  New-Toast -ToastTitle "oneclickwinrar: Notice" -ToastText "A WinRAR license already exists."
+  Start-Sleep -Seconds 3
+  New-Toast -ToastTitle "oneclickwinrar" -ToastText "WinRAR installed successfully."; exit
 }
 
 New-Toast -ToastTitle "oneclickwinrar" -ToastText "WinRAR installed and licensed successfully."; exit
