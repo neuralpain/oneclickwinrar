@@ -1,13 +1,13 @@
 <# :# DO NOT REMOVE THIS LINE
 
 :: unlicenserar.cmd
-:: oneclickwinrar, version 0.6.0.701
+:: oneclickwinrar, version 0.6.1.701
 :: Copyright (c) 2023, neuralpain
 :: Un-license WinRAR
 
 @echo off
 mode 44,8
-title unlicenserar (v0.6.0.701)
+title unlicenserar (v0.6.1.701)
 :: uses PwshBatch.cmd <https://gist.github.com/neuralpain/4ca8a6c9aca4f0a1af2440f474e92d05>
 setlocal EnableExtensions DisableDelayedExpansion
 set ARGS=%*
