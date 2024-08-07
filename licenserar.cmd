@@ -41,8 +41,8 @@ exit /b
 $script_name = "licenserar"
 $script_name_overwrite = "license-rar"
 
-$Script:CUSTOM_LICENSE = $false
-$Script:OVERWRITE_LICENSE = $false
+$CUSTOM_LICENSE = $false
+$OVERWRITE_LICENSE = $false
 
 $rarkey = "RAR registration data`r`nEveryone`r`nGeneral Public License`r`nUID=119fdd47b4dbe9a41555`r`n6412212250155514920287d3b1cc8d9e41dfd22b78aaace2ba4386`r`n9152c1ac6639addbb73c60800b745269020dd21becbc46390d7cee`r`ncce48183d6d73d5e42e4605ab530f6edf8629596821ca042db83dd`r`n68035141fb21e5da4dcaf7bf57494e5455608abc8a9916ffd8e23d`r`n0a68ab79088aa7d5d5c2a0add4c9b3c27255740277f6edf8629596`r`n821ca04340a7c91e88b14ba087e0bfb04b57824193d842e660c419`r`nb8af4562cb13609a2ca469bf36fb8da2eda6f5e978bf1205660302"
 $rarreg64 = "$env:ProgramFiles\WinRAR\rarreg.key"
@@ -56,8 +56,8 @@ $keygen64 = "./bin/winrar-keygen/winrar-keygen-x64.exe"
 $keygen32 = "./bin/winrar-keygen/winrar-keygen-x86.exe"
 $keygen = $null
 
-$Script:LICENSEE = $null
-$Script:LICENSE_TYPE = $null
+$LICENSEE = $null
+$LICENSE_TYPE = $null
 
 function New-Toast {
   [CmdletBinding()]Param ([String]$ToastTitle, [String][parameter(ValueFromPipeline)]$ToastText)
@@ -75,7 +75,7 @@ if ($CMD_NAME -ne $script_name) {
   if ($_data.Count -eq 1) {
     # user only wants to overwrite the existing license
     if ($_data[0].Value -eq $script_name_overwrite) {
-      $Script:OVERWRITE_LICENSE = $true
+      $OVERWRITE_LICENSE = $true
     }
     else {
       New-Toast -ToastTitle "oneclickwinrar: Error" -ToastText "Script name is invalid."; exit
@@ -83,19 +83,19 @@ if ($CMD_NAME -ne $script_name) {
   }
   else {
     # `$_data[2]` is the script name
-    $Script:CUSTOM_LICENSE = $true
+    $CUSTOM_LICENSE = $true
     switch ($_data[2].Value) {
       $script_name {
         # custom license, script name is valid
-        $Script:LICENSEE = $_data[0].Value
-        $Script:LICENSE_TYPE = $_data[1].Value
+        $LICENSEE = $_data[0].Value
+        $LICENSE_TYPE = $_data[1].Value
       }
       $script_name_overwrite {
         # custom license, script name is valid, but user
         # wants to overwrite an existing license
         $OVERWRITE_LICENSE = $true
-        $Script:LICENSEE = $_data[0].Value
-        $Script:LICENSE_TYPE = $_data[1].Value
+        $LICENSEE = $_data[0].Value
+        $LICENSE_TYPE = $_data[1].Value
       }
       default {
         # custom license, but script name is invalid
@@ -105,7 +105,7 @@ if ($CMD_NAME -ne $script_name) {
     # verify custom license data --- this is a sanity check
     # the script should not reach this point, but I'm leaving
     # it here as a precaution just in case I missed something
-    if ($Script:LICENSEE.Length -eq 0 -or $Script:LICENSE_TYPE.Length -eq 0) {  
+    if ($LICENSEE.Length -eq 0 -or $LICENSE_TYPE.Length -eq 0) {  
       New-Toast -ToastTitle "oneclickwinrar: License Error" -ToastText "Custom lincense data is invalid."; exit
     }
   }
@@ -125,10 +125,10 @@ else {
 }
 
 # install WinRAR license
-if (-not(Test-Path $rarreg -PathType Leaf) -or $Script:OVERWRITE_LICENSE) {
-  if ($Script:CUSTOM_LICENSE) {
+if (-not(Test-Path $rarreg -PathType Leaf) -or $OVERWRITE_LICENSE) {
+  if ($CUSTOM_LICENSE) {
     if (Test-Path $keygen -PathType Leaf) {
-      & $keygen "$($Script:LICENSEE)" "$($Script:LICENSE_TYPE)" | Out-File -Encoding utf8 $rarreg
+      & $keygen "$($LICENSEE)" "$($LICENSE_TYPE)" | Out-File -Encoding utf8 $rarreg
     }
     else {
       New-Toast -ToastTitle "oneclickwinrar: Missing keygen" -ToastText "Unable to generate license."; exit
