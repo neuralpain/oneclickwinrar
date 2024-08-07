@@ -97,68 +97,100 @@ function New-Toast {
   $Notifier = [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier("PowerShell"); $Notifier.Show($Toast);
 }
 
-function Get-WinRARData {  
+function Get-WinRARData {
+  <#
+    .SYNOPSIS
+    Parses the script name to determine the type of operation.
+
+    .DESCRIPTION
+    The script name is parsed to determine the type of operation.
+    There are three types of operations:
+    1. Download and overwrite
+    2. License and overwrite
+    3. Download, license, and overwrite
+  #>
   $_data = [regex]::matches($CMD_NAME, '[^_]+')
-  if ($_data.Count -eq 1) {
-    # CHECK OVERWRITE SWITCH
-    if ($_data[0].Value -eq $script_name_overwrite) {
+
+  # Download, and overwrite
+  # oneclick-rar.cmd
+  # oneclickrar___x64_700.cmd
+  $SCRIPT_NAME_LOCATION_LEFT = $_data[0]
+  
+  # License, download, and overwrite
+  # John Doe_License___oneclickrar.cmd
+  # John Doe_License___oneclickrar___x64_700.cmd
+  $SCRIPT_NAME_LOCATION_MIDDLE_RIGHT = $_data[2]
+
+  # I don't like nested switch statements but it's
+  # best suited for the purpose below
+
+  # VERIFY SCRIPT NAME
+  switch ($SCRIPT_NAME_LOCATION_LEFT.Value) {
+    $script_name {
+      $SCRIPT_NAME_LOCATION_MIDDLE_RIGHT = $null
+      break
+    }
+    # CHECK FOR OVERWRITE SWITCH
+    $script_name_overwrite {
       $Script:OVERWRITE_LICENSE = $true
+      $SCRIPT_NAME_LOCATION_MIDDLE_RIGHT = $null
+      break
     }
-    else {
-      New-Toast -ToastTitle "oneclickwinrar: Error" -ToastText "Script name is invalid."; exit
+    default {
+      switch ($SCRIPT_NAME_LOCATION_MIDDLE_RIGHT.Value) {
+        $script_name {
+          $SCRIPT_NAME_LOCATION_LEFT = $null
+          break
+        }
+        # CHECK FOR OVERWRITE SWITCH
+        $script_name_overwrite {
+          $Script:OVERWRITE_LICENSE = $true
+          $SCRIPT_NAME_LOCATION_LEFT = $null
+          break
+        }
+        default {
+          New-Toast -ToastTitle "oneclickwinrar: Error" -ToastText "Script name is invalid."; exit
+        }
+      }
     }
+  }
+
+  <#
+    VERIFY CONFIGURATION BOUNDS
+  #>
+
+  # OVERWRITE-ONLY
+  if ($_data.Count -eq 1) { break }
+  # GET DOWNLOAD-ONLY DATA
+  elseif ($_data.Count -gt 1 -and $_data.Count -le 4 -and $null -ne $SCRIPT_NAME_LOCATION_LEFT) {
+    $Script:CUSTOM_DOWNLOAD = $true
+    # `$_data[0]` is the script name # 1
+    $Script:ARCH = $_data[1].Value # 2
+    $Script:RARVER = $_data[2].Value # 3 # not required for download
+    $Script:TAGS = $_data[3].Value # 4 # not required for download
+  }
+  # GET LICENSE-ONLY DATA
+  elseif ($_data.Count -gt 1 -and $_data.Count -eq 3 -and $null -ne $SCRIPT_NAME_LOCATION_MIDDLE_RIGHT) {
+    $Script:CUSTOM_LICENSE = $true
+    $Script:LICENSEE = $_data[0].Value # 1
+    $Script:LICENSE_TYPE = $_data[1].Value # 2
+    # `$_data[2]` is the script name # 3
+  }
+  # GET DOWNLOAD AND LICENSE DATA
+  elseif ($_data.Count -ge 4 -and $_data.Count -le 6 -and $null -ne $SCRIPT_NAME_LOCATION_MIDDLE_RIGHT) {
+    $Script:CUSTOM_LICENSE = $true
+    $Script:CUSTOM_DOWNLOAD = $true
+    $Script:LICENSEE = $_data[0].Value # 1
+    $Script:LICENSE_TYPE = $_data[1].Value # 2
+    # `$_data[2]` is the script name # 3
+    $Script:ARCH = $_data[3].Value # 4
+    $Script:RARVER = $_data[4].Value # 5 # not required for download
+    $Script:TAGS = $_data[5].Value # 6 # not required for download
   }
   else {
-    <#
-      GET DOWNLOAD-ONLY DATA
-      there's no need for an overwrite with download-only
-      so only verify the script name
-    #>
-    if ($_data[0].Value -eq $script_name) {
-      # verify configuration is within bounds
-      if ($_data.Count -gt 1 -and $_data.Count -le 4) {
-        $Script:CUSTOM_DOWNLOAD = $true
-        # `$_data[0]` is the script name # 1
-        $Script:ARCH = $_data[1].Value # 2
-        $Script:RARVER = $_data[2].Value # 3 # not required for download
-        $Script:TAGS = $_data[3].Value # 4 # not required for download
-      }
-      else {
-        New-Toast -ToastTitle "oneclickwinrar: Error" -ToastText "WinRAR data is invalid."; exit
-      }
-    }
-    # GET DOWNLOAD AND LICENSE DATA
-    else {
-      # verify script name and check for overwrite switch
-      switch ($_data[2].Value) {
-        $script_name { break }
-        $script_name_overwrite { $Script:OVERWRITE_LICENSE = $true }
-        default { New-Toast -ToastTitle "oneclickwinrar: Error" -ToastText "Script name is invalid."; exit }
-      }
-      # VERIFY CONFIGURATION BOUNDS
-      # indicates licensing only
-      if ($_data.Count -gt 1 -and $_data.Count -eq 3) {
-        $Script:CUSTOM_LICENSE = $true
-        $Script:LICENSEE = $_data[0].Value # 1
-        $Script:LICENSE_TYPE = $_data[1].Value # 2
-        # `$_data[2]` is the script name # 3
-      }
-      # indicates download and licensing
-      elseif ($_data.Count -ge 4 -and $_data.Count -le 6) {
-        $Script:CUSTOM_LICENSE = $true
-        $Script:CUSTOM_DOWNLOAD = $true
-        $Script:LICENSEE = $_data[0].Value # 1
-        $Script:LICENSE_TYPE = $_data[1].Value # 2
-        # `$_data[2]` is the script name # 3
-        $Script:ARCH = $_data[3].Value # 4
-        $Script:RARVER = $_data[4].Value # 5 # not required for download
-        $Script:TAGS = $_data[5].Value # 6 # not required for download
-      }
-      else {
-        New-Toast -ToastTitle "oneclickwinrar: Error" -ToastText "WinRAR data is invalid."; exit
-      }
-    }
+    New-Toast -ToastTitle "oneclickwinrar: Error" -ToastText "WinRAR data is invalid."; exit
   }
+
   # VERIFY DOWNLOAD DATA
   if ($Script:CUSTOM_DOWNLOAD) {
     if ($Script:ARCH.Length -ne 3) {
