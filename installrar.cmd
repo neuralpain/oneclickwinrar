@@ -89,7 +89,7 @@ function Get-WinRARData {
 }
 
 function Invoke-Installer($file) {
-  $x = if ($file -match "(?<version>\d{3})") { ($matches['version']) / 100 } # get WinRAR version number
+  $x = if ($file -match "(?<version>\d{3})") { "{0:N2}" -f ($matches['version'] / 100) } # get WinRAR version number
   Write-Host "Installing WinRAR v${x}..."
   try {
     Start-Process $file "/s" -Wait
