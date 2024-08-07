@@ -119,12 +119,22 @@ if ($null -eq $Script:WINRAR_EXE) {
   Write-Host "Testing connection... " -NoNewLine
   if (Test-Connection www.rarlab.com -Count 2 -Quiet) {
     Write-Host -NoNewLine "OK.`nDownloading WinRAR... "
-    try {
-      if ($Script:CUSTOM_DOWNLOAD) { Start-BitsTransfer "https://www.rarlab.com/rar/winrar-${Script:ARCH}-${Script:RARVER}${Script:TAGS}.exe" $pwd\ }
-      else { Start-BitsTransfer "https://www.rarlab.com/rar/winrar-x64-${LATEST}.exe" $pwd\ }
+    # a try-catch block did not work here, so instead I'm using the
+    # `$Error` variable paired with `-ErrorAction SilentlyContinue`
+    # to suppress error messages
+    if ($Script:CUSTOM_DOWNLOAD) {
+      $Error.Clear()
+      Start-BitsTransfer "https://www.rarlab.com/rar/winrar-${Script:ARCH}-${Script:RARVER}${Script:TAGS}.exe" $pwd\ -ErrorAction SilentlyContinue
+      if ($Error) {
+        New-Toast -ToastTitle "oneclickwinrar: Download Error" -ToastText "WinRAR version may not exist on the server."; exit
+      }
     }
-    catch {
-      New-Toast -ToastTitle "oneclickwinrar: Download Error" -ToastText "Please check your internet connection."; exit
+    else {
+      $Error.Clear()
+      Start-BitsTransfer "https://www.rarlab.com/rar/winrar-x64-${LATEST}.exe" $pwd\ -ErrorAction SilentlyContinue
+      if ($Error) {
+        New-Toast -ToastTitle "oneclickwinrar: Download Error" -ToastText "Please check your internet connection."; exit
+      }
     }
     $Script:WINRAR_EXE = (Get-Installer)
     $Script:FETCH_WINRAR = $true
