@@ -1,13 +1,13 @@
 <# :# DO NOT REMOVE THIS LINE
 
 :: licenserar.cmd
-:: oneclickwinrar, version 0.6.1.701
+:: oneclickwinrar, version 0.7.0.701
 :: Copyright (c) 2023, neuralpain
 :: License WinRAR
 
 @echo off
 mode 44,8
-title licenserar (v0.6.1.701)
+title licenserar (v0.7.0.701)
 :: uses PwshBatch.cmd <https://gist.github.com/neuralpain/4ca8a6c9aca4f0a1af2440f474e92d05>
 setlocal EnableExtensions DisableDelayedExpansion
 set ARGS=%*
