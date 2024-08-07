@@ -1,6 +1,7 @@
 .history
 *.exe
 *.zip
+*.rar
 !winrar-keygen*.exe
 
 # mac stuff
