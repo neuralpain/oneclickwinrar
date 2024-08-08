@@ -88,13 +88,18 @@ $Script:RARVER = $null # download version
 $Script:TAGS = $null # other download types, eg. language, beta, etc.
 
 function New-Toast {
-  [CmdletBinding()]Param ([String]$ToastTitle, [String][parameter(ValueFromPipeline)]$ToastText)
-  [Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime] > $null
-  $Template = [Windows.UI.Notifications.ToastNotificationManager]::GetTemplateContent([Windows.UI.Notifications.ToastTemplateType]::ToastText02)
-  $RawXml = [xml] $Template.GetXml(); ($RawXml.toast.visual.binding.text | Where-Object { $_.id -eq "1" }).AppendChild($RawXml.CreateTextNode($ToastTitle)) > $null; ($RawXml.toast.visual.binding.text | Where-Object { $_.id -eq "2" }).AppendChild($RawXml.CreateTextNode($ToastText)) > $null
-  $SerializedXml = New-Object Windows.Data.Xml.Dom.XmlDocument; $SerializedXml.LoadXml($RawXml.OuterXml);
-  $Toast = [Windows.UI.Notifications.ToastNotification]::new($SerializedXml); $Toast.Tag = "PowerShell"; $Toast.Group = "PowerShell"; $Toast.ExpirationTime = [DateTimeOffset]::Now.AddMinutes(1)
-  $Notifier = [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier("PowerShell"); $Notifier.Show($Toast);
+  [CmdletBinding()] Param ([String]$AppId = "oneclickwinrar", [String]$Url, [String]$ToastTitle, [String]$ToastText, [String]$ToastText2, [string]$Attribution, [String]$ActionButtonUrl, [String]$ActionButtonText = "Open documentation", [switch]$KeepAlive, [switch]$LongerDuration)
+  [Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime] | Out-Null
+  $Template = [Windows.UI.Notifications.ToastNotificationManager]::GetTemplateContent([Windows.UI.Notifications.ToastTemplateType]::ToastText04)
+  $RawXml = [xml] $Template.GetXml(); ($RawXml.toast.visual.binding.text | Where-Object { $_.id -eq "1" }).AppendChild($RawXml.CreateTextNode($ToastTitle)) | Out-Null; ($RawXml.toast.visual.binding.text | Where-Object { $_.id -eq "2" }).AppendChild($RawXml.CreateTextNode($ToastText)) | Out-Null; ($RawXml.toast.visual.binding.text | Where-Object { $_.id -eq "3" }).AppendChild($RawXml.CreateTextNode($ToastText2)) | Out-Null
+  $XmlDocument = New-Object Windows.Data.Xml.Dom.XmlDocument; $XmlDocument.LoadXml($RawXml.OuterXml)
+  if ($Url) { $XmlDocument.DocumentElement.SetAttribute("activationType", "protocol"); $XmlDocument.DocumentElement.SetAttribute("launch", $Url) }
+  if ($Attribution) { $attrElement = $XmlDocument.CreateElement("text"); $attrElement.SetAttribute("placement", "attribution"); $attrElement.InnerText = $Attribution; $bindingElement = $XmlDocument.SelectSingleNode('//toast/visual/binding'); $bindingElement.AppendChild($attrElement) | Out-Null }
+  if ($ActionButtonUrl) { $actionsElement = $XmlDocument.CreateElement("actions"); $actionElement = $XmlDocument.CreateElement("action"); $actionElement.SetAttribute("content", $ActionButtonText); $actionElement.SetAttribute("activationType", "protocol"); $actionElement.SetAttribute("arguments", $ActionButtonUrl); $actionsElement.AppendChild($actionElement) | Out-Null; $XmlDocument.DocumentElement.AppendChild($actionsElement) | Out-Null }
+  if ($KeepAlive) { $XmlDocument.DocumentElement.SetAttribute("scenario", "incomingCall") } elseif ($LongerDuration) { $XmlDocument.DocumentElement.SetAttribute("duration", "long") }
+  $Toast = [Windows.UI.Notifications.ToastNotification]::new($XmlDocument); $Toast.Tag = "PowerShell"; $Toast.Group = "PowerShell"
+  if (-not($KeepAlive -or $LongerDuration)) { $Toast.ExpirationTime = [DateTimeOffset]::Now.AddMinutes(1) }
+  $Notifier = [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier($AppId); $Notifier.Show($Toast)
 }
 
 function Get-WinRARData {
@@ -149,7 +154,7 @@ function Get-WinRARData {
           break
         }
         default {
-          New-Toast -ToastTitle "oneclickwinrar: Error" -ToastText "Script name is invalid."; exit
+          New-Toast -LongerDuration -ActionButtonUrl "https://github.com/neuralpain/oneclickwinrar#customization" -ToastTitle "What script is this?" -ToastText "Script name is invalid. Check the script name for any typos and try again."; exit
         }
       }
     }
@@ -159,10 +164,8 @@ function Get-WinRARData {
     VERIFY CONFIGURATION BOUNDS
   #>
 
-  # OVERWRITE-ONLY
-  if ($_data.Count -eq 1) { break }
   # GET DOWNLOAD-ONLY DATA
-  elseif ($_data.Count -gt 1 -and $_data.Count -le 4 -and $null -ne $SCRIPT_NAME_LOCATION_LEFT) {
+  if ($_data.Count -gt 1 -and $_data.Count -le 4 -and $null -ne $SCRIPT_NAME_LOCATION_LEFT) {
     $Script:CUSTOM_DOWNLOAD = $true
     # `$_data[0]` is the script name # 1
     $Script:ARCH = $_data[1].Value # 2
@@ -187,20 +190,17 @@ function Get-WinRARData {
     $Script:RARVER = $_data[4].Value # 5 # not required for download
     $Script:TAGS = $_data[5].Value # 6 # not required for download
   }
-  else {
-    New-Toast -ToastTitle "oneclickwinrar: Error" -ToastText "WinRAR data is invalid."; exit
+  elseif ($_data.Count -ne 1) {
+    New-Toast -ActionButtonUrl "https://github.com/neuralpain/oneclickwinrar#customization" -ToastTitle "Unable to process data" -ToastText "WinRAR data is invalid." -ToastText2 "Check your configuration for any errors or typos and try again."; exit
   }
 
   # VERIFY DOWNLOAD DATA
   if ($Script:CUSTOM_DOWNLOAD) {
-    if ($Script:ARCH.Length -ne 3) {
-      New-Toast -ToastTitle "oneclickwinrar: Error" -ToastText "WinRAR architecture is invalid."; exit
+    if ($Script:ARCH -ne "x64" -and $Script:ARCH -ne "x32") {
+      New-Toast -ToastTitle "Unable to process data" -ToastText "The WinRAR architecture is invalid." -ToastText2 "Only x64 and x32 are supported."; exit
     }
     if ($Script:RARVER.Length -gt 0 -and $Script:RARVER.Length -ne 3) {
-      New-Toast -ToastTitle "oneclickwinrar: Error" -ToastText "WinRAR version is invalid."; exit
-    }
-    if ($Script:ARCH -ne "x64" -and $Script:ARCH -ne "x32") {
-      New-Toast -ToastTitle "oneclickwinrar: Error" -ToastText "WinRAR architecture is invalid."; exit
+      New-Toast -ToastTitle "Unable to process data" -ToastText "The WinRAR version is invalid." -ToastText2 "The version number must have 3 digits."; exit
     }
     if ($null -eq $Script:RARVER) {
       $Script:RARVER = $LATEST
@@ -210,12 +210,13 @@ function Get-WinRARData {
 
 function Invoke-Installer($file) {
   $x = if ($file -match "(?<version>\d{3})") { "{0:N2}" -f ($matches['version'] / 100) } # get WinRAR version number
-  Write-Host "Installing WinRAR v${x}..."
+  Write-Host "Installing WinRAR v${x}... " -NoNewLine
   try {
     Start-Process $file "/s" -Wait
+    Write-Host "Done."
   }
   catch {
-    New-Toast -ToastTitle "oneclickwinrar: Installation Error" -ToastText "Please restart the script."; exit
+    New-Toast -ToastTitle "Installation error" -ToastText "The script has run into a problem during installation. Please restart the script."; exit
   }
   finally {
     if ($Script:FETCH_WINRAR) { Remove-Item $Script:WINRAR_EXE }
@@ -249,14 +250,14 @@ if ($null -eq $Script:WINRAR_EXE) {
       $Error.Clear()
       Start-BitsTransfer "https://www.rarlab.com/rar/winrar-${Script:ARCH}-${Script:RARVER}${Script:TAGS}.exe" $pwd\ -ErrorAction SilentlyContinue
       if ($Error) {
-        New-Toast -ToastTitle "oneclickwinrar: Download Error" -ToastText "WinRAR version may not exist on the server."; exit
+        New-Toast -ToastTitle "Unable to fetch download" -ToastText "WinRAR version may not exist on the server." -ToastText2 "Check the version number and try again."; exit
       }
     }
     else {
       $Error.Clear()
       Start-BitsTransfer "https://www.rarlab.com/rar/winrar-x64-${LATEST}.exe" $pwd\ -ErrorAction SilentlyContinue
       if ($Error) {
-        New-Toast -ToastTitle "oneclickwinrar: Download Error" -ToastText "Please check your internet connection."; exit
+        New-Toast -ToastTitle "Unable to fetch download" -ToastText "Please check your internet connection."; exit
       }
     }
     $Script:WINRAR_EXE = (Get-Installer)
@@ -264,7 +265,7 @@ if ($null -eq $Script:WINRAR_EXE) {
     Write-Host "Done."
   }
   else {
-    New-Toast -ToastTitle "oneclickwinrar: Download Error" -ToastText "Please check your internet connection."; exit
+    New-Toast -ToastTitle "No internet" -ToastText "Please check your internet connection."; exit
   }
 }
 
@@ -273,6 +274,9 @@ Invoke-Installer $Script:WINRAR_EXE
 # --- LICENSING
 
 # check for WinRAR architecture
+# (the final `else` block in `licenserar.cmd` is unnecessary,
+# because WinRAR will be installed before the license, else
+# the script will exit)
 if (Test-Path $winrar64 -PathType Leaf) {
   $keygen = $keygen64
   $rarreg = $rarreg64
@@ -280,9 +284,6 @@ if (Test-Path $winrar64 -PathType Leaf) {
 elseif (Test-Path $winrar32 -PathType Leaf) {
   $keygen = $keygen32
   $rarreg = $rarreg32
-}
-else {
-  New-Toast -ToastTitle "oneclickwinrar: Error" -ToastText "WinRAR is not installed. Please run installrar.cmd or oneclickrar.cmd to install WinRAR."; exit
 }
 
 # install WinRAR license
@@ -292,7 +293,7 @@ if (-not(Test-Path $rarreg -PathType Leaf) -or $Script:OVERWRITE_LICENSE) {
       & $keygen "$($Script:LICENSEE)" "$($Script:LICENSE_TYPE)" | Out-File -Encoding utf8 $rarreg
     }
     else {
-      New-Toast -ToastTitle "oneclickwinrar: Missing keygen" -ToastText "Unable to generate license."; exit
+      New-Toast -ActionButtonUrl "https://github.com/neuralpain/oneclickwinrar#how-to-use" -ToastTitle "Missing keygen" -ToastText "Unable to generate a license. Ensure that the `"bin`" file is available in the same directory as the script."; exit
     }
   }
   else {
@@ -305,9 +306,12 @@ if (-not(Test-Path $rarreg -PathType Leaf) -or $Script:OVERWRITE_LICENSE) {
   }
 }
 else {
-  New-Toast -ToastTitle "oneclickwinrar: Notice" -ToastText "A WinRAR license already exists."
-  Start-Sleep -Seconds 3
-  New-Toast -ToastTitle "oneclickwinrar" -ToastText "WinRAR installed successfully."; exit
+  New-Toast -LongerDuration -ToastTitle "WinRAR installed successfully but..." -ActionButtonUrl "https://github.com/neuralpain/oneclickwinrar#overwriting-licenses" -ToastText "Notice: A WinRAR license already exists." -ToastText2 "View the documentation on how to use the override switch to install a new license."; exit
 }
 
-New-Toast -ToastTitle "oneclickwinrar" -ToastText "WinRAR installed and licensed successfully."; exit
+if ($CUSTOM_LICENSE) {
+  New-Toast -Url "https://youtu.be/OD_WIKht0U0?t=450" -ToastTitle "WinRAR installed and licensed successfully" -ToastText "Licensed to `"$($Script:LICENSEE)`"" -ToastText2 "Freedom throughout the universe!"; exit
+}
+else {
+  New-Toast -Url "https://youtu.be/OD_WIKht0U0?t=450" -ToastTitle "WinRAR installed and licensed successfully" -ToastText "Freedom throughout the universe!"; exit
+}
