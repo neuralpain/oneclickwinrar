@@ -60,13 +60,18 @@ $LICENSEE = $null
 $LICENSE_TYPE = $null
 
 function New-Toast {
-  [CmdletBinding()]Param ([String]$ToastTitle, [String][parameter(ValueFromPipeline)]$ToastText)
-  [Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime] > $null
-  $Template = [Windows.UI.Notifications.ToastNotificationManager]::GetTemplateContent([Windows.UI.Notifications.ToastTemplateType]::ToastText02)
-  $RawXml = [xml] $Template.GetXml(); ($RawXml.toast.visual.binding.text | Where-Object { $_.id -eq "1" }).AppendChild($RawXml.CreateTextNode($ToastTitle)) > $null; ($RawXml.toast.visual.binding.text | Where-Object { $_.id -eq "2" }).AppendChild($RawXml.CreateTextNode($ToastText)) > $null
-  $SerializedXml = New-Object Windows.Data.Xml.Dom.XmlDocument; $SerializedXml.LoadXml($RawXml.OuterXml);
-  $Toast = [Windows.UI.Notifications.ToastNotification]::new($SerializedXml); $Toast.Tag = "PowerShell"; $Toast.Group = "PowerShell"; $Toast.ExpirationTime = [DateTimeOffset]::Now.AddMinutes(1)
-  $Notifier = [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier("PowerShell"); $Notifier.Show($Toast);
+  [CmdletBinding()] Param ([String]$AppId = "oneclickwinrar", [String]$Url, [String]$ToastTitle, [String]$ToastText, [String]$ToastText2, [string]$Attribution, [String]$ActionButtonUrl, [String]$ActionButtonText = "Open documentation", [switch]$KeepAlive, [switch]$LongerDuration)
+  [Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime] | Out-Null
+  $Template = [Windows.UI.Notifications.ToastNotificationManager]::GetTemplateContent([Windows.UI.Notifications.ToastTemplateType]::ToastText04)
+  $RawXml = [xml] $Template.GetXml(); ($RawXml.toast.visual.binding.text | Where-Object { $_.id -eq "1" }).AppendChild($RawXml.CreateTextNode($ToastTitle)) | Out-Null; ($RawXml.toast.visual.binding.text | Where-Object { $_.id -eq "2" }).AppendChild($RawXml.CreateTextNode($ToastText)) | Out-Null; ($RawXml.toast.visual.binding.text | Where-Object { $_.id -eq "3" }).AppendChild($RawXml.CreateTextNode($ToastText2)) | Out-Null
+  $XmlDocument = New-Object Windows.Data.Xml.Dom.XmlDocument; $XmlDocument.LoadXml($RawXml.OuterXml)
+  if ($Url) { $XmlDocument.DocumentElement.SetAttribute("activationType", "protocol"); $XmlDocument.DocumentElement.SetAttribute("launch", $Url) }
+  if ($Attribution) { $attrElement = $XmlDocument.CreateElement("text"); $attrElement.SetAttribute("placement", "attribution"); $attrElement.InnerText = $Attribution; $bindingElement = $XmlDocument.SelectSingleNode('//toast/visual/binding'); $bindingElement.AppendChild($attrElement) | Out-Null }
+  if ($ActionButtonUrl) { $actionsElement = $XmlDocument.CreateElement("actions"); $actionElement = $XmlDocument.CreateElement("action"); $actionElement.SetAttribute("content", $ActionButtonText); $actionElement.SetAttribute("activationType", "protocol"); $actionElement.SetAttribute("arguments", $ActionButtonUrl); $actionsElement.AppendChild($actionElement) | Out-Null; $XmlDocument.DocumentElement.AppendChild($actionsElement) | Out-Null }
+  if ($KeepAlive) { $XmlDocument.DocumentElement.SetAttribute("scenario", "incomingCall") } elseif ($LongerDuration) { $XmlDocument.DocumentElement.SetAttribute("duration", "long") }
+  $Toast = [Windows.UI.Notifications.ToastNotification]::new($XmlDocument); $Toast.Tag = "PowerShell"; $Toast.Group = "PowerShell"
+  if (-not($KeepAlive -or $LongerDuration)) { $Toast.ExpirationTime = [DateTimeOffset]::Now.AddMinutes(1) }
+  $Notifier = [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier($AppId); $Notifier.Show($Toast)
 }
 
 # check for custom license
@@ -78,8 +83,11 @@ if ($CMD_NAME -ne $script_name) {
       $OVERWRITE_LICENSE = $true
     }
     else {
-      New-Toast -ToastTitle "oneclickwinrar: Error" -ToastText "Script name is invalid."; exit
+      New-Toast -LongerDuration -ActionButtonUrl "https://github.com/neuralpain/oneclickwinrar#customization" -ToastTitle "What script is this?" -ToastText "Script name is invalid. Check the script name for any typos and try again."; exit
     }
+  }
+  elseif ($_data.Count -gt 3) {
+    New-Toast -LongerDuration -ActionButtonUrl "https://github.com/neuralpain/oneclickwinrar#customization" -ToastTitle "Too many arguments!" -ToastText "It seems like you've made a customization error. Check the customization data and try again."; exit
   }
   else {
     # `$_data[2]` is the script name
@@ -99,14 +107,14 @@ if ($CMD_NAME -ne $script_name) {
       }
       default {
         # custom license, but script name is invalid
-        New-Toast -ToastTitle "oneclickwinrar: License Error" -ToastText "Custom lincense data is invalid."; exit
+        New-Toast -ActionButtonUrl "https://github.com/neuralpain/oneclickwinrar#naming-patterns" -ToastTitle "Licensing error" -ToastText "Custom lincense data is invalid. Check the license data and try again."; exit
       }
     }
     # verify custom license data --- this is a sanity check
     # the script should not reach this point, but I'm leaving
     # it here as a precaution just in case I missed something
     if ($LICENSEE.Length -eq 0 -or $LICENSE_TYPE.Length -eq 0) {  
-      New-Toast -ToastTitle "oneclickwinrar: License Error" -ToastText "Custom lincense data is invalid."; exit
+      New-Toast -ActionButtonUrl "https://github.com/neuralpain/oneclickwinrar#naming-patterns" -ToastTitle "Licensing error" -ToastText "Custom lincense data is invalid. Check the license data and try again."; exit
     }
   }
 }
@@ -121,7 +129,7 @@ elseif (Test-Path $winrar32 -PathType Leaf) {
   $rarreg = $rarreg32
 }
 else {
-  New-Toast -ToastTitle "oneclickwinrar: Error" -ToastText "WinRAR is not installed. Please run installrar.cmd or oneclickrar.cmd to install WinRAR."; exit
+  New-Toast -ToastTitle "WinRAR is not installed" -ToastText "Run installrar.cmd or oneclickrar.cmd to install WinRAR before licensing."; exit
 }
 
 # install WinRAR license
@@ -131,7 +139,7 @@ if (-not(Test-Path $rarreg -PathType Leaf) -or $OVERWRITE_LICENSE) {
       & $keygen "$($LICENSEE)" "$($LICENSE_TYPE)" | Out-File -Encoding utf8 $rarreg
     }
     else {
-      New-Toast -ToastTitle "oneclickwinrar: Missing keygen" -ToastText "Unable to generate license."; exit
+      New-Toast -ActionButtonUrl "https://github.com/neuralpain/oneclickwinrar#how-to-use" -ToastTitle "Missing keygen" -ToastText "Unable to generate a license. Ensure that the `"bin`" file is available in the same directory as the script."; exit
     }
   }
   else {
@@ -144,7 +152,12 @@ if (-not(Test-Path $rarreg -PathType Leaf) -or $OVERWRITE_LICENSE) {
   }
 }
 else {
-  New-Toast -ToastTitle "oneclickwinrar: Error" -ToastText "A WinRAR license already exists."; exit
+  New-Toast -ActionButtonUrl "https://github.com/neuralpain/oneclickwinrar#overwriting-licenses" -ToastTitle "A WinRAR license already exists" -ToastText2 "View the documentation on how to use the override switch to install a new license."; exit
 }
 
-New-Toast -ToastTitle "oneclickwinrar" -ToastText "WinRAR licensed successfully."; exit
+if ($CUSTOM_LICENSE) {
+  New-Toast -Url "https://ko-fi.com/neuralpain" -ToastTitle "WinRAR licensed successfully" -ToastText "Licensed to `"$($LICENSEE)`"" -ToastText2 "Thanks for using oneclickwinrar!"; exit
+}
+else {
+  New-Toast -Url "https://ko-fi.com/neuralpain" -ToastTitle "WinRAR licensed successfully" -ToastText "Thanks for using oneclickwinrar!"; exit
+}
