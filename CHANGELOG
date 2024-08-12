@@ -1,5 +1,15 @@
 CHANGELOG
 
+0.7.0.701
+
+  - Fix WinRAR version display error
+  - Improved script name parsing logic
+  - Fix annoying bug with variable scope in `licenserar.cmd`
+  - Improve error handling when downloading files that are not available on the
+    server
+  - Improve toast notifications
+  - Other code improvements
+
 0.6.1.701
 
   - Fix very minor bug in licenserar.cmd affecting overwriting licenses
@@ -12,7 +22,8 @@ CHANGELOG
   - Add support for downloading without including a version number
   - Fixed function name error in installrar.cmd
   - Provide installrar.cmd with admin by default
-  - Improve error handling for oneclickrar.cmd
+  - Improve error handling for oneclickrar.cmd where WinRAR was installed but
+    not licensed
   - Add protection against overwriting existing licenses
   - Add option to overwrite existing licenses
   - Add unlicenserar.cmd to remove WinRAR licenses for whatever reason
