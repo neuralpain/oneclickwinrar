@@ -2,7 +2,7 @@
   <picture><img src="./assets/images/oneclickwinrar-header.jpg" alt="oneclickwinrar header"></picture>
 </p>
 
-# oneclickwinrar - install and license WinRAR
+Introducing **oneclickwinrar**—a streamlined set of scripts that installs and licenses WinRAR with a single click (or double). Perfect for quick setups, it eliminates manual steps, ensuring WinRAR is ready to use instantly. Ideal for both IT pros and everyday users.
 
 ```
 there was a need for something versatile // so why not?
@@ -11,7 +11,7 @@ there was a need for something versatile // so why not?
 > [!NOTE]
 > `oneclickwinrar` refers to this project and everything that comes with it. On the other hand, `oneclickrar.cmd` (notice there's no "win" in the name) is a script within the project. Don't mix them up.  
 
-## what's included? (click on the links to download)
+# What's included? (Click on the links to download)
 
 ### [oneclickrar.cmd](https://github.com/neuralpain/oneclickwinrar/releases/latest/download/oneclickrar.cmd) *(recommended for most users)*
 
@@ -19,15 +19,15 @@ The one click you need to rule them all. Download, install, update and license W
 
 ### [installrar.cmd](https://github.com/neuralpain/oneclickwinrar/releases/latest/download/installrar.cmd)
 
-Just need to install WinRAR or just update if it's already installed? Here's a script for that. No need to download it yourself. Let `installrar` take care of that for you. Download and install WinRAR without licensing it.
+Just need to install WinRAR or update if it's already installed? Here's a script for that. No need to download it yourself. Let `installrar` take care of that for you. Download and install WinRAR without licensing it.
 
 ### [licenserar.cmd](https://github.com/neuralpain/oneclickwinrar/releases/latest/download/licenserar.cmd)
 
-C'mon, you've been using WinRAR unlicensed for years. Just get a license and be done with that that infinite 40-day trial. (You can also use this script to install a license that you purchased directly from WinRAR.)
+C'mon, you've been using WinRAR unlicensed for years. Just [get a license](https://shop.win-rar.com/16/purl-shop-2183-1-n) and be done with that infinite 40-day trial. (You can also use this script to install a license that you purchased directly from WinRAR.)
 
 ### [unlicenserar.cmd](https://github.com/neuralpain/oneclickwinrar/releases/latest/download/unlicenserar.cmd)
 
-A stitch in time saves nine.
+A stitch in time saves nine. Return to that 40-day infinite trial period and relive the pain.
 
 > [!TIP]
 > Get the full package from the [releases page](https://github.com/neuralpain/oneclickwinrar/releases/latest). It includes everything you need for customization.
@@ -36,24 +36,44 @@ A stitch in time saves nine.
 
 ## features
 
-- Install and license ANY version of WinRAR
+- Install and license almost any version of WinRAR
 - Automatically downloads and installs the latest English WinRAR (64-bit) installer
-- Supports downloading and installing WinRAR through modification of the script name
+- Supports downloading specific versions of WinRAR
 - Create custom licenses for your personal use
 - Remove WinRAR licenses (for whatever reason)
 
 > [!NOTE]
 > `oneclickwinrar` will not overwrite existing licenses unless explicitly told to do so.
 
-# how to use
+## benefits
+
+***<small>(courtesy of ChatGPT, refined by me)</small>***
+
+- **Convenience** – Users can quickly and easily install and license WinRAR without navigating through multiple steps or settings and enhances the overall user experience by simplifying the process, making it more user-friendly and less daunting for those who may not be comfortable with manual installations. This is particularly useful for users who may not be tech-savvy.
+- **Time-Saving** – The automation reduces the time required to manually download, install, and adding license information for WinRAR. This is beneficial for both individual users and IT departments managing multiple machines.
+- **Consistency** – Ensures that WinRAR is installed and licensed in a consistent manner across multiple systems. This is particularly important in enterprise environments where uniformity is required.
+- **Scalability** – Makes it easy to deploy WinRAR across a large number of machines, which is useful for businesses and organizations that need to ensure all users have access to the same software.
+- **Remote Deployment** – Facilitates remote installation and licensing, which is particularly useful for IT administrators managing remote or distributed workforces.
+- **Compliance** – Helps ensure that all installations of WinRAR are properly licensed, which is important for legal and compliance purposes.
+- **Integration** – Can be integrated into larger deployment scripts or system setups, making it a seamless part of the overall software deployment process.
+- **Customization** – Allows for customization by pre-configuring download and license information via editing the script name.
+
+## limitations
+
+- No ARM support
+- No MacOS support
+- No Linux support
+- No support for 32-bit installers older than 611. These versions used a different "wrar" prefix to the version number.
+
+# How to use
 
 1. Download the latest release from the releases page (or use what you downloaded from above)
-2. Extract the contents of the zip file to a directory of your choice
+2. Extract the contents of the zip file to a directory of your choice, if necessary
 3. Add a WinRAR executable to the directory, if necessary
-4. Customize and/or run the script you want to use
+4. (Optional) Customize and/or run the script you want to use
 
 > [!IMPORTANT]
-> Remember to extract the `bin` folder with the script files. This is necessary for generating the license key.
+> Remember to extract the `bin` folder with the script files. This is necessary for generating your customized license key.
 
 ## customization
 
@@ -64,14 +84,14 @@ There are two types of customization:
 
 There are five (5) parts to the customization process:
 
-- `licensee`: This is "you" or whatever name you want to use
-- `license_type`: The description of license that you want to install
-- `architecture`: The architecture of the WinRAR executable (eg. x64, x32)
-- `version`: The version of the WinRAR executable without any periods `"."` (eg. 590, 701). **This is optional.**
-- `tags`: These are additional tags, usually found at the end of the WinRAR executable name, used to describe the language of the executable and whether or not it is a beta release. **This is optional.**
+- `licensee` – This is "you" or whatever name you want to use
+- `license_type` – The description of license that you want to install
+- `architecture` – The architecture of the WinRAR executable (x32 or x64)
+- `version` – The version of the WinRAR executable without any periods `"."` (eg. 590, 701). **This is optional.**
+- `tags` – These are additional tags, usually found at the end of the WinRAR executable name, used to describe the language of the executable and whether or not it is a beta release. **This is optional.**
 
 > [!WARNING]
-> The `script_name` is the name of the script file [oneclickrar, licenserar, installrar] that you use to install and/or license WinRAR. Do not modify the `script_name` unless you want to [overwrite licenses](#overwriting-licenses).
+> The `script_name` is the name of the script file [oneclickrar, licenserar, installrar] that you use to install and/or license WinRAR. Do not modify the `script_name` unless you need to [overwrite licenses](#overwriting-licenses).
 
 ## naming patterns
 
@@ -118,14 +138,14 @@ Example: installrar_x64_700ru.cmd // Russian language
 > * `unlicenserar.cmd` is for removing licenses only. It cannot be customized.
 
 > [!TIP]
-> You can use as many underscores as you want to separate the data, if it will help you read it better. The example below is valid.
+> You can use as many underscores as you want to separate the data within the file name, if it helps you read it better. The example below is valid.
 > ```
 > My Name____My License__oneclickrar________x64_700.cmd
 > ```
 
 ## overwriting licenses
 
-Information pertaining to overwriting licenses is in it's own section because it's a bit different (not that much different) and there are some people out there in the world who may, for one reason or another, happen to miss it.
+Information pertaining to overwriting licenses is in its own section because it's a bit different (not that much different) and there are some people out there in the world who may, for one reason or another, happen to miss it.
 
 Overwriting is only supported by `oneclickrar.cmd` and `licenserar.cmd`.
 
