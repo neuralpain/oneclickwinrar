@@ -11,7 +11,7 @@
             \ \ \ \ \ \ \/\ \ /' _ `\ \ ,  /\ \  __ \ \ ,  /                    
              \ \ \_/ \_\ \ \ \/\ \/\ \ \ \\ \\ \ \/\ \ \ \\ \                   
               \ `\___x___/\ \_\ \_\ \_\ \_\ \_\ \_\ \_\ \_\ \_\                 
-               '\/__//__/  \/_/\/_/\/_/\/_/\/ /\/_/\/_/\/_/\/ /  v0.6.1.701     
+               '\/__//__/  \/_/\/_/\/_/\/_/\/ /\/_/\/_/\/_/\/ /  v0.7.0.701     
 
 
 oneclickwinrar - install and license WinRAR
@@ -24,7 +24,6 @@ GitHub Repo: https://github.com/neuralpain/oneclickwinrar
 Support me on Ko-fi: https://ko-fi.com/neuralpain
 
 `oneclickrar.cmd`  - download, install/update and license WinRAR
-                     (recommended for most users)
 `installrar.cmd`   - download and install WinRAR without licensing it (or
                      just update if already installed)
 `licenserar.cmd`   - license WinRAR, if already installed
@@ -38,8 +37,7 @@ FEATURES
   - Install and license ANY version of WinRAR
   - Automatically downloads and installs the latest English WinRAR (64-bit) 
     installer
-  - Supports downloading and installing WinRAR through modification of the 
-    script name
+  - Supports downloading specific versions of WinRAR
   - Create custom licenses for your personal use
   - Remove WinRAR licenses (for whatever reason)
 
@@ -57,14 +55,14 @@ HOW TO USE
   1. Download the latest release from the releases page
   2. Extract the contents of the zip file to a directory of your choice
   3. Add a WinRAR executable to the directory, if necessary
-  4. Customize and/or run the script you want to use
+  4. (Optional) Customize and/or run the script you want to use
 
 
 [*] IMPORTANT [*]
 
   * Remember to extract the `bin` folder with the script files. This is
     necessary for generating the license key.
-  * It is not necessary to customize the script before running it. The script
+  * You do not need to customize the script before running it. The script
     will automatically download and install the latest version if WinRAR.
 
 
@@ -74,21 +72,20 @@ CUSTOMIZATION
 
 There are two types of customization:
 
-  1. Partial customization   which is either custom licensing, or custom
-                             install
-  2. Complete customization  which is both custom licensing and install
+  1. Partial customization, which is either custom licensing, or custom install
+  2. Complete customization, which is both custom licensing and install
 
 There are five (5) parts to the customization process:
 
-  - `licensee`       This is "you" or whatever name you want to use
-  - `license_type`   The description of license that you want to install
-  - `architecture`   The architecture of the WinRAR executable (eg. x64, x32)
-  - `version`        The version of the WinRAR executable without any periods
-                     `"."` (eg. 590, 701). This is optional.
-  - `tags`           These are additional tags, usually
-                     found at the end of the WinRAR executable name, used to
-                     describe the language of the executable and whether or
-                     not it is a beta release. This is optional.
+  `licensee`      - This is "you" or whatever name you want to use
+  `license_type`  - The description of license that you want to install
+  `architecture`  - The architecture of the WinRAR executable (eg. x64, x32)
+  `version`       - The version of the WinRAR executable without any periods
+                    `"."` (eg. 590, 701). This is optional.
+  `tags`          - These are additional tags, usually
+                    found at the end of the WinRAR executable name, used to
+                    describe the language of the executable and whether or
+                    not it is a beta release. This is optional.
 
 
 <!> WARNING <!>
@@ -96,7 +93,7 @@ There are five (5) parts to the customization process:
   The `script_name` is the name of the script file [oneclickrar, licenserar,
   installrar] that you use to install and/or license WinRAR.
 
-  DO NOT CHANGE THE `script_name` unless you want to overwrite licenses.
+  DO NOT MODIFY THE `script_name` UNLESS YOU NEED TO OVERWRITE LICENSES.
 
 
 
@@ -165,7 +162,7 @@ NAMING PATTERNS
 
   You can use as many underscores as you want. The example below is valid.
 
-    My Name____My License__oneclickrar________x64_601.cmd
+    My Name____My License__oneclickrar________x64_700.cmd
 
 
 
@@ -232,6 +229,16 @@ See the /bin/winrar-keygen/LICENSE file for more information.
 CHANGELOG
 ---------
 
+0.7.0.701
+
+  - Fix WinRAR version display error
+  - Improved script name parsing logic
+  - Fix annoying bug with variable scope in `licenserar.cmd`
+  - Improve error handling when downloading files that are not available on the
+    server
+  - Improve toast notifications
+  - Other code improvements
+
 0.6.1.701
 
   - Fix very minor bug in licenserar.cmd affecting overwriting licenses
@@ -244,7 +251,8 @@ CHANGELOG
   - Add support for downloading without including a version number
   - Fixed function name error in installrar.cmd
   - Provide installrar.cmd with admin by default
-  - Improve error handling for oneclickrar.cmd
+  - Improve error handling for oneclickrar.cmd where WinRAR was installed but
+    not licensed
   - Add protection against overwriting existing licenses
   - Add option to overwrite existing licenses
   - Add unlicenserar.cmd to remove WinRAR licenses for whatever reason
@@ -281,7 +289,7 @@ CHANGELOG
 
 0.2.2
 
-  - Moved `$installer = (Get-Installer)` into the if statement 
+  - Moved `$installer = (Get-Installer)` into the if statement
     `if ($null -eq (Get-Installer)) {`
 
 0.2.1
