@@ -59,6 +59,7 @@ $global:ProgressPreference = "SilentlyContinue"
 $script_name = "oneclickrar"
 $script_name_overwrite = "oneclick-rar"
 $winrar = "winrar-x\d{2}-\d{3}\w*\.exe" # catch any version for any language
+$wrar = "wrar\d{3}\w*\.exe" # catch the old version of WinRAR for any language
 
 $rarkey = "RAR registration data`r`nEveryone`r`nGeneral Public License`r`nUID=119fdd47b4dbe9a41555`r`n6412212250155514920287d3b1cc8d9e41dfd22b78aaace2ba4386`r`n9152c1ac6639addbb73c60800b745269020dd21becbc46390d7cee`r`ncce48183d6d73d5e42e4605ab530f6edf8629596821ca042db83dd`r`n68035141fb21e5da4dcaf7bf57494e5455608abc8a9916ffd8e23d`r`n0a68ab79088aa7d5d5c2a0add4c9b3c27255740277f6edf8629596`r`n821ca04340a7c91e88b14ba087e0bfb04b57824193d842e660c419`r`nb8af4562cb13609a2ca469bf36fb8da2eda6f5e978bf1205660302"
 $rarreg64 = "$env:ProgramFiles\WinRAR\rarreg.key"
@@ -74,7 +75,8 @@ $keygen = $null
 
 $LATEST = 701
 $Script:WINRAR_EXE = $null
-$Script:FETCH_WINRAR = $false
+$Script:FETCH_WINRAR = $false # regular WinRAR
+$Script:FETCH_WRAR = $false # old 32-bit WinRAR
 
 $Script:OVERWRITE_LICENSE = $false
 $Script:CUSTOM_LICENSE = $false
@@ -85,7 +87,7 @@ $Script:LICENSE_TYPE = $null # type of license
 
 $Script:ARCH = $null # download architecture
 $Script:RARVER = $null # download version
-$Script:TAGS = $null # other download types, eg. language, beta, etc.
+$Script:TAGS = $null # other download types, i.e. beta, language
 
 function New-Toast {
   [CmdletBinding()] Param ([String]$AppId = "oneclickwinrar", [String]$Url, [String]$ToastTitle, [String]$ToastText, [String]$ToastText2, [string]$Attribution, [String]$ActionButtonUrl, [String]$ActionButtonText = "Open documentation", [switch]$KeepAlive, [switch]$LongerDuration)
@@ -120,14 +122,11 @@ function Get-WinRARData {
   # oneclick-rar.cmd
   # oneclickrar___x64_700.cmd
   $SCRIPT_NAME_LOCATION_LEFT = $_data[0]
-  
+
   # License, download, and overwrite
   # John Doe_License___oneclickrar.cmd
   # John Doe_License___oneclickrar___x64_700.cmd
   $SCRIPT_NAME_LOCATION_MIDDLE_RIGHT = $_data[2]
-
-  # I don't like nested switch statements but it's
-  # best suited for the purpose below
 
   # VERIFY SCRIPT NAME
   switch ($SCRIPT_NAME_LOCATION_LEFT.Value) {
@@ -208,11 +207,13 @@ function Get-WinRARData {
   }
 }
 
-function Invoke-Installer($file) {
-  $x = if ($file -match "(?<version>\d{3})") { "{0:N2}" -f ($matches['version'] / 100) } # get WinRAR version number
-  Write-Host "Installing WinRAR v${x}... " -NoNewLine
+# --- INSTALLATION
+
+function Invoke-Installer($x) {
+  $v = if ($x -match "(?<version>\d{3})") { "{0:N2}" -f ($matches['version'] / 100) } # get WinRAR version number
+  Write-Host "Installing WinRAR v${v}... " -NoNewLine
   try {
-    Start-Process $file "/s" -Wait
+    Start-Process $x "/s" -Wait
     Write-Host "Done."
   }
   catch {
@@ -223,45 +224,75 @@ function Invoke-Installer($file) {
   }
 }
 
-function Get-Installer {
-  $files = Get-ChildItem -Path $pwd | Where-Object { $_.Name -match '^winrar-x' }
+function Get-Old-Installer {
+  $files = Get-ChildItem -Path $pwd | Where-Object { $_.Name -match '^wrar' }
   if ($CUSTOM_DOWNLOAD) {
-    $exe = "winrar-${Script:ARCH}-${Script:RARVER}${Script:TAGS}.exe"
-    foreach ($file in $files) { if ($file -match $exe) { return $file } }
-  }
-  else {
-    foreach ($file in $files) { if ($file -match $winrar) { return $file } }
+    $download = "wrar${Script:RARVER}${Script:TAGS}.exe"
+    foreach ($file in $files) { if ($file -match $download) { return $file } }
+  } else {
+    foreach ($file in $files) { if ($file -match $wrar) { return $file } }
   }
 }
 
+function Get-Installer {
+  $files = Get-ChildItem -Path $pwd | Where-Object { $_.Name -match '^winrar-x' }
+  if ($CUSTOM_DOWNLOAD) {
+    if ($Script:RARVER -lt 611 -and $Script:ARCH -eq "x32") {
+      # if the user wants to download an older version of 32-bit WinRAR
+      $Script:FETCH_WRAR = $true
+      Get-Old-Installer
+    } else {
+      $download = "winrar-${Script:ARCH}-${Script:RARVER}${Script:TAGS}.exe"
+      foreach ($file in $files) { if ($file -match $download) { return $file } }
+    }
+  } else {
+    foreach ($file in $files) {
+      if ($file -match $winrar) {  return $file }
+      else { Get-Old-Installer }
+    }
+  }
+}
+
+# grab the name of the script file and process any
+# customization data set by the user
 if ($CMD_NAME -ne $script_name) { Get-WinRARData }
 
-# --- INSTALLATION
-
+# this ensures that the script does not
+# unnecessarily download a new installer if one
+# is available in the current directory
 $Script:WINRAR_EXE = (Get-Installer)
+
+# if there are no installers, proceed to download one
 if ($null -eq $Script:WINRAR_EXE) {
   Write-Host "Testing connection... " -NoNewLine
   if (Test-Connection www.rarlab.com -Count 2 -Quiet) {
-    Write-Host -NoNewLine "OK.`nDownloading WinRAR... "
-    # a try-catch block did not work here, so instead I'm using the
+    # a try-catch block didn't work here, so instead I'm using the
     # `$Error` variable paired with `-ErrorAction SilentlyContinue`
     # to suppress error messages
     if ($Script:CUSTOM_DOWNLOAD) {
+      Write-Host -NoNewLine "OK.`nDownloading WinRAR $($Script:RARVER / 100)... "
       $Error.Clear()
-      Start-BitsTransfer "https://www.rarlab.com/rar/winrar-${Script:ARCH}-${Script:RARVER}${Script:TAGS}.exe" $pwd\ -ErrorAction SilentlyContinue
+      if ($Script:FETCH_WRAR) {
+        # get older 32-bit WinRAR
+        Start-BitsTransfer "https://www.rarlab.com/rar/wrar${Script:RARVER}${Script:TAGS}.exe" $pwd\ -ErrorAction SilentlyContinue
+      }
+      else {
+        Start-BitsTransfer "https://www.rarlab.com/rar/winrar-${Script:ARCH}-${Script:RARVER}${Script:TAGS}.exe" $pwd\ -ErrorAction SilentlyContinue
+      }
       if ($Error) {
-        New-Toast -ToastTitle "Unable to fetch download" -ToastText "WinRAR version may not exist on the server." -ToastText2 "Check the version number and try again."; exit
+        New-Toast -ToastTitle "Unable to fetch download" -ToastText "WinRAR $($Script:RARVER / 100) may not exist on the server." -ToastText2 "Check the version number and try again."; exit
       }
     }
     else {
+      Write-Host -NoNewLine "OK.`nDownloading WinRAR $($LATEST / 100)... "
       $Error.Clear()
       Start-BitsTransfer "https://www.rarlab.com/rar/winrar-x64-${LATEST}.exe" $pwd\ -ErrorAction SilentlyContinue
       if ($Error) {
-        New-Toast -ToastTitle "Unable to fetch download" -ToastText "Please check your internet connection."; exit
+        New-Toast -ToastTitle "Unable to fetch download" -ToastText "Are you still connected to the internet?" -ToastText2 "Please check your internet connection."; exit
       }
     }
-    $Script:WINRAR_EXE = (Get-Installer)
-    $Script:FETCH_WINRAR = $true
+    $Script:FETCH_WINRAR = $true # WinRAR was downloaded
+    $Script:WINRAR_EXE = (Get-Installer) # get the new installer
     Write-Host "Done."
   }
   else {
