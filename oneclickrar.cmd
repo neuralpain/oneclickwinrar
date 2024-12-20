@@ -58,6 +58,8 @@ $global:ProgressPreference = "SilentlyContinue"
 
 $script_name = "oneclickrar"
 $script_name_overwrite = "oneclick-rar"
+$script_name_download_only = "one-clickrar"
+$script_name_download_only_overwrite = "one-click-rar"
 $winrar = "winrar-x\d{2}-\d{3}\w*\.exe" # catch any version for any language
 $wrar = "wrar\d{3}\w*\.exe" # catch the old version of WinRAR for any language
 
@@ -77,10 +79,13 @@ $LATEST = 701
 $Script:WINRAR_EXE = $null
 $Script:FETCH_WINRAR = $false # regular WinRAR
 $Script:FETCH_WRAR = $false # old 32-bit WinRAR
+$Script:WINRAR_EXE_VERSION = $null
 
 $Script:OVERWRITE_LICENSE = $false
 $Script:CUSTOM_LICENSE = $false
 $Script:CUSTOM_DOWNLOAD = $false
+$Script:KEEP_DOWNLOAD = $false
+$Script:DOWNLOAD_ONLY = $false
 
 $Script:LICENSEE = $null # name of licensee
 $Script:LICENSE_TYPE = $null # type of license
@@ -140,6 +145,19 @@ function Get-WinRARData {
       $SCRIPT_NAME_LOCATION_MIDDLE_RIGHT = $null
       break
     }
+    $script_name_download_only {
+      $Script:CUSTOM_DOWNLOAD = $true
+      $Script:DOWNLOAD_ONLY = $true
+      $Script:KEEP_DOWNLOAD = $true
+      $SCRIPT_NAME_LOCATION_MIDDLE_RIGHT = $null
+      break
+    }
+    $script_name_download_only_overwrite {
+      $Script:OVERWRITE_LICENSE = $true
+      $Script:KEEP_DOWNLOAD = $true
+      $SCRIPT_NAME_LOCATION_MIDDLE_RIGHT = $null
+      break
+    }
     default {
       switch ($SCRIPT_NAME_LOCATION_MIDDLE_RIGHT.Value) {
         $script_name {
@@ -149,6 +167,19 @@ function Get-WinRARData {
         # CHECK FOR OVERWRITE SWITCH
         $script_name_overwrite {
           $Script:OVERWRITE_LICENSE = $true
+          $SCRIPT_NAME_LOCATION_LEFT = $null
+          break
+        }
+        $script_name_download_only {
+          $Script:CUSTOM_DOWNLOAD = $true
+          $Script:DOWNLOAD_ONLY = $true
+          $Script:KEEP_DOWNLOAD = $true
+          $SCRIPT_NAME_LOCATION_LEFT = $null
+          break
+        }
+        $script_name_download_only_overwrite {
+          $Script:OVERWRITE_LICENSE = $true
+          $Script:KEEP_DOWNLOAD = $true
           $SCRIPT_NAME_LOCATION_LEFT = $null
           break
         }
@@ -195,7 +226,10 @@ function Get-WinRARData {
 
   # VERIFY DOWNLOAD DATA
   if ($Script:CUSTOM_DOWNLOAD) {
-    if ($Script:ARCH -ne "x64" -and $Script:ARCH -ne "x32") {
+    if ($null -eq $Script:ARCH -and $Script:DOWNLOAD_ONLY) {
+      $Script:ARCH = "x64" # assume 64-bit download if not specified
+    }
+    elseif ($Script:ARCH -ne "x64" -and $Script:ARCH -ne "x32") {
       New-Toast -ToastTitle "Unable to process data" -ToastText "The WinRAR architecture is invalid." -ToastText2 "Only x64 and x32 are supported."; exit
     }
     if ($Script:RARVER.Length -gt 0 -and $Script:RARVER.Length -ne 3) {
@@ -210,8 +244,7 @@ function Get-WinRARData {
 # --- INSTALLATION
 
 function Invoke-Installer($x) {
-  $v = if ($x -match "(?<version>\d{3})") { "{0:N2}" -f ($matches['version'] / 100) } # get WinRAR version number
-  Write-Host "Installing WinRAR v${v}... " -NoNewLine
+  Write-Host "Installing WinRAR v$($Script:WINRAR_EXE_VERSION)... " -NoNewLine
   try {
     Start-Process $x "/s" -Wait
     Write-Host "Done."
@@ -220,7 +253,7 @@ function Invoke-Installer($x) {
     New-Toast -ToastTitle "Installation error" -ToastText "The script has run into a problem during installation. Please restart the script."; exit
   }
   finally {
-    if ($Script:FETCH_WINRAR) { Remove-Item $Script:WINRAR_EXE }
+    if ($Script:FETCH_WINRAR -and -not $Script:KEEP_DOWNLOAD) { Remove-Item $Script:WINRAR_EXE }
   }
 }
 
@@ -247,10 +280,14 @@ function Get-Installer {
     }
   } else {
     foreach ($file in $files) {
-      if ($file -match $winrar) {  return $file }
+      if ($file -match $winrar) { return $file }
       else { Get-Old-Installer }
     }
   }
+}
+
+function Get-WinRARExeVersion($x) {
+  if ($x -match "(?<version>\d{3})") { return "{0:N2}" -f ($matches['version'] / 100) }
 }
 
 # grab the name of the script file and process any
@@ -261,6 +298,8 @@ if ($CMD_NAME -ne $script_name) { Get-WinRARData }
 # unnecessarily download a new installer if one
 # is available in the current directory
 $Script:WINRAR_EXE = (Get-Installer)
+# get WinRAR version number
+$Script:WINRAR_EXE_VERSION = (Get-WinRARExeVersion $Script:WINRAR_EXE)
 
 # if there are no installers, proceed to download one
 if ($null -eq $Script:WINRAR_EXE) {
@@ -282,6 +321,9 @@ if ($null -eq $Script:WINRAR_EXE) {
       if ($Error) {
         New-Toast -ToastTitle "Unable to fetch download" -ToastText "WinRAR $($Script:RARVER / 100) may not exist on the server." -ToastText2 "Check the version number and try again."; exit
       }
+      if ($Script:DOWNLOAD_ONLY) {
+        New-Toast -ToastTitle "Download Complete" -ToastText "WinRAR $($Script:RARVER / 100) was successfully downloaded." -ToastText2 "Run this script again if you ever need to install it."; exit
+      }
     }
     else {
       Write-Host -NoNewLine "OK.`nDownloading WinRAR $($LATEST / 100)... "
@@ -290,14 +332,20 @@ if ($null -eq $Script:WINRAR_EXE) {
       if ($Error) {
         New-Toast -ToastTitle "Unable to fetch download" -ToastText "Are you still connected to the internet?" -ToastText2 "Please check your internet connection."; exit
       }
+      if ($Script:DOWNLOAD_ONLY) {
+        New-Toast -ToastTitle "Download Complete" -ToastText "WinRAR $($LATEST / 100) was successfully downloaded." -ToastText2 "Run this script again if you ever need to install it."; exit
+      }
     }
     $Script:FETCH_WINRAR = $true # WinRAR was downloaded
     $Script:WINRAR_EXE = (Get-Installer) # get the new installer
+    $Script:WINRAR_EXE_VERSION = (Get-WinRARExeVersion $Script:WINRAR_EXE) # get WinRAR version number
     Write-Host "Done."
   }
   else {
     New-Toast -ToastTitle "No internet" -ToastText "Please check your internet connection."; exit
   }
+} elseif ($Script:DOWNLOAD_ONLY) {
+  New-Toast -ToastTitle "Download Aborted" -ToastText "An installer for WinRAR $($Script:WINRAR_EXE_VERSION) already exists." -ToastText2 "Check the requested download version and try again."; exit
 }
 
 Invoke-Installer $Script:WINRAR_EXE
