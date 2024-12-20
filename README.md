@@ -1,3 +1,12 @@
+> [!TIP]
+> RARLAB® has released the 2nd beta version of the latest English WinRAR 7.10 for testing on 64-bit systems! Use one of the configurations below to install and test it out. 🚀
+> ```
+> oneclickrar_x64_710_b2.cmd
+> ```
+> ```
+> installrar_x64_710_b2.cmd
+> ```
+
 <p align="center">
   <picture><img src="./assets/images/oneclickwinrar-header.jpg" alt="oneclickwinrar header"></picture>
 </p>
