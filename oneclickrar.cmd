@@ -1,13 +1,13 @@
 <# :# DO NOT REMOVE THIS LINE
 
 :: oneclickrar.cmd
-:: oneclickwinrar, version 0.7.0.701
+:: oneclickwinrar, version 0.8.0.701
 :: Copyright (c) 2023, neuralpain
 :: Install and license WinRAR
 
 @echo off
 mode 44,8
-title oneclickrar (v0.7.0.701)
+title oneclickrar (v0.8.0.701)
 :: uses PwshBatch.cmd <https://gist.github.com/neuralpain/4ca8a6c9aca4f0a1af2440f474e92d05>
 setlocal EnableExtensions DisableDelayedExpansion
 set ARGS=%*
