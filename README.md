@@ -157,7 +157,7 @@ There are five (6) parts to the customization process:
 > ```
 
 > [!WARNING]
-> Do not modify the `script-name` unless you need to [overwrite licenses](#overwriting-licenses) or [save download cache](#saving-downloads).
+> Do not modify the `script-name` unless you need to [overwrite licenses](#overwriting-licenses) or [save download cache](#download-only-mode).
 
 ## naming patterns
 
