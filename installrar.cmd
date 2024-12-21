@@ -92,9 +92,8 @@ function Get-WinRARData {
   }
 }
 
-function Invoke-Installer($x) {
-  $v = if ($x -match "(?<version>\d{3})") { "{0:N2}" -f ($matches['version'] / 100) } # get WinRAR version number
-  Write-Host "Installing WinRAR v${v}... " -NoNewLine
+function Invoke-Installer($x, $v) {
+  Write-Host "Installing WinRAR $v... " -NoNewLine
   try {
     Start-Process $x "/s" -Wait
     Write-Host "Done."
@@ -107,8 +106,7 @@ function Invoke-Installer($x) {
   }
 }
 
-function Get-Old-Installer {
-  # ! FIXME DOES NOT GET THE OLD 32 BIT INSTALLERS IN THE SAME DIR
+function Get-OldInstaller {
   $files = Get-ChildItem -Path $pwd | Where-Object { $_.Name -match '^wrar' }
   if ($CUSTOM_DOWNLOAD) {
     $download = "wrar${Script:RARVER}${Script:TAGS}.exe"
@@ -119,13 +117,12 @@ function Get-Old-Installer {
 }
 
 function Get-Installer {
-  # ! FIXME DOES NOT GET THE OLD 32 BIT INSTALLERS IN THE SAME DIR
   $files = Get-ChildItem -Path $pwd | Where-Object { $_.Name -match '^winrar-x' }
   if ($CUSTOM_DOWNLOAD) {
     if ($Script:RARVER -lt 611 -and $Script:ARCH -eq "x32") {
       # if the user wants to download an older version of 32-bit WinRAR
       $Script:FETCH_WRAR = $true
-      return (Get-Old-Installer)
+      Get-OldInstaller
     } else {
       $download = "winrar-${Script:ARCH}-${Script:RARVER}${Script:TAGS}.exe"
       foreach ($file in $files) { if ($file -match $download) { return $file } }
@@ -133,8 +130,17 @@ function Get-Installer {
   } else {
     foreach ($file in $files) {
       if ($file -match $winrar) { return $file }
-      else { return (Get-Old-Installer) }
+      else { Get-OldInstaller }
     }
+  }
+}
+
+function Get-WinRARExeVersion {
+  param($x, [Switch]$IntToDouble)
+  if ($IntToDouble) {
+    return "{0:N2}" -f ($x / 100)
+  } elseif ($x -match "(?<version>\d{3})") {
+    return "{0:N2}" -f ($matches['version'] / 100)
   }
 }
 
@@ -157,7 +163,7 @@ if ($null -eq $Script:WINRAR_EXE) {
     # `$Error` variable paired with `-ErrorAction SilentlyContinue`
     # to suppress error messages
     if ($Script:CUSTOM_DOWNLOAD) {
-      Write-Host -NoNewLine "OK.`nDownloading WinRAR $($Script:RARVER / 100)... "
+      Write-Host -NoNewLine "OK.`nDownloading WinRAR $(Get-WinRARExeVersion $Script:RARVER -IntToDouble)... "
       $Error.Clear()
       if ($Script:FETCH_WRAR) {
         # get older 32-bit WinRAR
@@ -167,11 +173,11 @@ if ($null -eq $Script:WINRAR_EXE) {
         Start-BitsTransfer "https://www.rarlab.com/rar/winrar-${Script:ARCH}-${Script:RARVER}${Script:TAGS}.exe" $pwd\ -ErrorAction SilentlyContinue
       }
       if ($Error) {
-        New-Toast -ToastTitle "Unable to fetch download" -ToastText "WinRAR $($Script:RARVER / 100) may not exist on the server." -ToastText2 "Check the version number and try again."; exit
+        New-Toast -ToastTitle "Unable to fetch download" -ToastText "WinRAR $(Get-WinRARExeVersion $Script:RARVER -IntToDouble) may not exist on the server." -ToastText2 "Check the version number and try again."; exit
       }
     }
     else {
-      Write-Host -NoNewLine "OK.`nDownloading WinRAR $($LATEST / 100)... "
+      Write-Host -NoNewLine "OK.`nDownloading WinRAR $(Get-WinRARExeVersion $LATEST -IntToDouble)... "
       $Error.Clear()
       Start-BitsTransfer "https://www.rarlab.com/rar/winrar-x64-${LATEST}.exe" $pwd\ -ErrorAction SilentlyContinue
       if ($Error) {
@@ -187,6 +193,6 @@ if ($null -eq $Script:WINRAR_EXE) {
   }
 }
 
-Invoke-Installer $Script:WINRAR_EXE
+Invoke-Installer $Script:WINRAR_EXE (Get-WinRARExeVersion $Script:WINRAR_EXE)
 
 New-Toast -Url "https://ko-fi.com/neuralpain" -ToastTitle "WinRAR installed successfully" -ToastText2 "Thanks for using oneclickwinrar!"; exit
