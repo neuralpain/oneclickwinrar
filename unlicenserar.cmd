@@ -38,8 +38,16 @@ exit /b
 
 # --- PS --- #>
 
-$rarreg64 = "$env:ProgramFiles\WinRAR\rarreg.key"
-$rarreg32 = "${env:ProgramFiles(x86)}\WinRAR\rarreg.key"
+$script_name = "unlicenserar"
+$script_name_uninstall = "un-licenserar"
+
+$rarloc = ""
+$loc32 = "${env:ProgramFiles(x86)}\WinRAR"
+$loc64 = "$env:ProgramFiles\WinRAR"
+$winrar64 = "$loc64\WinRAR.exe"
+$winrar32 = "$loc32\WinRAR.exe"
+
+$UNINSTALL = $false
 
 function New-Toast {
   [CmdletBinding()] Param ([String]$AppId = "oneclickwinrar", [String]$Url, [String]$ToastTitle, [String]$ToastText, [String]$ToastText2, [string]$Attribution, [String]$ActionButtonUrl, [String]$ActionButtonText = "Open documentation", [switch]$KeepAlive, [switch]$LongerDuration)
@@ -56,12 +64,33 @@ function New-Toast {
   $Notifier = [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier($AppId); $Notifier.Show($Toast)
 }
 
-# remove license
-if (Test-Path $rarreg64 -PathType Leaf) {
-  Remove-Item $rarreg64 -Force | Out-Null
-}
-if (Test-Path $rarreg32 -PathType Leaf) {
-  Remove-Item $rarreg32 -Force | Out-Null
+# check config
+if ($CMD_NAME -ne $script_name) {
+  $_data = [regex]::matches($CMD_NAME, '[^_]+')
+  if ($_data.Count -eq 1) {
+    # user wants to uninstall WinRAR
+    if ($_data[0].Value -eq $script_name_uninstall) {
+      $UNINSTALL = $true
+    }
+    else {
+      New-Toast -LongerDuration -ActionButtonUrl "https://github.com/neuralpain/oneclickwinrar#customization" -ToastTitle "What script is this?" -ToastText "Script name is invalid. Check the script name for any typos and try again."; exit
+    }
+  }
 }
 
-New-Toast -ToastTitle "WinRAR un-licensed successfully" -ToastText "Enjoy your 40-day infinite trial period!"; exit
+if (Test-Path $winrar64 -PathType Leaf) { $rarloc = $loc64 }
+elseif (Test-Path $winrar32 -PathType Leaf) { $rarloc = $loc32 }
+else { New-Toast -ToastTitle "WinRAR is not installed" -ToastText "Check your installation and try again."; exit }
+
+if ($UNINSTALL) {
+  if (Test-Path "$rarloc\Uninstall.exe" -PathType Leaf) {
+    Start-Process "$rarloc\Uninstall.exe" "/s" -Wait
+  }
+  New-Toast -ToastTitle "WinRAR uninstalled successfully" -ToastText "Run oneclickrar.cmd to reinstall."; exit
+}
+
+# remove license
+if (Test-Path "$rarloc\rarreg.key" -PathType Leaf) {
+  Remove-Item "$rarloc\rarreg.key" -Force | Out-Null
+  New-Toast -ToastTitle "WinRAR unlicensed successfully" -ToastText "Enjoy your 40-day infinite trial period!"; exit
+}
