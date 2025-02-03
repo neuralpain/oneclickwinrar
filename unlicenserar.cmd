@@ -38,14 +38,14 @@ exit /b
 
 # --- PS --- #>
 
-$script_name = "unlicenserar"
+$script_name           = "unlicenserar"
 $script_name_uninstall = "un-licenserar"
 
-$rarloc = ""
-$loc32 = "${env:ProgramFiles(x86)}\WinRAR"
-$loc64 = "$env:ProgramFiles\WinRAR"
-$winrar64 = "$loc64\WinRAR.exe"
-$winrar32 = "$loc32\WinRAR.exe"
+$rarloc    = ""
+$loc32     = "${env:ProgramFiles(x86)}\WinRAR"
+$loc64     = "$env:ProgramFiles\WinRAR"
+$winrar64  = "$loc64\WinRAR.exe"
+$winrar32  = "$loc32\WinRAR.exe"
 
 $UNINSTALL = $false
 
