@@ -276,13 +276,17 @@ function Get-WinRARData {
 
   # VERIFY DOWNLOAD DATA
   if ($script:CUSTOM_DOWNLOAD) {
-    if ($null -eq $script:ARCH -and $script:DOWNLOAD_ONLY) {
-      $script:ARCH = "x64" # assume 64-bit download if not specified
+    # architecture is omitted if the data does not contain an `x`
+    if (([regex]::matches($script:ARCH, 'x')).Count -eq 0) {
+      # copy config to correct variables (LIFO)
+      $script:TAGS   = $script:RARVER
+      $script:RARVER = $script:ARCH
+      $script:ARCH   = "x64" # assume 64-bit
     }
-    elseif ($script:ARCH -ne "x64" -and $script:ARCH -ne "x32") {
+    if ($script:ARCH -ne "x64" -and $script:ARCH -ne "x32") {
       New-Toast -ToastTitle "Unable to process data" -ToastText "The WinRAR architecture is invalid." -ToastText2 "Only x64 and x32 are supported."; exit
     }
-    if ($script:RARVER.Length -gt 0 -and $script:RARVER.Length -ne 3) {
+    if (-not($script:RARVER.Length -ge 3) -and $script:RARVER -lt 100) {
       New-Toast -ToastTitle "Unable to process data" -ToastText "The WinRAR version is invalid." -ToastText2 "The version number must have 3 digits."; exit
     }
     if ($null -eq $script:RARVER) {
