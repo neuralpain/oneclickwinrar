@@ -144,30 +144,7 @@ function Get-SpecialFunctionCode($_data) {
   }
 
   switch ($_switch_code) {
-    0 {
-      Write-Host "Code is 0"; Pause
-      break
-    }
-    1 {
-      Write-Host "Code is 1"; Pause
-      break
-    }
-    2 {
-      Write-Host "Code is 2"; Pause
-      break
-    }
-    3 {
-      Write-Host "Code is 3"; Pause
-      break
-    }
-    4 {
-      Write-Host "Code is 4"; Pause
-      break
-    }
-    default {
-      Write-Host "No match."; Pause
-      break
-    }
+    default { break }
   }
 }
 
