@@ -93,6 +93,9 @@ $Script:ARCH = $null # download architecture
 $Script:RARVER = $null # download version
 $Script:TAGS = $null # other download types, i.e. beta, language
 
+$Script:SCRIPT_NAME_LOCATION_LEFT = ""
+$Script:SCRIPT_NAME_LOCATION_MIDDLE_RIGHT = ""
+
 function New-Toast {
   [CmdletBinding()] Param ([String]$AppId = "oneclickwinrar", [String]$Url, [String]$ToastTitle, [String]$ToastText, [String]$ToastText2, [string]$Attribution, [String]$ActionButtonUrl, [String]$ActionButtonText = "Open documentation", [switch]$KeepAlive, [switch]$LongerDuration)
   [Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime] | Out-Null
@@ -106,6 +109,66 @@ function New-Toast {
   $Toast = [Windows.UI.Notifications.ToastNotification]::new($XmlDocument); $Toast.Tag = "PowerShell"; $Toast.Group = "PowerShell"
   if (-not($KeepAlive -or $LongerDuration)) { $Toast.ExpirationTime = [DateTimeOffset]::Now.AddMinutes(1) }
   $Notifier = [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier($AppId); $Notifier.Show($Toast)
+}
+
+function Get-SpecialFunctionCode($_data) {
+  if (([regex]::matches($_data[0], 'rar')).Count -gt 0 -and ([regex]::matches($_data[0], 'i')).Count -eq 0) {
+    $_switch_code = ([regex]::matches($_data[0], '\d+'))[0].Value
+    $_switch_rar = ([regex]::matches($_data[0], '-rar'))[0].Value
+    $_switch_one = ([regex]::matches($_data[0], 'one-'))[0].Value
+
+    if ($null -ne $_switch_one -and $null -ne $_switch_rar) {
+      $Script:SCRIPT_NAME_LOCATION_LEFT = $script_name_download_only_overwrite
+    } elseif ($null -ne $_switch_one) {
+      $Script:SCRIPT_NAME_LOCATION_LEFT = $script_name_download_only
+    } elseif ($null -ne $_switch_rar) {
+      $Script:SCRIPT_NAME_LOCATION_LEFT = $script_name_overwrite
+    } else {
+      $Script:SCRIPT_NAME_LOCATION_LEFT = $script_name
+    }
+  }
+  elseif (([regex]::matches($_data[2], 'rar')).Count -gt 0 -and ([regex]::matches($_data[2], 'i')).Count -eq 0) {
+    $_switch_code = ([regex]::matches($_data[2], '\d+'))[0].Value
+    $_switch_rar = ([regex]::matches($_data[2], '-rar'))[0].Value
+    $_switch_one = ([regex]::matches($_data[2], 'one-'))[0].Value
+
+    if ($null -ne $_switch_one -and $null -ne $_switch_rar) {
+      $Script:SCRIPT_NAME_LOCATION_MIDDLE_RIGHT = $script_name_download_only_overwrite
+    } elseif ($null -ne $_switch_one) {
+      $Script:SCRIPT_NAME_LOCATION_MIDDLE_RIGHT = $script_name_download_only
+    } elseif ($null -ne $_switch_rar) {
+      $Script:SCRIPT_NAME_LOCATION_MIDDLE_RIGHT = $script_name_overwrite
+    } else {
+      $Script:SCRIPT_NAME_LOCATION_MIDDLE_RIGHT = $script_name
+    }
+  }
+
+  switch ($_switch_code) {
+    0 {
+      Write-Host "Code is 0"; Pause
+      break
+    }
+    1 {
+      Write-Host "Code is 1"; Pause
+      break
+    }
+    2 {
+      Write-Host "Code is 2"; Pause
+      break
+    }
+    3 {
+      Write-Host "Code is 3"; Pause
+      break
+    }
+    4 {
+      Write-Host "Code is 4"; Pause
+      break
+    }
+    default {
+      Write-Host "No match."; Pause
+      break
+    }
+  }
 }
 
 function Get-WinRARData {
@@ -125,55 +188,57 @@ function Get-WinRARData {
   # Download, and overwrite
   # oneclick-rar.cmd
   # oneclickrar___x64_700.cmd
-  $SCRIPT_NAME_LOCATION_LEFT = $_data[0]
+  $Script:SCRIPT_NAME_LOCATION_LEFT = $_data[0]
 
   # License, download, and overwrite
   # John Doe_License___oneclickrar.cmd
   # John Doe_License___oneclickrar___x64_700.cmd
-  $SCRIPT_NAME_LOCATION_MIDDLE_RIGHT = $_data[2]
+  $Script:SCRIPT_NAME_LOCATION_MIDDLE_RIGHT = $_data[2]
+
+  Get-SpecialFunctionCode $_data
 
   # VERIFY SCRIPT NAME
-  switch ($SCRIPT_NAME_LOCATION_LEFT.Value) {
+  switch ($Script:SCRIPT_NAME_LOCATION_LEFT) {
     $script_name {
-      $SCRIPT_NAME_LOCATION_MIDDLE_RIGHT = $null
+      $Script:SCRIPT_NAME_LOCATION_MIDDLE_RIGHT = $null
       break
     }
     # CHECK FOR OVERWRITE SWITCH
     $script_name_overwrite {
       $Script:OVERWRITE_LICENSE = $true
-      $SCRIPT_NAME_LOCATION_MIDDLE_RIGHT = $null
+      $Script:SCRIPT_NAME_LOCATION_MIDDLE_RIGHT = $null
       break
     }
     $script_name_download_only {
       $Script:CUSTOM_DOWNLOAD = $true
       $Script:DOWNLOAD_ONLY = $true
       $Script:KEEP_DOWNLOAD = $true
-      $SCRIPT_NAME_LOCATION_MIDDLE_RIGHT = $null
+      $Script:SCRIPT_NAME_LOCATION_MIDDLE_RIGHT = $null
       break
     }
     $script_name_download_only_overwrite {
       $Script:OVERWRITE_LICENSE = $true
       $Script:KEEP_DOWNLOAD = $true
-      $SCRIPT_NAME_LOCATION_MIDDLE_RIGHT = $null
+      $Script:SCRIPT_NAME_LOCATION_MIDDLE_RIGHT = $null
       break
     }
     default {
-      switch ($SCRIPT_NAME_LOCATION_MIDDLE_RIGHT.Value) {
+      switch ($Script:SCRIPT_NAME_LOCATION_MIDDLE_RIGHT) {
         $script_name {
-          $SCRIPT_NAME_LOCATION_LEFT = $null
+          $Script:SCRIPT_NAME_LOCATION_LEFT = $null
           break
         }
         # CHECK FOR OVERWRITE SWITCH
         $script_name_overwrite {
           $Script:OVERWRITE_LICENSE = $true
-          $SCRIPT_NAME_LOCATION_LEFT = $null
+          $Script:SCRIPT_NAME_LOCATION_LEFT = $null
           break
         }
         $script_name_download_only {
           $Script:CUSTOM_DOWNLOAD = $true
           $Script:DOWNLOAD_ONLY = $true
           $Script:KEEP_DOWNLOAD = $true
-          $SCRIPT_NAME_LOCATION_LEFT = $null
+          $Script:SCRIPT_NAME_LOCATION_LEFT = $null
           break
         }
         $script_name_download_only_overwrite {
@@ -183,7 +248,7 @@ function Get-WinRARData {
           # but allow installation
           $Script:DOWNLOAD_ONLY = $false
           $Script:KEEP_DOWNLOAD = $true
-          $SCRIPT_NAME_LOCATION_LEFT = $null
+          $Script:SCRIPT_NAME_LOCATION_LEFT = $null
           break
         }
         default {
@@ -198,7 +263,7 @@ function Get-WinRARData {
   #>
 
   # GET DOWNLOAD-ONLY DATA
-  if ($_data.Count -gt 1 -and $_data.Count -le 4 -and $null -ne $SCRIPT_NAME_LOCATION_LEFT) {
+  if ($_data.Count -gt 1 -and $_data.Count -le 4 -and $null -ne $Script:SCRIPT_NAME_LOCATION_LEFT) {
     $Script:CUSTOM_DOWNLOAD = $true
     # `$_data[0]` is the script name # 1
     $Script:ARCH = $_data[1].Value # 2
@@ -206,14 +271,14 @@ function Get-WinRARData {
     $Script:TAGS = $_data[3].Value # 4 # not required for download
   }
   # GET LICENSE-ONLY DATA
-  elseif ($_data.Count -gt 1 -and $_data.Count -eq 3 -and $null -ne $SCRIPT_NAME_LOCATION_MIDDLE_RIGHT) {
+  elseif ($_data.Count -gt 1 -and $_data.Count -eq 3 -and $null -ne $Script:SCRIPT_NAME_LOCATION_MIDDLE_RIGHT) {
     $Script:CUSTOM_LICENSE = $true
     $Script:LICENSEE = $_data[0].Value # 1
     $Script:LICENSE_TYPE = $_data[1].Value # 2
     # `$_data[2]` is the script name # 3
   }
   # GET DOWNLOAD AND LICENSE DATA
-  elseif ($_data.Count -ge 4 -and $_data.Count -le 6 -and $null -ne $SCRIPT_NAME_LOCATION_MIDDLE_RIGHT) {
+  elseif ($_data.Count -ge 4 -and $_data.Count -le 6 -and $null -ne $Script:SCRIPT_NAME_LOCATION_MIDDLE_RIGHT) {
     $Script:CUSTOM_LICENSE = $true
     $Script:CUSTOM_DOWNLOAD = $true
     $Script:LICENSEE = $_data[0].Value # 1
