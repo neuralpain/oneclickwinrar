@@ -56,10 +56,10 @@ exit /b
 $global:ProgressPreference = "SilentlyContinue"
 [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor [System.Net.SecurityProtocolType]::Tls12
 
-$script_name                          = "oneclickrar"
-$script_name_overwrite                = "oneclick-rar"
-$script_name_download_only            = "one-clickrar"
-$script_name_download_only_overwrite  = "one-click-rar"
+$script_name                         = "oneclickrar"
+$script_name_overwrite               = "oneclick-rar"
+$script_name_download_only           = "one-clickrar"
+$script_name_download_only_overwrite = "one-click-rar"
 
 $winrar   = "winrar-x\d{2}-\d{3}\w*\.exe"  # catch any version for any language
 $wrar     = "wrar\d{3}\w*\.exe"            # catch the old version of WinRAR for any language
@@ -69,33 +69,48 @@ $rarreg64 = "$env:ProgramFiles\WinRAR\rarreg.key"
 $rarreg32 = "${env:ProgramFiles(x86)}\WinRAR\rarreg.key"
 $rarreg   = $null
 
-$winrar64 = "$env:ProgramFiles\WinRAR\WinRAR.exe"
-$winrar32 = "${env:ProgramFiles(x86)}\WinRAR\WinRAR.exe"
+$rarloc   = ""
+$loc32    = "${env:ProgramFiles(x86)}\WinRAR"
+$loc64    = "$env:ProgramFiles\WinRAR"
+$winrar64 = "$loc64\WinRAR.exe"
+$winrar32 = "$loc32\WinRAR.exe"
 
 $keygen64 = "./bin/winrar-keygen/winrar-keygen-x64.exe"
 $keygen32 = "./bin/winrar-keygen/winrar-keygen-x86.exe"
 $keygen   = $null
 
-$LATEST                   = 701
-$script:WINRAR_EXE        = $null
-$script:FETCH_WINRAR      = $false  # regular WinRAR
-$script:FETCH_WRAR        = $false  # old 32-bit WinRAR
+$LATEST                     = 701
+$script:WINRAR_EXE          = $null
+$script:FETCH_WINRAR        = $false  # regular WinRAR
+$script:FETCH_WRAR          = $false  # old 32-bit WinRAR
 
-$script:OVERWRITE_LICENSE = $false
-$script:CUSTOM_LICENSE    = $false
-$script:CUSTOM_DOWNLOAD   = $false
-$script:KEEP_DOWNLOAD     = $false
-$script:DOWNLOAD_ONLY     = $false
+$script:OVERWRITE_LICENSE   = $false
+$script:CUSTOM_LICENSE      = $false
+$script:CUSTOM_DOWNLOAD     = $false
+$script:KEEP_DOWNLOAD       = $false
+$script:DOWNLOAD_ONLY       = $false
+$script:WINRAR_IS_INSTALLED = $false
+$script:UNINSTALL           = $false
 
-$script:LICENSEE          = $null   # name of licensee
-$script:LICENSE_TYPE      = $null   # type of license
+$script:LICENSEE            = $null   # name of licensee
+$script:LICENSE_TYPE        = $null   # type of license
 
-$script:ARCH              = $null   # download architecture
-$script:RARVER            = $null   # download version
-$script:TAGS              = $null   # other download types, i.e. beta, language
+$script:ARCH                = $null   # download architecture
+$script:RARVER              = $null   # download version
+$script:TAGS                = $null   # other download types, i.e. beta, language
 
 $script:SCRIPT_NAME_LOCATION_LEFT         = ""
 $script:SCRIPT_NAME_LOCATION_MIDDLE_RIGHT = ""
+
+# check if WinRAR is installed before begin
+if (Test-Path $winrar64 -PathType Leaf) {
+  $rarloc = $loc64
+  $script:WINRAR_IS_INSTALLED = $true
+}
+elseif (Test-Path $winrar32 -PathType Leaf) {
+  $rarloc = $loc32
+  $script:WINRAR_IS_INSTALLED = $true
+}
 
 function New-Toast {
   [CmdletBinding()] Param ([String]$AppId = "oneclickwinrar", [String]$Url, [String]$ToastTitle, [String]$ToastText, [String]$ToastText2, [string]$Attribution, [String]$ActionButtonUrl, [String]$ActionButtonText = "Open documentation", [switch]$KeepAlive, [switch]$LongerDuration)
@@ -145,6 +160,17 @@ function Get-SpecialFunctionCode($_data) {
   }
 
   switch ($_switch_code) {
+    0 {
+      if ($script:WINRAR_IS_INSTALLED -and (Test-Path "$rarloc\Uninstall.exe" -PathType Leaf)) {
+        # uninstall WinRAR
+        Write-Host -NoNewLine "Uninstalling WinRAR... "
+        Start-Process "$rarloc\Uninstall.exe" "/s" -Wait
+        $script:WINRAR_IS_INSTALLED = $false # unnecessary to add this here but logically correct
+        New-Toast -ToastTitle "WinRAR uninstalled successfully" -ToastText "Run oneclickrar.cmd to reinstall."; exit
+      } else {
+        New-Toast -ToastTitle "WinRAR is not installed" -ToastText "Check your installation and try again."; exit
+      }
+    }
     default { break }
   }
 }
