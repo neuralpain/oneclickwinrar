@@ -82,10 +82,17 @@ function Get-WinRARData {
   if ($_data[0].Value -ne $script_name) {
     New-Toast -LongerDuration -ActionButtonUrl "https://github.com/neuralpain/oneclickwinrar#customization" -ToastTitle "What script is this?" -ToastText "Script name is invalid. Check the script name for any typos and try again."; exit
   }
+  # architecture is omitted if the data does not contain an `x`
+  if (([regex]::matches($script:ARCH, 'x')).Count -eq 0) {
+    # copy config to correct variables (LIFO)
+    $script:TAGS   = $script:RARVER
+    $script:RARVER = $script:ARCH
+    $script:ARCH   = "x64" # assume 64-bit
+  }
   if ($script:ARCH -ne "x64" -and $script:ARCH -ne "x32") {
     New-Toast -ToastTitle "Unable to process data" -ToastText "The WinRAR architecture is invalid." -ToastText2 "Only x64 and x32 are supported."; exit
   }
-  if ($script:RARVER.Length -gt 0 -and $script:RARVER.Length -ne 3) {
+  if (-not($script:RARVER.Length -ge 3) -and $script:RARVER -lt 100) {
     New-Toast -ToastTitle "Unable to process data" -ToastText "The WinRAR version is invalid." -ToastText2 "The version number must have 3 digits."; exit
   }
   if ($null -eq $script:RARVER) {
