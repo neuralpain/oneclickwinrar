@@ -2,6 +2,9 @@
 *.exe
 *.zip
 *.rar
+*.txt
+
+# include keygen executable
 !winrar-keygen*.exe
 
 # mac stuff
