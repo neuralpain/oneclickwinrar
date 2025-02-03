@@ -171,6 +171,15 @@ function Get-SpecialFunctionCode($_data) {
         New-Toast -ToastTitle "WinRAR is not installed" -ToastText "Check your installation and try again."; exit
       }
     }
+    1 {
+      Write-Host -NoNewLine "Un-licensing WinRAR... "
+      if (Test-Path "$rarloc\rarreg.key" -PathType Leaf) {
+        Remove-Item "$rarloc\rarreg.key" -Force | Out-Null
+        New-Toast -ToastTitle "WinRAR unlicensed successfully" -ToastText "Enjoy your 40-day infinite trial period!"; exit
+      } else {
+        New-Toast -ToastTitle "Unable to un-license WinRAR" -ToastText "A WinRAR license was not found on your device."; exit
+      }
+    }
     default { break }
   }
 }
