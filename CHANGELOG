@@ -1,82 +1,96 @@
 CHANGELOG
 
+0.9.0.701
+
+  - New: Enable extra functionality through substitution of the `i` in `click`
+    with a specific number code, e.g., `onecl0ckrar.cmd`, `one-cl3ck-rar.cmd`.
+  - `oneclickrar` will now assume 64-bit if the `architecture` is omitted when
+    downloading a specific version of WinRAR.
+  - Add functionality for `oneclickrar` to license WinRAR without running an
+    installation of the software.
+  - Add functionality for `oneclickrar` to run the installation of WinRAR
+    without licensing it afterwards.
+  - Add support to uninstall WinRAR.
+  - Minor code improvements.
+
 0.8.0.701
 
-  - Add support for older 32-bit WinRAR installers
-  - Add new download-only feature which allows for saving of installers downloaded by the script
-  - Minor bug fixes and code improvements
+  - Add support for older 32-bit WinRAR installers.
+  - Add new download-only feature which allows for saving of installers
+    downloaded by the script.
+  - Minor bug fixes and code improvements.
 
 0.7.0.701
 
-  - Fix WinRAR version display error
-  - Improved script name parsing logic
-  - Fix annoying bug with variable scope in `licenserar.cmd`
+  - Fix WinRAR version display error.
+  - Improved script name parsing logic.
+  - Fix annoying bug with variable scope in `licenserar.cmd`.
   - Improve error handling when downloading files that are not available on the
-    server
-  - Improve toast notifications
-  - Other code improvements
+    server.
+  - Improve toast notifications.
+  - Other code improvements.
 
 0.6.1.701
 
-  - Fix very minor bug in licenserar.cmd affecting overwriting licenses
-  - Fix toast message in oneclickrar.cmd
+  - Fix very minor bug in licenserar.cmd affecting overwriting licenses.
+  - Fix toast message in oneclickrar.cmd.
 
 0.6.0.701
 
   - Fix downloading issue. "x86" was mistakenly used for downloading 32-bit
     versions of WinRAR. This has been fixed.
-  - Add support for downloading without including a version number
-  - Fix function name error in installrar.cmd
-  - Provide installrar.cmd with admin by default
+  - Add support for downloading without including a version number.
+  - Fix function name error in installrar.cmd.
+  - Provide installrar.cmd with admin by default.
   - Improve error handling for oneclickrar.cmd where WinRAR was installed but
-    not licensed
-  - Add protection against overwriting existing licenses
-  - Add option to overwrite existing licenses
-  - Add unlicenserar.cmd to remove WinRAR licenses for whatever reason
-  - Minor bug fixes
+    not licensed.
+  - Add protection against overwriting existing licenses.
+  - Add option to overwrite existing licenses.
+  - Add unlicenserar.cmd to remove WinRAR licenses for whatever reason.
+  - Minor bug fixes.
 
 0.5.0.701
 
   - Allow users to generate custom licenses to activate WinRAR by modifying the
-    script's file name
+    script's file name.
   - Allow users to download any version of WinRAR by modifying the script's
-    file name
+    file name.
 
 0.4.0.2407
 
-  - Update WinRAR download version
-  - Update TLS security
-  - Add support for multiple languages
+  - Update WinRAR download version.
+  - Update TLS security.
+  - Add support for multiple languages.
 
 0.3.0
 
-  - Add error handling
+  - Add error handling.
 
 0.2.5
 
-  - Remove unnecessary `$rarkey` variable from installrar.cmd
+  - Remove unnecessary `$rarkey` variable from installrar.cmd.
 
 0.2.4
 
-  - Provide feedback if license is not installed
+  - Provide feedback if license is not installed.
 
 0.2.3
 
-  - Replace `$silent` variable with "/s"
+  - Replace `$silent` variable with "/s".
 
 0.2.2
 
   - Moved `$installer = (Get-Installer)` into the if statement
-    `if ($null -eq (Get-Installer)) {`
+    `if ($null -eq (Get-Installer)) {...}`.
 
 0.2.1
 
-  - Fix licensing issue
+  - Fix licensing issue.
 
 0.2.0
 
-  - Add support for all versions of WinRAR
+  - Add support for all versions of WinRAR.
 
 0.1.0
 
-  - Initial release
+  - Initial release.
