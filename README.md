@@ -24,15 +24,8 @@ there was a need for something versatile // so why not?
 
 ### Contents
 
-- [What's included? (Click on the links to download)](#whats-included-click-on-the-links-to-download)
-    - [oneclickrar.cmd _(recommended for most users)_](#oneclickrarcmd-recommended-for-most-users)
-    - [installrar.cmd](#installrarcmd)
-    - [licenserar.cmd](#licenserarcmd)
-    - [unlicenserar.cmd](#unlicenserarcmd)
+- [What's included?](#whats-included-click-on-the-links-to-download)
   - [Features](#features)
-    - [Script comparison table](#script-comparison-table)
-    - [Development plans](#development-plans)
-    - [Other plans](#other-plans)
   - [Benefits](#benefits)
   - [Limitations](#limitations)
 - [How to use](#how-to-use)
@@ -40,16 +33,14 @@ there was a need for something versatile // so why not?
     - [Advanced usage](#advanced-usage)
 - [Customization](#customization)
   - [Naming patterns](#naming-patterns)
-    - [Complete naming pattern (supported by oneclickrar.cmd)](#complete-naming-pattern-supported-by-oneclickrarcmd)
-    - [Licensing-only pattern (supported by licenserar.cmd, oneclickrar.cmd)](#licensing-only-pattern-supported-by-licenserarcmd-oneclickrarcmd)
-    - [Install-only pattern (supported by installrar.cmd, oneclickrar.cmd)](#install-only-pattern-supported-by-installrarcmd-oneclickrarcmd)
+    - [Complete naming pattern](#complete-naming-pattern-supported-by-oneclickrarcmd)
+    - [Licensing-only pattern](#licensing-only-pattern-supported-by-licenserarcmd-oneclickrarcmd)
+    - [Install-only pattern](#install-only-pattern-supported-by-installrarcmd-oneclickrarcmd)
 - [Overwriting licenses](#overwriting-licenses)
 - [Download-only mode](#download-only-mode)
-    - [Installing WinRAR with download-only enabled](#installing-winrar-with-download-only-enabled)
 - [Extra stuff](#extra-stuff)
     - [Special function codes for `oneclickrar`](#special-function-codes-for-oneclickrar)
     - [Uninstalling WinRAR](#uninstalling-winrar)
-- [License](#license)
 
 # What's included? (Click on the links to download)
 
@@ -303,7 +294,7 @@ Abigail Wilson_Pistachio License_one-click-rar_x64_624_fr.cmd
 
 ### Special function codes for `oneclickrar`
 
-`oneclickrar` has support enabling special functionality within the script by replacing the `i` in `click` with one of the codes below.
+`oneclickrar` supports enabling special functionality within the script by replacing the `i` in `click` with one of the codes below.
 
 - Code `0`: Uninstall WinRAR
 - Code `1`: Un-license WinRAR

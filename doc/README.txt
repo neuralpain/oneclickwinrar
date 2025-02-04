@@ -275,7 +275,7 @@ EXTRA STUFF
   Special function codes for `oneclickrar`
   ----------------------------------------
 
-    `oneclickrar` has support enabling special functionality within the script by
+    `oneclickrar` supports enabling special functionality within the script by
     replacing the `i` in `click` with one of the codes below.
 
     - Code `0`: Uninstall WinRAR
