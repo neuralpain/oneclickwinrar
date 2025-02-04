@@ -79,6 +79,8 @@ $keygen64 = "./bin/winrar-keygen/winrar-keygen-x64.exe"
 $keygen32 = "./bin/winrar-keygen/winrar-keygen-x86.exe"
 $keygen   = $null
 
+$freedom_universe_yt_url = "https://youtu.be/OD_WIKht0U0?t=450"
+
 $LATEST                     = 701
 $script:WINRAR_EXE          = $null
 $script:FETCH_WINRAR        = $false  # regular WinRAR
@@ -91,6 +93,7 @@ $script:KEEP_DOWNLOAD       = $false
 $script:DOWNLOAD_ONLY       = $false
 $script:WINRAR_IS_INSTALLED = $false
 $script:SKIP_LICENSING      = $false
+$script:LICENSE_ONLY        = $false
 
 $script:LICENSEE            = $null   # name of licensee
 $script:LICENSE_TYPE        = $null   # type of license
@@ -181,6 +184,7 @@ function Get-SpecialFunctionCode($_data) {
       }
     }
     2 { $script:SKIP_LICENSING = $true; break }
+    3 { $script:LICENSE_ONLY   = $true; break }
     default { break }
   }
 }
@@ -389,60 +393,62 @@ function Get-WinRARExeVersion {
 # customization data set by the user
 if ($CMD_NAME -ne $script_name) { Get-WinRARData }
 
-# this ensures that the script does not
-# unnecessarily download a new installer if one
-# is available in the current directory
-$script:WINRAR_EXE = (Get-Installer)
+if (-not($script:LICENSE_ONLY)) {
+  # this ensures that the script does not
+  # unnecessarily download a new installer if one
+  # is available in the current directory
+  $script:WINRAR_EXE = (Get-Installer)
 
-# if there are no installers, proceed to download one
-if ($null -eq $script:WINRAR_EXE) {
-  Write-Host "Testing connection... " -NoNewLine
-  if (Test-Connection www.rarlab.com -Count 2 -Quiet) {
-    # a try-catch block didn't work here, so instead I'm using the
-    # `$Error` variable paired with `-ErrorAction SilentlyContinue`
-    # to suppress error messages
-    if ($script:CUSTOM_DOWNLOAD) {
-      Write-Host -NoNewLine "OK.`nDownloading WinRAR $(Get-WinRARExeVersion $script:RARVER -IntToDouble)... "
-      $Error.Clear()
-      if ($script:FETCH_WRAR) {
-        # get older 32-bit WinRAR
-        Start-BitsTransfer "https://www.rarlab.com/rar/wrar${Script:RARVER}${Script:TAGS}.exe" $pwd\ -ErrorAction SilentlyContinue
+  # if there are no installers, proceed to download one
+  if ($null -eq $script:WINRAR_EXE) {
+    Write-Host "Testing connection... " -NoNewLine
+    if (Test-Connection www.rarlab.com -Count 2 -Quiet) {
+      # a try-catch block didn't work here, so instead I'm using the
+      # `$Error` variable paired with `-ErrorAction SilentlyContinue`
+      # to suppress error messages
+      if ($script:CUSTOM_DOWNLOAD) {
+        Write-Host -NoNewLine "OK.`nDownloading WinRAR $(Get-WinRARExeVersion $script:RARVER -IntToDouble)... "
+        $Error.Clear()
+        if ($script:FETCH_WRAR) {
+          # get older 32-bit WinRAR
+          Start-BitsTransfer "https://www.rarlab.com/rar/wrar${Script:RARVER}${Script:TAGS}.exe" $pwd\ -ErrorAction SilentlyContinue
+        }
+        else {
+          Start-BitsTransfer "https://www.rarlab.com/rar/winrar-${Script:ARCH}-${Script:RARVER}${Script:TAGS}.exe" $pwd\ -ErrorAction SilentlyContinue
+        }
+        if ($Error) {
+          New-Toast -ToastTitle "Unable to fetch download" -ToastText "WinRAR $(Get-WinRARExeVersion $script:RARVER -IntToDouble) may not exist on the server." -ToastText2 "Check the version number and try again."; exit
+        }
+        if ($script:DOWNLOAD_ONLY) {
+          New-Toast -ToastTitle "Download Complete" -ToastText "WinRAR $(Get-WinRARExeVersion $script:RARVER -IntToDouble) was successfully downloaded." -ToastText2 "Run this script again if you ever need to install it."; exit
+        }
       }
       else {
-        Start-BitsTransfer "https://www.rarlab.com/rar/winrar-${Script:ARCH}-${Script:RARVER}${Script:TAGS}.exe" $pwd\ -ErrorAction SilentlyContinue
+        Write-Host -NoNewLine "OK.`nDownloading WinRAR $(Get-WinRARExeVersion $LATEST -IntToDouble)... "
+        $Error.Clear()
+        Start-BitsTransfer "https://www.rarlab.com/rar/winrar-x64-${LATEST}.exe" $pwd\ -ErrorAction SilentlyContinue
+        if ($Error) {
+          New-Toast -ToastTitle "Unable to fetch download" -ToastText "Are you still connected to the internet?" -ToastText2 "Please check your internet connection."; exit
+        }
+        # this block is skipped if overwrite is enabled
+        if ($script:DOWNLOAD_ONLY) {
+          Write-Host "Done."
+          New-Toast -ToastTitle "Download Complete" -ToastText "WinRAR $(Get-WinRARExeVersion $LATEST -IntToDouble) was successfully downloaded." -ToastText2 "Run this script again if you ever need to install it."; exit
+        }
       }
-      if ($Error) {
-        New-Toast -ToastTitle "Unable to fetch download" -ToastText "WinRAR $(Get-WinRARExeVersion $script:RARVER -IntToDouble) may not exist on the server." -ToastText2 "Check the version number and try again."; exit
-      }
-      if ($script:DOWNLOAD_ONLY) {
-        New-Toast -ToastTitle "Download Complete" -ToastText "WinRAR $(Get-WinRARExeVersion $script:RARVER -IntToDouble) was successfully downloaded." -ToastText2 "Run this script again if you ever need to install it."; exit
-      }
+      $script:FETCH_WINRAR = $true # WinRAR was downloaded
+      $script:WINRAR_EXE = (Get-Installer) # get the new installer
+      Write-Host "Done."
     }
     else {
-      Write-Host -NoNewLine "OK.`nDownloading WinRAR $(Get-WinRARExeVersion $LATEST -IntToDouble)... "
-      $Error.Clear()
-      Start-BitsTransfer "https://www.rarlab.com/rar/winrar-x64-${LATEST}.exe" $pwd\ -ErrorAction SilentlyContinue
-      if ($Error) {
-        New-Toast -ToastTitle "Unable to fetch download" -ToastText "Are you still connected to the internet?" -ToastText2 "Please check your internet connection."; exit
-      }
-      # this block is skipped if overwrite is enabled
-      if ($script:DOWNLOAD_ONLY) {
-        Write-Host "Done."
-        New-Toast -ToastTitle "Download Complete" -ToastText "WinRAR $(Get-WinRARExeVersion $LATEST -IntToDouble) was successfully downloaded." -ToastText2 "Run this script again if you ever need to install it."; exit
-      }
+      New-Toast -ToastTitle "No internet" -ToastText "Please check your internet connection."; exit
     }
-    $script:FETCH_WINRAR = $true # WinRAR was downloaded
-    $script:WINRAR_EXE = (Get-Installer) # get the new installer
-    Write-Host "Done."
+  } elseif ($script:DOWNLOAD_ONLY) {
+    New-Toast -ToastTitle "Download Aborted" -ToastText "An installer for WinRAR $(Get-WinRARExeVersion $script:WINRAR_EXE) already exists." -ToastText2 "Check the requested download version and try again."; exit
   }
-  else {
-    New-Toast -ToastTitle "No internet" -ToastText "Please check your internet connection."; exit
-  }
-} elseif ($script:DOWNLOAD_ONLY) {
-  New-Toast -ToastTitle "Download Aborted" -ToastText "An installer for WinRAR $(Get-WinRARExeVersion $script:WINRAR_EXE) already exists." -ToastText2 "Check the requested download version and try again."; exit
-}
 
-Invoke-Installer $script:WINRAR_EXE (Get-WinRARExeVersion $script:WINRAR_EXE)
+  Invoke-Installer $script:WINRAR_EXE (Get-WinRARExeVersion $script:WINRAR_EXE)
+}
 
 # --- LICENSING
 
@@ -480,14 +486,26 @@ if (-not($script:SKIP_LICENSING)) {
     }
   }
   else {
-    New-Toast -LongerDuration -ToastTitle "WinRAR installed successfully but..." -ActionButtonUrl "https://github.com/neuralpain/oneclickwinrar#overwriting-licenses" -ToastText "Notice: A WinRAR license already exists." -ToastText2 "View the documentation on how to use the override switch to install a new license."; exit
+    if ($script:LICENSE_ONLY) {
+      New-Toast -LongerDuration -ToastTitle "Unable to license WinRAR" -ActionButtonUrl "https://github.com/neuralpain/oneclickwinrar#overwriting-licenses" -ToastText "Notice: A WinRAR license already exists." -ToastText2 "View the documentation on how to use the override switch to install a new license."; exit
+    } else {
+      New-Toast -LongerDuration -ToastTitle "WinRAR installed successfully but..." -ActionButtonUrl "https://github.com/neuralpain/oneclickwinrar#overwriting-licenses" -ToastText "Notice: A WinRAR license already exists." -ToastText2 "View the documentation on how to use the override switch to install a new license."; exit
+    }
   }
 }
 
+# --- EXIT TOAST MESSAGES
+
 if ($script:SKIP_LICENSING) {
-  New-Toast -Url "https://youtu.be/OD_WIKht0U0?t=450" -ToastTitle "WinRAR installed successfully" -ToastText "Freedom throughout the universe!"; exit
+  New-Toast -Url $freedom_universe_yt_url -ToastTitle "WinRAR installed successfully" -ToastText "Freedom throughout the universe!"; exit
+} elseif ($script:LICENSE_ONLY) {
+  if ($script:CUSTOM_LICENSE) {
+    New-Toast -Url $freedom_universe_yt_url -ToastTitle "WinRAR licensed successfully" -ToastText "Licensed to `"$($script:LICENSEE)`"" -ToastText2 "Freedom throughout the universe!"; exit
+  } else {
+    New-Toast -Url $freedom_universe_yt_url -ToastTitle "WinRAR licensed successfully" -ToastText "Freedom throughout the universe!"; exit
+  }
 } elseif ($script:CUSTOM_LICENSE) {
-  New-Toast -Url "https://youtu.be/OD_WIKht0U0?t=450" -ToastTitle "WinRAR installed and licensed successfully" -ToastText "Licensed to `"$($script:LICENSEE)`"" -ToastText2 "Freedom throughout the universe!"; exit
+  New-Toast -Url $freedom_universe_yt_url -ToastTitle "WinRAR installed and licensed successfully" -ToastText "Licensed to `"$($script:LICENSEE)`"" -ToastText2 "Freedom throughout the universe!"; exit
 } else {
-  New-Toast -Url "https://youtu.be/OD_WIKht0U0?t=450" -ToastTitle "WinRAR installed and licensed successfully" -ToastText "Freedom throughout the universe!"; exit
+  New-Toast -Url $freedom_universe_yt_url -ToastTitle "WinRAR installed and licensed successfully" -ToastText "Freedom throughout the universe!"; exit
 }
