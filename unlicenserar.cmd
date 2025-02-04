@@ -7,7 +7,7 @@
 
 @echo off
 mode 44,8
-title unlicenserar (v0.8.0.701)
+title unlicenserar (v0.9.0.701)
 :: uses PwshBatch.cmd <https://gist.github.com/neuralpain/4ca8a6c9aca4f0a1af2440f474e92d05>
 setlocal EnableExtensions DisableDelayedExpansion
 set ARGS=%*
