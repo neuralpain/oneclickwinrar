@@ -90,7 +90,7 @@ $script:CUSTOM_DOWNLOAD     = $false
 $script:KEEP_DOWNLOAD       = $false
 $script:DOWNLOAD_ONLY       = $false
 $script:WINRAR_IS_INSTALLED = $false
-$script:UNINSTALL           = $false
+$script:SKIP_LICENSING      = $false
 
 $script:LICENSEE            = $null   # name of licensee
 $script:LICENSE_TYPE        = $null   # type of license
@@ -180,6 +180,7 @@ function Get-SpecialFunctionCode($_data) {
         New-Toast -ToastTitle "Unable to un-license WinRAR" -ToastText "A WinRAR license was not found on your device."; exit
       }
     }
+    2 { $script:SKIP_LICENSING = $true; break }
     default { break }
   }
 }
@@ -445,45 +446,48 @@ Invoke-Installer $script:WINRAR_EXE (Get-WinRARExeVersion $script:WINRAR_EXE)
 
 # --- LICENSING
 
-# check for WinRAR architecture
-# (the final `else` block in `licenserar.cmd` is unnecessary,
-# because WinRAR will be installed before the license, else
-# the script will exit)
-if (Test-Path $winrar64 -PathType Leaf) {
-  $keygen = $keygen64
-  $rarreg = $rarreg64
-}
-elseif (Test-Path $winrar32 -PathType Leaf) {
-  $keygen = $keygen32
-  $rarreg = $rarreg32
-}
+if (-not($script:SKIP_LICENSING)) {
+  # check for WinRAR architecture
+  # (the final `else` block in `licenserar.cmd` is unnecessary,
+  # because WinRAR will be installed before the license, else
+  # the script will exit)
+  if (Test-Path $winrar64 -PathType Leaf) {
+    $keygen = $keygen64
+    $rarreg = $rarreg64
+  }
+  elseif (Test-Path $winrar32 -PathType Leaf) {
+    $keygen = $keygen32
+    $rarreg = $rarreg32
+  }
 
-# install WinRAR license
-if (-not(Test-Path $rarreg -PathType Leaf) -or $script:OVERWRITE_LICENSE) {
-  if ($script:CUSTOM_LICENSE) {
-    if (Test-Path $keygen -PathType Leaf) {
-      & $keygen "$($script:LICENSEE)" "$($script:LICENSE_TYPE)" | Out-File -Encoding utf8 $rarreg
+  # install WinRAR license
+  if (-not(Test-Path $rarreg -PathType Leaf) -or $script:OVERWRITE_LICENSE) {
+    if ($script:CUSTOM_LICENSE) {
+      if (Test-Path $keygen -PathType Leaf) {
+        & $keygen "$($script:LICENSEE)" "$($script:LICENSE_TYPE)" | Out-File -Encoding utf8 $rarreg
+      }
+      else {
+        New-Toast -ActionButtonUrl "https://github.com/neuralpain/oneclickwinrar#how-to-use" -ToastTitle "Missing keygen" -ToastText "Unable to generate a license. Ensure that the `"bin`" file is available in the same directory as the script."; exit
+      }
     }
     else {
-      New-Toast -ActionButtonUrl "https://github.com/neuralpain/oneclickwinrar#how-to-use" -ToastTitle "Missing keygen" -ToastText "Unable to generate a license. Ensure that the `"bin`" file is available in the same directory as the script."; exit
+      if (Test-Path "rarreg.key" -PathType Leaf) {
+        Copy-Item -Path "rarreg.key" -Destination $rarreg -Force
+      }
+      else {
+        [IO.File]::WriteAllLines($rarreg, $rarkey)
+      }
     }
   }
   else {
-    if (Test-Path "rarreg.key" -PathType Leaf) {
-      Copy-Item -Path "rarreg.key" -Destination $rarreg -Force
-    }
-    else {
-      [IO.File]::WriteAllLines($rarreg, $rarkey)
-    }
+    New-Toast -LongerDuration -ToastTitle "WinRAR installed successfully but..." -ActionButtonUrl "https://github.com/neuralpain/oneclickwinrar#overwriting-licenses" -ToastText "Notice: A WinRAR license already exists." -ToastText2 "View the documentation on how to use the override switch to install a new license."; exit
   }
 }
-else {
-  New-Toast -LongerDuration -ToastTitle "WinRAR installed successfully but..." -ActionButtonUrl "https://github.com/neuralpain/oneclickwinrar#overwriting-licenses" -ToastText "Notice: A WinRAR license already exists." -ToastText2 "View the documentation on how to use the override switch to install a new license."; exit
-}
 
-if ($CUSTOM_LICENSE) {
+if ($script:SKIP_LICENSING) {
+  New-Toast -Url "https://youtu.be/OD_WIKht0U0?t=450" -ToastTitle "WinRAR installed successfully" -ToastText "Freedom throughout the universe!"; exit
+} elseif ($script:CUSTOM_LICENSE) {
   New-Toast -Url "https://youtu.be/OD_WIKht0U0?t=450" -ToastTitle "WinRAR installed and licensed successfully" -ToastText "Licensed to `"$($script:LICENSEE)`"" -ToastText2 "Freedom throughout the universe!"; exit
-}
-else {
+} else {
   New-Toast -Url "https://youtu.be/OD_WIKht0U0?t=450" -ToastTitle "WinRAR installed and licensed successfully" -ToastText "Freedom throughout the universe!"; exit
 }
