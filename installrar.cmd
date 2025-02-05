@@ -1,13 +1,13 @@
 <# :# DO NOT REMOVE THIS LINE
 
 :: installrar.cmd
-:: oneclickwinrar, version 0.8.0.701
+:: oneclickwinrar, version 0.9.0.701
 :: Copyright (c) 2023, neuralpain
 :: Install WinRAR
 
 @echo off
 mode 44,8
-title installrar (v0.8.0.701)
+title installrar (v0.9.0.701)
 :: uses PwshBatch.cmd <https://gist.github.com/neuralpain/4ca8a6c9aca4f0a1af2440f474e92d05>
 setlocal EnableExtensions DisableDelayedExpansion
 set ARGS=%*
@@ -41,19 +41,19 @@ exit /b
 $global:ProgressPreference = "SilentlyContinue"
 [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor [System.Net.SecurityProtocolType]::Tls12
 
-$script_name = "installrar"
-$winrar = "winrar-x\d{2}-\d{3}\w*\.exe" # catch any version for any language
-$wrar = "wrar\d{3}\w*\.exe" # catch the old version of WinRAR for any language
+$script_name            = "installrar"
+$winrar                 = "winrar-x\d{2}-\d{3}\w*\.exe" # catch any version for any language
+$wrar                   = "wrar\d{3}\w*\.exe" # catch the old version of WinRAR for any language
 
-$LATEST = 701
-$Script:WINRAR_EXE = $null
-$Script:FETCH_WINRAR = $false # regular WinRAR
-$Script:FETCH_WRAR = $false # old 32-bit WinRAR
-$Script:CUSTOM_DOWNLOAD = $false
+$LATEST                 = 701
+$script:WINRAR_EXE      = $null
+$script:FETCH_WINRAR    = $false # regular WinRAR
+$script:FETCH_WRAR      = $false # old 32-bit WinRAR
+$script:CUSTOM_DOWNLOAD = $false
 
-$Script:ARCH = $null # download architecture
-$Script:RARVER = $null # download version
-$Script:TAGS = $null # other download types, i.e. beta, language
+$script:ARCH            = $null # download architecture
+$script:RARVER          = $null # download version
+$script:TAGS            = $null # other download types, i.e. beta, language
 
 function New-Toast {
   [CmdletBinding()] Param ([String]$AppId = "oneclickwinrar", [String]$Url, [String]$ToastTitle, [String]$ToastText, [String]$ToastText2, [string]$Attribution, [String]$ActionButtonUrl, [String]$ActionButtonText = "Open documentation", [switch]$KeepAlive, [switch]$LongerDuration)
@@ -71,24 +71,32 @@ function New-Toast {
 }
 
 function Get-WinRARData {
-  $Script:CUSTOM_DOWNLOAD = $true
+  $script:CUSTOM_DOWNLOAD = $true
   $_data = [regex]::matches($CMD_NAME, '[^_]+')
+
   # `$_data[0]` is the script name
-  $Script:ARCH = $_data[1].Value
-  $Script:RARVER = $_data[2].Value
-  $Script:TAGS = $_data[3].Value
+  $script:ARCH   = $_data[1].Value
+  $script:RARVER = $_data[2].Value
+  $script:TAGS   = $_data[3].Value
 
   if ($_data[0].Value -ne $script_name) {
     New-Toast -LongerDuration -ActionButtonUrl "https://github.com/neuralpain/oneclickwinrar#customization" -ToastTitle "What script is this?" -ToastText "Script name is invalid. Check the script name for any typos and try again."; exit
   }
-  if ($Script:ARCH -ne "x64" -and $Script:ARCH -ne "x32") {
+  # architecture is omitted if the data does not contain an `x`
+  if (([regex]::matches($script:ARCH, 'x')).Count -eq 0) {
+    # copy config to correct variables (LIFO)
+    $script:TAGS   = $script:RARVER
+    $script:RARVER = $script:ARCH
+    $script:ARCH   = "x64" # assume 64-bit
+  }
+  if ($script:ARCH -ne "x64" -and $script:ARCH -ne "x32") {
     New-Toast -ToastTitle "Unable to process data" -ToastText "The WinRAR architecture is invalid." -ToastText2 "Only x64 and x32 are supported."; exit
   }
-  if ($Script:RARVER.Length -gt 0 -and $Script:RARVER.Length -ne 3) {
+  if (-not($script:RARVER.Length -ge 3) -and $script:RARVER -lt 100) {
     New-Toast -ToastTitle "Unable to process data" -ToastText "The WinRAR version is invalid." -ToastText2 "The version number must have 3 digits."; exit
   }
-  if ($null -eq $Script:RARVER) {
-    $Script:RARVER = $LATEST
+  if ($null -eq $script:RARVER) {
+    $script:RARVER = $LATEST
   }
 }
 
@@ -102,7 +110,7 @@ function Invoke-Installer($x, $v) {
     New-Toast -ToastTitle "Installation error" -ToastText "The script has run into a problem during installation. Please restart the script."; exit
   }
   finally {
-    if ($Script:FETCH_WINRAR) { Remove-Item $Script:WINRAR_EXE }
+    if ($script:FETCH_WINRAR) { Remove-Item $script:WINRAR_EXE }
   }
 }
 
@@ -119,9 +127,9 @@ function Get-OldInstaller {
 function Get-Installer {
   $files = Get-ChildItem -Path $pwd | Where-Object { $_.Name -match '^winrar-x' }
   if ($CUSTOM_DOWNLOAD) {
-    if ($Script:RARVER -lt 611 -and $Script:ARCH -eq "x32") {
+    if ($script:RARVER -lt 611 -and $script:ARCH -eq "x32") {
       # if the user wants to download an older version of 32-bit WinRAR
-      $Script:FETCH_WRAR = $true
+      $script:FETCH_WRAR = $true
       Get-OldInstaller
     } else {
       $download = "winrar-${Script:ARCH}-${Script:RARVER}${Script:TAGS}.exe"
@@ -153,19 +161,19 @@ if ($CMD_NAME -ne $script_name) { Get-WinRARData }
 # this ensures that the script does not
 # unnecessarily download a new installer if one
 # is available in the current directory
-$Script:WINRAR_EXE = (Get-Installer)
+$script:WINRAR_EXE = (Get-Installer)
 
 # if there are no installers, proceed to download one
-if ($null -eq $Script:WINRAR_EXE) {
+if ($null -eq $script:WINRAR_EXE) {
   Write-Host "Testing connection... " -NoNewLine
   if (Test-Connection www.rarlab.com -Count 2 -Quiet) {
     # a try-catch block didn't work here, so instead I'm using the
     # `$Error` variable paired with `-ErrorAction SilentlyContinue`
     # to suppress error messages
-    if ($Script:CUSTOM_DOWNLOAD) {
-      Write-Host -NoNewLine "OK.`nDownloading WinRAR $(Get-WinRARExeVersion $Script:RARVER -IntToDouble)... "
+    if ($script:CUSTOM_DOWNLOAD) {
+      Write-Host -NoNewLine "OK.`nDownloading WinRAR $(Get-WinRARExeVersion $script:RARVER -IntToDouble)... "
       $Error.Clear()
-      if ($Script:FETCH_WRAR) {
+      if ($script:FETCH_WRAR) {
         # get older 32-bit WinRAR
         Start-BitsTransfer "https://www.rarlab.com/rar/wrar${Script:RARVER}${Script:TAGS}.exe" $pwd\ -ErrorAction SilentlyContinue
       }
@@ -173,7 +181,7 @@ if ($null -eq $Script:WINRAR_EXE) {
         Start-BitsTransfer "https://www.rarlab.com/rar/winrar-${Script:ARCH}-${Script:RARVER}${Script:TAGS}.exe" $pwd\ -ErrorAction SilentlyContinue
       }
       if ($Error) {
-        New-Toast -ToastTitle "Unable to fetch download" -ToastText "WinRAR $(Get-WinRARExeVersion $Script:RARVER -IntToDouble) may not exist on the server." -ToastText2 "Check the version number and try again."; exit
+        New-Toast -ToastTitle "Unable to fetch download" -ToastText "WinRAR $(Get-WinRARExeVersion $script:RARVER -IntToDouble) may not exist on the server." -ToastText2 "Check the version number and try again."; exit
       }
     }
     else {
@@ -184,8 +192,8 @@ if ($null -eq $Script:WINRAR_EXE) {
         New-Toast -ToastTitle "Unable to fetch download" -ToastText "Are you still connected to the internet?" -ToastText2 "Please check your internet connection."; exit
       }
     }
-    $Script:FETCH_WINRAR = $true # WinRAR was downloaded
-    $Script:WINRAR_EXE = (Get-Installer) # get the new installer
+    $script:FETCH_WINRAR = $true # WinRAR was downloaded
+    $script:WINRAR_EXE = (Get-Installer) # get the new installer
     Write-Host "Done."
   }
   else {
@@ -193,6 +201,6 @@ if ($null -eq $Script:WINRAR_EXE) {
   }
 }
 
-Invoke-Installer $Script:WINRAR_EXE (Get-WinRARExeVersion $Script:WINRAR_EXE)
+Invoke-Installer $script:WINRAR_EXE (Get-WinRARExeVersion $script:WINRAR_EXE)
 
 New-Toast -Url "https://ko-fi.com/neuralpain" -ToastTitle "WinRAR installed successfully" -ToastText2 "Thanks for using oneclickwinrar!"; exit

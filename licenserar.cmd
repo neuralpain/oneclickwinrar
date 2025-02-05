@@ -7,7 +7,7 @@
 
 @echo off
 mode 44,8
-title licenserar (v0.8.0.701)
+title licenserar (v0.9.0.701)
 :: uses PwshBatch.cmd <https://gist.github.com/neuralpain/4ca8a6c9aca4f0a1af2440f474e92d05>
 setlocal EnableExtensions DisableDelayedExpansion
 set ARGS=%*
@@ -38,26 +38,26 @@ exit /b
 
 # --- PS --- #>
 
-$script_name = "licenserar"
+$script_name           = "licenserar"
 $script_name_overwrite = "license-rar"
 
-$CUSTOM_LICENSE = $false
-$OVERWRITE_LICENSE = $false
+$CUSTOM_LICENSE        = $false
+$OVERWRITE_LICENSE     = $false
 
-$rarkey = "RAR registration data`r`nEveryone`r`nGeneral Public License`r`nUID=119fdd47b4dbe9a41555`r`n6412212250155514920287d3b1cc8d9e41dfd22b78aaace2ba4386`r`n9152c1ac6639addbb73c60800b745269020dd21becbc46390d7cee`r`ncce48183d6d73d5e42e4605ab530f6edf8629596821ca042db83dd`r`n68035141fb21e5da4dcaf7bf57494e5455608abc8a9916ffd8e23d`r`n0a68ab79088aa7d5d5c2a0add4c9b3c27255740277f6edf8629596`r`n821ca04340a7c91e88b14ba087e0bfb04b57824193d842e660c419`r`nb8af4562cb13609a2ca469bf36fb8da2eda6f5e978bf1205660302"
-$rarreg64 = "$env:ProgramFiles\WinRAR\rarreg.key"
-$rarreg32 = "${env:ProgramFiles(x86)}\WinRAR\rarreg.key"
-$rarreg = $null
+$rarkey                = "RAR registration data`r`nEveryone`r`nGeneral Public License`r`nUID=119fdd47b4dbe9a41555`r`n6412212250155514920287d3b1cc8d9e41dfd22b78aaace2ba4386`r`n9152c1ac6639addbb73c60800b745269020dd21becbc46390d7cee`r`ncce48183d6d73d5e42e4605ab530f6edf8629596821ca042db83dd`r`n68035141fb21e5da4dcaf7bf57494e5455608abc8a9916ffd8e23d`r`n0a68ab79088aa7d5d5c2a0add4c9b3c27255740277f6edf8629596`r`n821ca04340a7c91e88b14ba087e0bfb04b57824193d842e660c419`r`nb8af4562cb13609a2ca469bf36fb8da2eda6f5e978bf1205660302"
+$rarreg64              = "$env:ProgramFiles\WinRAR\rarreg.key"
+$rarreg32              = "${env:ProgramFiles(x86)}\WinRAR\rarreg.key"
+$rarreg                = $null
 
-$winrar64 = "$env:ProgramFiles\WinRAR\WinRAR.exe"
-$winrar32 = "${env:ProgramFiles(x86)}\WinRAR\WinRAR.exe"
+$winrar64              = "$env:ProgramFiles\WinRAR\WinRAR.exe"
+$winrar32              = "${env:ProgramFiles(x86)}\WinRAR\WinRAR.exe"
 
-$keygen64 = "./bin/winrar-keygen/winrar-keygen-x64.exe"
-$keygen32 = "./bin/winrar-keygen/winrar-keygen-x86.exe"
-$keygen = $null
+$keygen64              = "./bin/winrar-keygen/winrar-keygen-x64.exe"
+$keygen32              = "./bin/winrar-keygen/winrar-keygen-x86.exe"
+$keygen                = $null
 
-$LICENSEE = $null
-$LICENSE_TYPE = $null
+$LICENSEE              = $null
+$LICENSE_TYPE          = $null
 
 function New-Toast {
   [CmdletBinding()] Param ([String]$AppId = "oneclickwinrar", [String]$Url, [String]$ToastTitle, [String]$ToastText, [String]$ToastText2, [string]$Attribution, [String]$ActionButtonUrl, [String]$ActionButtonText = "Open documentation", [switch]$KeepAlive, [switch]$LongerDuration)
@@ -95,15 +95,15 @@ if ($CMD_NAME -ne $script_name) {
     switch ($_data[2].Value) {
       $script_name {
         # custom license, script name is valid
-        $LICENSEE = $_data[0].Value
+        $LICENSEE     = $_data[0].Value
         $LICENSE_TYPE = $_data[1].Value
       }
       $script_name_overwrite {
         # custom license, script name is valid, but user
         # wants to overwrite an existing license
         $OVERWRITE_LICENSE = $true
-        $LICENSEE = $_data[0].Value
-        $LICENSE_TYPE = $_data[1].Value
+        $LICENSEE          = $_data[0].Value
+        $LICENSE_TYPE      = $_data[1].Value
       }
       default {
         # custom license, but script name is invalid
@@ -113,7 +113,7 @@ if ($CMD_NAME -ne $script_name) {
     # verify custom license data --- this is a sanity check
     # the script should not reach this point, but I'm leaving
     # it here as a precaution just in case I missed something
-    if ($LICENSEE.Length -eq 0 -or $LICENSE_TYPE.Length -eq 0) {  
+    if ($LICENSEE.Length -eq 0 -or $LICENSE_TYPE.Length -eq 0) {
       New-Toast -ActionButtonUrl "https://github.com/neuralpain/oneclickwinrar#naming-patterns" -ToastTitle "Licensing error" -ToastText "Custom lincense data is invalid. Check the license data and try again."; exit
     }
   }
