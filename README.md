@@ -20,7 +20,7 @@ there was a need for something versatile // so why not?
 ```
 
 > [!NOTE]
-> The name `oneclickwinrar` refers to this project and everything that comes with it. On the other hand, `oneclickrar.cmd` (notice there's no "win" in the name) is a script within the project. Don't mix them up.
+> The name `oneclickwinrar` refers to this project and everything that comes with it. On the other hand, `oneclickrar.cmd` (notice there's no "win" in the name) is a script within the project. Don't mix them up😑.
 
 ### Contents
 
@@ -84,7 +84,7 @@ Just need to install WinRAR or update if it's already installed? Here's a script
 
 ### [licenserar.cmd][license]
 
-C'mon, you've been using WinRAR unlicensed for years. Get a license and be done with that infinite 40-day trial. (You can also use this script to install a license that you [purchased from WinRAR][purchase].)
+C'mon, you've been using WinRAR unlicensed for years. Get a license and be done with that infinite 40-day trial. (You can also use this script to install a WinRAR license that you [purchased from RARLAB®][purchase].)
 
 ### [unlicenserar.cmd][unlicense]
 
@@ -157,14 +157,14 @@ Follow step 1 in basic usage, then read through the customization section to add
 
 # Customization
 
-The aim of this method of customization of the scripts in `oneclickwinrar` is to provide a quick and easy way for anyone to enable extra functionality in the script while preserving portability. Essentially, one would only need to customize the script once and run it anywhere without the need for extra clicks or editing.
+The aim of this method of customization is to provide a quick and easy way for anyone to enable extra functionality in the script while preserving portability. Essentially, one would only need to customize the script once and run it anywhere without the need for extra clicks or editing.
 
 There are two (2) types of customization:
 
 1. **Partial customization** i.e. custom licensing, custom install or custom download
 2. **Complete customization** i.e. both custom licensing and installation
 
-There are five (6) parts to the customization process:
+There are six (6) parameters in the customization process:
 
 1. `licensee` – This is "you" or whatever name you want to use
 2. `license-type` – The description of license that you want to install
@@ -187,7 +187,7 @@ There are five (6) parts to the customization process:
 > ```
 
 > [!WARNING]
-> Do not modify the `script-name` unless you need to [overwrite licenses](#overwriting-licenses) or [save download cache](#download-only-mode).
+> Do not modify the `script-name` unless you need to [overwrite licenses](#overwriting-licenses), [save download cache](#download-only-mode), or [enable a special function](#special-function-codes-for-oneclickrar).
 
 ## Naming patterns
 
@@ -246,7 +246,7 @@ Information pertaining to overwriting licenses is in its own section because it'
 
 Note: Overwriting is only supported by `oneclickrar.cmd` and `licenserar.cmd`.
 
-To enable overwriting licenses, you must edit the script's file name to have a hyphen `"-"` just before the `"rar"` so that it becomes `"-rar"`. This is a very simple switch. Errors of any nature will bring shame upon the spring-loaded keys of your 1987 IBM Model M 1391401 White Label keyboard.
+To enable overwriting licenses, you must edit the script's file name to have a hyphen `"-"` just before the `"rar"` so that it becomes `"-rar"`. This is a very simple switch. Errors of any nature will bring shame upon the spring-loaded keys of your 1987 IBM Model M 1391401 White Label keyboard😠.
 
 Follow the examples below to see how it works.
 
@@ -271,7 +271,7 @@ The functionality for saving downloads uses a similar approach to overwriting, p
 
 Note: Saving downloads is only supported by `oneclickrar.cmd`.
 
-To enable download-only mode, you must edit the script's file name to have a hyphen `"-"` after `"one"` and before `"click"` so that it becomes `"one-click"`. This is another very simple switch. As with overwriting, errors of any nature will bring shame upon the spring-loaded _blah blah blah_. You get the point.
+To enable download-only mode, you must edit the script's file name to have a hyphen `"-"` after `"one"` and before `"click"` so that it becomes `"one-click"`. This is another very simple switch. As with overwriting, errors of any nature will bring shame upon the spring-loaded _blah blah blah_. You get the point😒.
 
 Look at the example below.
 

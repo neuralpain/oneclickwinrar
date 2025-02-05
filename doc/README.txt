@@ -46,8 +46,8 @@ FEATURES
 
   [#] NOTE [#]
 
-    `oneclickwinrar` will not overwrite existing licenses unless explicitly told
-    to do so.
+    `oneclickwinrar` will not overwrite existing licenses unless explicitly
+    instructed to do so.
 
 
 
@@ -72,18 +72,17 @@ HOW TO USE
 CUSTOMIZATION
 -------------
 
-  The aim of this method of customization of the scripts in `oneclickwinrar` is
-  to provide a quick and easy way for anyone to enable extra functionality in the
-  script while preserving portability. Essentially, one would only need to
-  customize the script once and run it anywhere without the need for extra clicks
-  or editing.
+  The aim of this method of customization is to provide a quick and easy way
+  for anyone to enable extra functionality in the script while preserving
+  portability. Essentially, one would only need to customize the script once
+  and run it anywhere without the need for extra clicks or editing.
 
   There are two types of customization:
 
     1. Partial customization, which is either custom licensing, or custom install
     2. Complete customization, which is both custom licensing and install
 
-  There are five (5) parts to the customization process:
+  There are six (6) parameters in the customization process:
 
     `licensee`      - This is "you" or whatever name you want to use
     `license-type`  - The description of license that you want to install
@@ -123,7 +122,7 @@ CUSTOMIZATION
     installrar] that you use to install and/or license WinRAR.
 
     DO NOT MODIFY THE `script-name` UNLESS YOU NEED TO OVERWRITE LICENSES OR
-    SAVE DOWNLOADED INSTALLERS.
+    SAVE DOWNLOADED INSTALLERS OR ENABLE SPECIAL FUNCTIONS.
 
 
 
