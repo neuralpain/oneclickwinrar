@@ -42,6 +42,36 @@ there was a need for something versatile // so why not?
     - [Special function codes for `oneclickrar`](#special-function-codes-for-oneclickrar)
     - [Uninstalling WinRAR](#uninstalling-winrar)
 
+### Development plans
+
+<details>
+<summary><i>Show completed (8)</i></summary>
+
+- [x] License overwriting
+- [x] Support for older 32-bit installers with `wrar` name
+- [x] Download-only mode using a switch feature similar to overwriting
+- [x] Allow script to assume 64-bit if the `architecture` is omitted when downloading a specific version of WinRAR
+- [x] Allow extra functionality through substitution of the `i` in `click` with a specific number code, e.g., `onecl0ckrar.cmd`, `one-cl3ck-rar.cmd`
+- [x] Allow `oneclickrar` and `unlicenserar` to uninstall WinRAR
+- [x] Allow `oneclickrar` to skip installation
+- [x] Allow `oneclickrar` to skip licensing
+
+</details>
+
+- [ ] Fix downloads for users in China?
+
+### Other plans
+
+<details>
+<summary><i>Show completed (2)</i></summary>
+
+- [x] Create a list of language codes supported by WinRAR
+- [x] Place the "plans" section in a more suitable area
+
+</details>
+
+- [ ] Create a list of all available versions of WinRAR and the years of release
+
 # What's included? (Click on the links to download)
 
 ### [oneclickrar.cmd][oneclick] _(recommended for most users)_
@@ -90,28 +120,6 @@ A stitch in time saves nine. Return to that 40-day infinite trial period and rel
 
 > [!NOTE]
 > `oneclickwinrar` will not overwrite existing licenses unless explicitly instructed to do so.
-
----
-
-### Development plans
-
-- [x] License overwriting
-- [x] Support for older 32-bit installers with `wrar` name
-- [x] Download-only mode using a switch feature similar to overwriting
-- [x] Allow script to assume 64-bit if the `architecture` is omitted when downloading a specific version of WinRAR
-- [x] Allow extra functionality through substitution of the `i` in `click` with a specific number code, e.g., `onecl0ckrar.cmd`, `one-cl3ck-rar.cmd`
-- [x] Allow `oneclickrar` and `unlicenserar` to uninstall WinRAR
-- [x] Allow `oneclickrar` to skip installation
-- [x] Allow `oneclickrar` to skip licensing
-- [ ] Fix downloads for users in China?
-
-### Other plans
-
-- [x] Create a list of language codes supported by WinRAR
-- [ ] Create a list of all available versions of WinRAR and the years of release
-- [ ] Place the "plans" section in a more suitable area
-
----
 
 ## Benefits
 
