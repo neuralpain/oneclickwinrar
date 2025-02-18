@@ -1,5 +1,9 @@
 CHANGELOG
 
+0.10.0.710
+
+  - Update default version to WinRAR 7.10.
+
 0.9.0.701
 
   - New: Enable extra functionality through substitution of the `i` in `click`
