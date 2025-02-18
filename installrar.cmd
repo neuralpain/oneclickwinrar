@@ -1,13 +1,13 @@
 <# :# DO NOT REMOVE THIS LINE
 
 :: installrar.cmd
-:: oneclickwinrar, version 0.9.0.701
+:: oneclickwinrar, version 0.10.0.710
 :: Copyright (c) 2023, neuralpain
 :: Install WinRAR
 
 @echo off
 mode 44,8
-title installrar (v0.9.0.701)
+title installrar (v0.10.0.710)
 :: uses PwshBatch.cmd <https://gist.github.com/neuralpain/4ca8a6c9aca4f0a1af2440f474e92d05>
 setlocal EnableExtensions DisableDelayedExpansion
 set ARGS=%*
@@ -45,7 +45,7 @@ $script_name            = "installrar"
 $winrar                 = "winrar-x\d{2}-\d{3}\w*\.exe" # catch any version for any language
 $wrar                   = "wrar\d{3}\w*\.exe" # catch the old version of WinRAR for any language
 
-$LATEST                 = 701
+$LATEST                 = 710
 $script:WINRAR_EXE      = $null
 $script:FETCH_WINRAR    = $false # regular WinRAR
 $script:FETCH_WRAR      = $false # old 32-bit WinRAR
