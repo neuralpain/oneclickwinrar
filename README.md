@@ -1,13 +1,5 @@
 > [!TIP]
-> RARLAB® has released the 3rd public beta of the latest English WinRAR 7.10 for testing on 64-bit systems! Use one of the configurations below to install and test it out. 🚀
->
-> ```
-> oneclickrar_x64_710_b3.cmd
-> ```
->
-> ```
-> installrar_x64_710_b3.cmd
-> ```
+> RARLAB® recently released WinRAR 7.10! Use `installrar.cmd` to update to the latest version. 🚀
 
 <p align="center">
   <picture><img src="./assets/images/oneclickwinrar-header.jpg" alt="oneclickwinrar header"></picture>
@@ -24,7 +16,7 @@ there was a need for something versatile // so why not?
 
 ### Contents
 
-- [What's included?](#whats-included-click-on-the-links-to-download)
+- [What's included?](#whats-included-click-the-names-to-download)
   - [Features](#features)
   - [Benefits](#benefits)
   - [Limitations](#limitations)
@@ -72,19 +64,37 @@ there was a need for something versatile // so why not?
 
 - [ ] Create a list of all available versions of WinRAR and the years of release
 
-# What's included? (Click on the links to download)
+# What's included? (Click the names to download)
 
 ### [oneclickrar.cmd][oneclick] _(recommended for most users)_
 
 The one click you need to rule them all. Download, install, update and license WinRAR, all in just one single click (or double). Yes, it's that simple.
 
+Run the following command using an elevated PowerShell terminal. Overwriting is disabled by default. For more functionality, download and customize the script.
+
+```
+irm "https://shorter.gg/MCrzwB" | iex
+```
+
 ### [installrar.cmd][install]
 
-Just need to install WinRAR or update if it's already installed? Here's a script for that. No need to download it yourself. Let `installrar` take care of that for you. Download and install WinRAR without licensing it.
+Only need to install or update WinRAR? Let `installrar` take care of that for you.
+
+Run the following command using a PowerShell terminal. For more functionality, download and customize the script.
+
+```
+irm "https://shorter.gg/Jizeii" | iex
+```
 
 ### [licenserar.cmd][license]
 
-C'mon, you've been using WinRAR unlicensed for years. Get a license and be done with that infinite 40-day trial. (You can also use this script to install a WinRAR license that you [purchased from RARLAB®][purchase].)
+C'mon, you've been using WinRAR unlicensed for years. Get a license and be done with that infinite 40-day trial. (`licenserar` can also install a WinRAR license that you [purchased from RARLAB®][purchase].)
+
+Run the following command using an elevated PowerShell terminal. Overwriting is disabled by default. For more functionality, download and customize the script.
+
+```
+irm "https://shorter.gg/HbZotB" | iex
+```
 
 ### [unlicenserar.cmd][unlicense]
 
@@ -144,13 +154,15 @@ A stitch in time saves nine. Return to that 40-day infinite trial period and rel
 ### Basic usage
 
 1. Download the latest release of `oneclickwinrar` from the releases page
-   1. Extract the contents of the zip file to a directory of your choice, if necessary
-   2. Add a WinRAR executable to the directory, if necessary
+2. Optional steps:
+    - Extract the contents of the zip file to a directory of your choice, if necessary
+    - Add a WinRAR executable to the working directory, if necessary
+    - Add a WinRAR license to the working directory, if necessary
 2. Run the script
 
 ### Advanced usage
 
-Follow step 1 in basic usage, then read through the customization section to add custom licenses, downloads and enable different features.
+Follow steps 1-2 in basic usage, then read through the customization section to add custom licenses, downloads and enable different features.
 
 > [!IMPORTANT]
 > Remember to extract the `bin` folder together with the script. This is necessary for generating your customized license key.
