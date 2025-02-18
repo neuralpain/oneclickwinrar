@@ -1,13 +1,13 @@
 <# :# DO NOT REMOVE THIS LINE
 
 :: oneclickrar.cmd
-:: oneclickwinrar, version 0.9.0.701
+:: oneclickwinrar, version 0.10.0.710
 :: Copyright (c) 2023, neuralpain
 :: Install and license WinRAR
 
 @echo off
 mode 44,8
-title oneclickrar (v0.9.0.701)
+title oneclickrar (v0.10.0.710)
 :: uses PwshBatch.cmd <https://gist.github.com/neuralpain/4ca8a6c9aca4f0a1af2440f474e92d05>
 setlocal EnableExtensions DisableDelayedExpansion
 set ARGS=%*
@@ -81,7 +81,7 @@ $keygen   = $null
 
 $freedom_universe_yt_url = "https://youtu.be/OD_WIKht0U0?t=450"
 
-$LATEST                     = 701
+$LATEST                     = 710
 $script:WINRAR_EXE          = $null
 $script:FETCH_WINRAR        = $false  # regular WinRAR
 $script:FETCH_WRAR          = $false  # old 32-bit WinRAR
