@@ -1,13 +1,5 @@
 > [!TIP]
-> RARLAB® has released the 3rd public beta of the latest English WinRAR 7.10 for testing on 64-bit systems! Use one of the configurations below to install and test it out. 🚀
->
-> ```
-> oneclickrar_x64_710_b3.cmd
-> ```
->
-> ```
-> installrar_x64_710_b3.cmd
-> ```
+> RARLAB® recently released WinRAR 7.10! Use `installrar.cmd` to update to the latest version. 🚀
 
 <p align="center">
   <picture><img src="./assets/images/oneclickwinrar-header.jpg" alt="oneclickwinrar header"></picture>
@@ -78,13 +70,31 @@ there was a need for something versatile // so why not?
 
 The one click you need to rule them all. Download, install, update and license WinRAR, all in just one single click (or double). Yes, it's that simple.
 
+Run once with an elevated PowerShell terminal. [Overwriting](#overwriting-licenses) is disabled. For more functionality, download and [customize](#customization) the script.
+
+```
+irm "https://shorter.gg/MCrzwB" | iex
+```
+
 ### [installrar.cmd][install]
 
 Just need to install WinRAR or update if it's already installed? Here's a script for that. No need to download it yourself. Let `installrar` take care of that for you. Download and install WinRAR without licensing it.
 
+Run once with a PowerShell terminal. For more functionality, download and [customize](#customization) the script.
+
+```
+irm "https://shorter.gg/Jizeii" | iex
+```
+
 ### [licenserar.cmd][license]
 
 C'mon, you've been using WinRAR unlicensed for years. Get a license and be done with that infinite 40-day trial. (You can also use this script to install a WinRAR license that you [purchased from RARLAB®][purchase].)
+
+Run once with an elevated PowerShell terminal. [Overwriting](#overwriting-licenses) is disabled. For more functionality, download and [customize](#customization) the script.
+
+```
+irm "https://shorter.gg/HbZotB" | iex
+```
 
 ### [unlicenserar.cmd][unlicense]
 
