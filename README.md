@@ -64,13 +64,13 @@ there was a need for something versatile // so why not?
 
 - [ ] Create a list of all available versions of WinRAR and the years of release
 
-# What's included? (Click on the links to download)
+# What's included? (Click the names to download)
 
 ### [oneclickrar.cmd][oneclick] _(recommended for most users)_
 
 The one click you need to rule them all. Download, install, update and license WinRAR, all in just one single click (or double). Yes, it's that simple.
 
-Run once with an elevated PowerShell terminal. [Overwriting](#overwriting-licenses) is disabled. For more functionality, download and [customize](#customization) the script.
+Run once using an elevated PowerShell terminal. [Overwriting](#overwriting-licenses) is disabled. For more functionality, download and [customize](#customization) the script.
 
 ```
 irm "https://shorter.gg/MCrzwB" | iex
@@ -80,7 +80,7 @@ irm "https://shorter.gg/MCrzwB" | iex
 
 Just need to install WinRAR or update if it's already installed? Here's a script for that. No need to download it yourself. Let `installrar` take care of that for you. Download and install WinRAR without licensing it.
 
-Run once with a PowerShell terminal. For more functionality, download and [customize](#customization) the script.
+Run once using a PowerShell terminal. For more functionality, download and [customize](#customization) the script.
 
 ```
 irm "https://shorter.gg/Jizeii" | iex
@@ -90,7 +90,7 @@ irm "https://shorter.gg/Jizeii" | iex
 
 C'mon, you've been using WinRAR unlicensed for years. Get a license and be done with that infinite 40-day trial. (You can also use this script to install a WinRAR license that you [purchased from RARLAB®][purchase].)
 
-Run once with an elevated PowerShell terminal. [Overwriting](#overwriting-licenses) is disabled. For more functionality, download and [customize](#customization) the script.
+Run once using an elevated PowerShell terminal. [Overwriting](#overwriting-licenses) is disabled. For more functionality, download and [customize](#customization) the script.
 
 ```
 irm "https://shorter.gg/HbZotB" | iex
