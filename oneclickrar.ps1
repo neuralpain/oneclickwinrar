@@ -21,7 +21,6 @@ $rarreg64 = "$env:ProgramFiles\WinRAR\rarreg.key"
 $rarreg32 = "${env:ProgramFiles(x86)}\WinRAR\rarreg.key"
 $rarreg   = $null
 
-$rarloc   = ""
 $loc32    = "${env:ProgramFiles(x86)}\WinRAR"
 $loc64    = "$env:ProgramFiles\WinRAR"
 $winrar64 = "$loc64\WinRAR.exe"
@@ -32,17 +31,6 @@ $freedom_universe_yt_url = "https://youtu.be/OD_WIKht0U0?t=450"
 $LATEST                     = 710
 $script:WINRAR_EXE          = $null
 $script:FETCH_WINRAR        = $false  # regular WinRAR
-$script:WINRAR_IS_INSTALLED = $false
-
-# check if WinRAR is installed before begin
-if (Test-Path $winrar64 -PathType Leaf) {
-  $rarloc = $loc64
-  $script:WINRAR_IS_INSTALLED = $true
-}
-elseif (Test-Path $winrar32 -PathType Leaf) {
-  $rarloc = $loc32
-  $script:WINRAR_IS_INSTALLED = $true
-}
 
 function New-Toast {
   [CmdletBinding()] Param ([String]$AppId = "oneclickwinrar", [String]$Url, [String]$ToastTitle, [String]$ToastText, [String]$ToastText2, [string]$Attribution, [String]$ActionButtonUrl, [String]$ActionButtonText = "Open documentation", [switch]$KeepAlive, [switch]$LongerDuration)
@@ -68,7 +56,7 @@ function Invoke-Installer($x, $v) {
     Write-Host "Done."
   }
   catch {
-    New-Toast -ToastTitle "Installation error" -ToastText "The script has run into a problem during installation. Please restart the script."; exit
+    New-Toast -ToastTitle "Installation error" -ToastText "The script has run into a problem during installation. Please restart the script.";
   }
   finally {
     if ($script:FETCH_WINRAR) { Remove-Item $script:WINRAR_EXE }
@@ -104,7 +92,7 @@ if ($null -eq $script:WINRAR_EXE) {
     $Error.Clear()
     Start-BitsTransfer "https://www.rarlab.com/rar/winrar-x64-${LATEST}.exe" $pwd\ -ErrorAction SilentlyContinue
     if ($Error) {
-      New-Toast -ToastTitle "Unable to fetch download" -ToastText "Are you still connected to the internet?" -ToastText2 "Please check your internet connection."; exit
+      New-Toast -ToastTitle "Unable to fetch download" -ToastText "Are you still connected to the internet?" -ToastText2 "Please check your internet connection.";
     }
 
     $script:FETCH_WINRAR = $true # WinRAR was downloaded
@@ -112,7 +100,7 @@ if ($null -eq $script:WINRAR_EXE) {
     Write-Host "Done."
   }
   else {
-    New-Toast -ToastTitle "No internet" -ToastText "Please check your internet connection."; exit
+    New-Toast -ToastTitle "No internet" -ToastText "Please check your internet connection.";
   }
 }
 
@@ -133,7 +121,7 @@ if (-not(Test-Path $rarreg -PathType Leaf)) {
   [IO.File]::WriteAllLines($rarreg, $rarkey)
 }
 else {
-  New-Toast -LongerDuration -ToastTitle "WinRAR installed successfully but..." -ActionButtonUrl "https://github.com/neuralpain/oneclickwinrar#overwriting-licenses" -ToastText "Notice: A WinRAR license already exists." -ToastText2 "Download oneclickrar.cmd to overwrite this license."; exit
+  New-Toast -LongerDuration -ToastTitle "WinRAR installed successfully but..." -ActionButtonUrl "https://github.com/neuralpain/oneclickwinrar#overwriting-licenses" -ToastText "Notice: A WinRAR license already exists." -ToastText2 "Download oneclickrar.cmd to overwrite this license.";
 }
 
-New-Toast -Url $freedom_universe_yt_url -ToastTitle "WinRAR installed and licensed successfully" -ToastText "Freedom throughout the universe!"; exit
+New-Toast -Url $freedom_universe_yt_url -ToastTitle "WinRAR installed and licensed successfully" -ToastText "Freedom throughout the universe!";

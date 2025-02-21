@@ -42,7 +42,7 @@ elseif (Test-Path $winrar32 -PathType Leaf) {
   $rarreg = $rarreg32
 }
 else {
-  New-Toast -ToastTitle "WinRAR is not installed" -ToastText "Run installrar.cmd or oneclickrar.cmd to install WinRAR before licensing."; exit
+  New-Toast -ToastTitle "WinRAR is not installed" -ToastText "Run installrar.cmd or oneclickrar.cmd to install WinRAR before licensing.";
 }
 
 # License WinRAR
@@ -50,7 +50,7 @@ if (-not(Test-Path $rarreg -PathType Leaf)) {
   [IO.File]::WriteAllLines($rarreg, $rarkey)
 }
 else {
-  New-Toast -ActionButtonUrl "https://github.com/neuralpain/oneclickwinrar#overwriting-licenses" -ToastTitle "A WinRAR license already exists" -ToastText2 "Download licenserar.cmd to overwrite this license."; exit
+  New-Toast -ActionButtonUrl "https://github.com/neuralpain/oneclickwinrar#overwriting-licenses" -ToastTitle "A WinRAR license already exists" -ToastText2 "Download licenserar.cmd to overwrite this license.";
 }
 
-New-Toast -Url "https://ko-fi.com/neuralpain" -ToastTitle "WinRAR licensed successfully" -ToastText "Thanks for using oneclickwinrar!"; exit
+New-Toast -Url "https://ko-fi.com/neuralpain" -ToastTitle "WinRAR licensed successfully" -ToastText "Thanks for using oneclickwinrar!";
