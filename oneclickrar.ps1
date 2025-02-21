@@ -56,7 +56,7 @@ function Invoke-Installer($x, $v) {
     Write-Host "Done."
   }
   catch {
-    New-Toast -ToastTitle "Installation error" -ToastText "The script has run into a problem during installation. Please restart the script.";
+    New-Toast -ToastTitle "Installation error" -ToastText "The script has run into a problem during installation. Please restart the script."; exit
   }
   finally {
     if ($script:FETCH_WINRAR) { Remove-Item $script:WINRAR_EXE }
@@ -92,7 +92,7 @@ if ($null -eq $script:WINRAR_EXE) {
     $Error.Clear()
     Start-BitsTransfer "https://www.rarlab.com/rar/winrar-x64-${LATEST}.exe" $pwd\ -ErrorAction SilentlyContinue
     if ($Error) {
-      New-Toast -ToastTitle "Unable to fetch download" -ToastText "Are you still connected to the internet?" -ToastText2 "Please check your internet connection.";
+      New-Toast -ToastTitle "Unable to fetch download" -ToastText "Are you still connected to the internet?" -ToastText2 "Please check your internet connection."; exit
     }
 
     $script:FETCH_WINRAR = $true # WinRAR was downloaded
@@ -100,7 +100,7 @@ if ($null -eq $script:WINRAR_EXE) {
     Write-Host "Done."
   }
   else {
-    New-Toast -ToastTitle "No internet" -ToastText "Please check your internet connection.";
+    New-Toast -ToastTitle "No internet" -ToastText "Please check your internet connection."; exit
   }
 }
 
@@ -121,7 +121,7 @@ if (-not(Test-Path $rarreg -PathType Leaf)) {
   [IO.File]::WriteAllLines($rarreg, $rarkey)
 }
 else {
-  New-Toast -LongerDuration -ToastTitle "WinRAR installed successfully but..." -ActionButtonUrl "https://github.com/neuralpain/oneclickwinrar#overwriting-licenses" -ToastText "Notice: A WinRAR license already exists." -ToastText2 "Download oneclickrar.cmd to overwrite this license.";
+  New-Toast -LongerDuration -ToastTitle "WinRAR installed successfully but..." -ActionButtonUrl "https://github.com/neuralpain/oneclickwinrar#overwriting-licenses" -ToastText "Notice: A WinRAR license already exists." -ToastText2 "Download oneclickrar.cmd to overwrite this license."; exit
 }
 
-New-Toast -Url $freedom_universe_yt_url -ToastTitle "WinRAR installed and licensed successfully" -ToastText "Freedom throughout the universe!";
+New-Toast -Url $freedom_universe_yt_url -ToastTitle "WinRAR installed and licensed successfully" -ToastText "Freedom throughout the universe!"; exit

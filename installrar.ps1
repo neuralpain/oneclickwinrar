@@ -42,7 +42,7 @@ function Invoke-Installer($x, $v) {
     Write-Host "Done."
   }
   catch {
-    New-Toast -ToastTitle "Installation error" -ToastText "The script has run into a problem during installation. Please restart the script.";
+    New-Toast -ToastTitle "Installation error" -ToastText "The script has run into a problem during installation. Please restart the script."; exit
   }
   finally {
     if ($script:FETCH_WINRAR) { Remove-Item $script:WINRAR_EXE }
@@ -80,7 +80,7 @@ if ($null -eq $script:WINRAR_EXE) {
     $Error.Clear()
     Start-BitsTransfer "https://www.rarlab.com/rar/winrar-x64-${LATEST}.exe" $pwd\ -ErrorAction SilentlyContinue
     if ($Error) {
-      New-Toast -ToastTitle "Unable to fetch download" -ToastText "Are you still connected to the internet?" -ToastText2 "Please check your internet connection.";
+      New-Toast -ToastTitle "Unable to fetch download" -ToastText "Are you still connected to the internet?" -ToastText2 "Please check your internet connection."; exit
     }
 
     $script:FETCH_WINRAR = $true # WinRAR was downloaded
@@ -88,10 +88,10 @@ if ($null -eq $script:WINRAR_EXE) {
     Write-Host "Done."
   }
   else {
-    New-Toast -ToastTitle "No internet" -ToastText "Please check your internet connection.";
+    New-Toast -ToastTitle "No internet" -ToastText "Please check your internet connection."; exit
   }
 }
 
 Invoke-Installer $script:WINRAR_EXE (Get-WinRARExeVersion $script:WINRAR_EXE)
 
-New-Toast -Url "https://ko-fi.com/neuralpain" -ToastTitle "WinRAR installed successfully" -ToastText2 "Thanks for using oneclickwinrar!";
+New-Toast -Url "https://ko-fi.com/neuralpain" -ToastTitle "WinRAR installed successfully" -ToastText2 "Thanks for using oneclickwinrar!"; exit
