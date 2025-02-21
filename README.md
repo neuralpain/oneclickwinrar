@@ -16,7 +16,7 @@ there was a need for something versatile // so why not?
 
 ### Contents
 
-- [What's included?](#whats-included-click-on-the-links-to-download)
+- [What's included?](#whats-included-click-the-names-to-download)
   - [Features](#features)
   - [Benefits](#benefits)
   - [Limitations](#limitations)
@@ -70,7 +70,7 @@ there was a need for something versatile // so why not?
 
 The one click you need to rule them all. Download, install, update and license WinRAR, all in just one single click (or double). Yes, it's that simple.
 
-Run once using an elevated PowerShell terminal. [Overwriting](#overwriting-licenses) is disabled. For more functionality, download and [customize](#customization) the script.
+Run the following command using an elevated PowerShell terminal. Overwriting is disabled by default. For more functionality, download and customize the script.
 
 ```
 irm "https://shorter.gg/MCrzwB" | iex
@@ -78,9 +78,9 @@ irm "https://shorter.gg/MCrzwB" | iex
 
 ### [installrar.cmd][install]
 
-Just need to install WinRAR or update if it's already installed? Here's a script for that. No need to download it yourself. Let `installrar` take care of that for you. Download and install WinRAR without licensing it.
+Only need to install or update WinRAR? Let `installrar` take care of that for you.
 
-Run once using a PowerShell terminal. For more functionality, download and [customize](#customization) the script.
+Run the following command using a PowerShell terminal. For more functionality, download and customize the script.
 
 ```
 irm "https://shorter.gg/Jizeii" | iex
@@ -88,9 +88,9 @@ irm "https://shorter.gg/Jizeii" | iex
 
 ### [licenserar.cmd][license]
 
-C'mon, you've been using WinRAR unlicensed for years. Get a license and be done with that infinite 40-day trial. (You can also use this script to install a WinRAR license that you [purchased from RARLAB®][purchase].)
+C'mon, you've been using WinRAR unlicensed for years. Get a license and be done with that infinite 40-day trial. (`licenserar` can also install a WinRAR license that you [purchased from RARLAB®][purchase].)
 
-Run once using an elevated PowerShell terminal. [Overwriting](#overwriting-licenses) is disabled. For more functionality, download and [customize](#customization) the script.
+Run the following command using an elevated PowerShell terminal. Overwriting is disabled by default. For more functionality, download and customize the script.
 
 ```
 irm "https://shorter.gg/HbZotB" | iex
@@ -154,13 +154,15 @@ A stitch in time saves nine. Return to that 40-day infinite trial period and rel
 ### Basic usage
 
 1. Download the latest release of `oneclickwinrar` from the releases page
-   1. Extract the contents of the zip file to a directory of your choice, if necessary
-   2. Add a WinRAR executable to the directory, if necessary
+2. Optional steps:
+    - Extract the contents of the zip file to a directory of your choice, if necessary
+    - Add a WinRAR executable to the working directory, if necessary
+    - Add a WinRAR license to the working directory, if necessary
 2. Run the script
 
 ### Advanced usage
 
-Follow step 1 in basic usage, then read through the customization section to add custom licenses, downloads and enable different features.
+Follow steps 1-2 in basic usage, then read through the customization section to add custom licenses, downloads and enable different features.
 
 > [!IMPORTANT]
 > Remember to extract the `bin` folder together with the script. This is necessary for generating your customized license key.
