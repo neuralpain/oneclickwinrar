@@ -50,7 +50,7 @@ there was a need for something versatile // so why not?
 
 </details>
 
-- [ ] Fix downloads for users in China?
+- [ ] Fix downloads for users in China? ([可以用此链接下载包含WinRAR中文版的包][ocwr_chinese])
 
 ### Other plans
 
@@ -382,3 +382,4 @@ See the /bin/winrar-keygen/LICENSE file for more information.
 [purchase]: https://shop.win-rar.com/16/purl-shop-2183-1-n
 [release]: https://github.com/neuralpain/oneclickwinrar/releases/latest
 [unlicense]: https://github.com/neuralpain/oneclickwinrar/releases/latest/download/unlicenserar.cmd
+[ocwr_chinese]: https://github.com/neuralpain/oneclickwinrar/releases/download/v0.10.0.710/oneclickwinrar-0.10.0.701.incl.WinRAR-x64-Chinese.zip
