@@ -382,4 +382,4 @@ See the /bin/winrar-keygen/LICENSE file for more information.
 [purchase]: https://shop.win-rar.com/16/purl-shop-2183-1-n
 [release]: https://github.com/neuralpain/oneclickwinrar/releases/latest
 [unlicense]: https://github.com/neuralpain/oneclickwinrar/releases/latest/download/unlicenserar.cmd
-[ocwr_chinese]: https://github.com/neuralpain/oneclickwinrar/releases/download/v0.10.0.710/oneclickwinrar-0.10.0.701.incl.WinRAR-x64-Chinese.zip
+[ocwr_chinese]: https://github.com/neuralpain/oneclickwinrar/releases/download/v0.10.0.710/oneclickwinrar-0.10.0.710.incl.WinRAR-x64-Chinese.zip
