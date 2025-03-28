@@ -1,5 +1,73 @@
 > [!TIP]
-> RARLAB® recently released WinRAR 7.10! Use `installrar.cmd` to update to the latest version. 🚀
+> RARLAB® recently released WinRAR 7.11! Use `installrar.cmd` to update to the latest version. 🚀
+> <details>
+> <summary>View changes</summary>
+>  
+> ```
+>                WinRAR - What's new in the latest version
+>
+>
+>   Version 7.11
+>
+>  1. If "Add to archive..." Explorer context menu command is applied to
+>     multiple archives in the disk root, for example, d:\arc1.rar
+>     and d:\arc2.rar, WinRAR will propose arc1_rar.rar default name
+>     for a new archive. Previous version proposed arc1.rar, updating one
+>     of selected archives instead of creating a new one.
+>
+>  2. Bugs fixed:
+>
+>     a) WinRAR 7.10 failed to update solid archives containing a folder
+>        record placed before a file record. It issued the checksum error
+>        message and aborted processing.
+>
+>        As a result of this fix, this version preserves the original position
+>        of such folders after updating and doesn't move them to the end
+>        of archive as WinRAR 7.10 did;
+>
+>     b) when extracting a file from CAB archive over an existing file,
+>        existing files were overwritten, but not truncated.
+>        So if existing file was larger than extracted, existing file data
+>        had been left at the end of the extracted file;
+>
+>     c) if SFX module from "Advanced SFX options" dialog was stored
+>        in the compression profile, it was applied as is, even if archive
+>        format was changed after selecting the profile. It could result
+>        in SFX module mismatching the archive format;
+>
+>     d) choosing a value in bytes from drop down list associated
+>        with archive dialog "Split to volumes, size" field didn't set
+>        units to bytes automatically;
+>
+>     e) if SFX "TextDone" command was used together with "Silent"
+>        and "TempMode" commands, the completion message was sometimes
+>        displayed behind other opened windows;
+>
+>     f) if symlink pointing at an executable was started from WinRAR shell,
+>        the executable Mark of the Web data was ignored. We are thankful
+>        to Shimamine Taihei of Mitsui Bussan Secure Directions, Inc
+>        for reporting this issue.
+> ```
+>
+> </details>
+
+> [!IMPORTANT]
+>
+> <details>
+> <summary><strong>WinRAR drops support for 32-bit Windows Operating Systems and Windows Vista</strong></summary><br/>
+>
+> As stated by WinRAR in the 6th entry in the `WhatsNew.txt` of version `7.10`, 32-bit operating systems are not supported anymore.
+> 
+>  ```
+>   6. Windows Vista and 32-bit Windows are not supported anymore.
+>      WinRAR requires Windows 7 x64 or later.
+>
+>      Unlike WinRAR, 32-bit self-extracting modules are still provided
+>      as a part of 64-bit installation package.
+> ```
+>
+> If you do need to install 32-bit versions of WinRAR, you can use one of the packages from a [previous release](https://github.com/neuralpain/oneclickwinrar/releases/tag/v0.9.0.701) or customize [installrar.cmd](https://github.com/neuralpain/oneclickwinrar#whats-included-click-the-names-to-download) as `installrar_x32_701.cmd` to install the most recent 32-bit version of WinRAR.
+> </details>
 
 <p align="center">
   <picture><img src="./assets/images/oneclickwinrar-header.jpg" alt="oneclickwinrar header"></picture>
