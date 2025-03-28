@@ -45,7 +45,7 @@ $script_name            = "installrar"
 $winrar                 = "winrar-x\d{2}-\d{3}\w*\.exe" # catch any version for any language
 $wrar                   = "wrar\d{3}\w*\.exe" # catch the old version of WinRAR for any language
 
-$LATEST                 = 710
+$LATEST                 = 711
 $script:WINRAR_EXE      = $null
 $script:FETCH_WINRAR    = $false # regular WinRAR
 $script:FETCH_WRAR      = $false # old 32-bit WinRAR
