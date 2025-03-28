@@ -1,7 +1,8 @@
 CHANGELOG
 
-0.10.0.711
+0.11.0.711
 
+  - Fix download-only failing whenever a specific version of WinRAR is not provided.
   - Update default version to WinRAR 7.11.
 
 0.10.0.710
