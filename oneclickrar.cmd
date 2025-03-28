@@ -224,7 +224,6 @@ function Get-WinRARData {
       break
     }
     $script_name_download_only {
-      $script:CUSTOM_DOWNLOAD = $true
       $script:DOWNLOAD_ONLY   = $true
       $script:KEEP_DOWNLOAD   = $true
       $script:SCRIPT_NAME_LOCATION_MIDDLE_RIGHT = $null
@@ -253,7 +252,6 @@ function Get-WinRARData {
           break
         }
         $script_name_download_only {
-          $script:CUSTOM_DOWNLOAD = $true
           $script:DOWNLOAD_ONLY   = $true
           $script:KEEP_DOWNLOAD   = $true
           $script:SCRIPT_NAME_LOCATION_LEFT = $null
