@@ -11,7 +11,7 @@
             \ \ \ \ \ \ \/\ \ /' _ `\ \ ,  /\ \  __ \ \ ,  /                    
              \ \ \_/ \_\ \ \ \/\ \/\ \ \ \\ \\ \ \/\ \ \ \\ \                   
               \ `\___x___/\ \_\ \_\ \_\ \_\ \_\ \_\ \_\ \_\ \_\                 
-               '\/__//__/  \/_/\/_/\/_/\/_/\/ /\/_/\/_/\/_/\/ /  v0.10.0.711    
+               '\/__//__/  \/_/\/_/\/_/\/_/\/ /\/_/\/_/\/_/\/ /  v0.11.0.711    
 
 
 oneclickwinrar - install and license WinRAR
@@ -336,8 +336,9 @@ See the /bin/winrar-keygen/LICENSE file for more information.
 CHANGELOG
 ---------
 
-0.10.0.711
+0.11.0.711
 
+  - Fix download-only failing whenever a specific version of WinRAR is not provided.
   - Update default version to WinRAR 7.11.
 
 0.10.0.710
