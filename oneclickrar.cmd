@@ -47,10 +47,6 @@ exit /b
   licenserar.cmd but there are some small modifications to
   that were made to allow the two scripts to work together
   as a single unit.
-
-  .NOTES
-  Yes, I wrote this description in PowerShell because it's
-  the main logic of the script. Bite me :)
 #>
 
 $global:ProgressPreference = "SilentlyContinue"
