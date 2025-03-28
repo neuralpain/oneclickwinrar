@@ -28,7 +28,7 @@ $winrar32 = "$loc32\WinRAR.exe"
 
 $freedom_universe_yt_url = "https://youtu.be/OD_WIKht0U0?t=450"
 
-$LATEST                     = 710
+$LATEST                     = 711
 $script:WINRAR_EXE          = $null
 $script:FETCH_WINRAR        = $false  # regular WinRAR
 
