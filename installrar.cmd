@@ -18,7 +18,7 @@ if defined ARGS set ARGS=%ARGS:'=''%
 fsutil dirty query %systemdrive% >nul
 if %ERRORLEVEL% NEQ 0 (
   cls & echo.
-  echo Please grant admin priviledges.
+  echo Please grant admin privileges.
   echo Attempting to elevate...
   goto UAC_Prompt
 ) else ( goto :begin_script )
