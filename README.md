@@ -136,9 +136,9 @@ there was a need for something versatile // so why not?
 
 ### [oneclickrar.cmd][oneclick] _(recommended for most users)_
 
-The one click you need to rule them all. Download, install, update and license WinRAR, all in just one single click (or double). Yes, it's that simple.
+Download, install, update and license WinRAR, all in just one single click (or double). Yes, it's that simple.
 
-Run the following command using an elevated PowerShell terminal. Overwriting is disabled by default. For more functionality, download and customize the script.
+For one-time use, run the following command in a PowerShell terminal (overwriting is disabled). For more functionality, download and customize the script.
 
 ```
 irm "https://shorter.gg/MCrzwB" | iex
@@ -146,9 +146,9 @@ irm "https://shorter.gg/MCrzwB" | iex
 
 ### [installrar.cmd][install]
 
-Only need to install or update WinRAR? Let `installrar` take care of that for you.
+Stay safe and bug-free. Keep your WinRAR installation up-to-date.
 
-Run the following command using a PowerShell terminal. For more functionality, download and customize the script.
+For one-time use, run the following command in a PowerShell terminal. For more functionality, download and customize the script.
 
 ```
 irm "https://shorter.gg/Jizeii" | iex
@@ -156,9 +156,9 @@ irm "https://shorter.gg/Jizeii" | iex
 
 ### [licenserar.cmd][license]
 
-C'mon, you've been using WinRAR unlicensed for years. Get a license and be done with that infinite 40-day trial. (`licenserar` can also install a WinRAR license that you [purchased from RARLAB®][purchase].)
+Get a license to end that infinite 40-day trial period, or install a WinRAR license that you [purchased from RARLAB®][purchase].
 
-Run the following command using an elevated PowerShell terminal. Overwriting is disabled by default. For more functionality, download and customize the script.
+For one-time use, run the following command in a PowerShell terminal (overwriting is disabled). For more functionality, download and customize the script.
 
 ```
 irm "https://shorter.gg/HbZotB" | iex
@@ -166,12 +166,12 @@ irm "https://shorter.gg/HbZotB" | iex
 
 ### [unlicenserar.cmd][unlicense]
 
-A stitch in time saves nine. Return to that 40-day infinite trial period and relive the pain.
+A stitch in time saves nine. Remove your WinRAR license and return to that 40-day infinite trial period.
 
 > [!TIP]
 > Get the full package from the [releases page][release]. It includes everything you need for customization.
 >
-> Yes, [customization](#customization). Read further down past the "features" and the "how to's" for the customization section. It might get a bit "technical".
+> Yes, [customization](#customization). Read further down past the "features" and the "how-tos" for the customization section.
 
 ## Features
 
