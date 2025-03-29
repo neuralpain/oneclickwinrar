@@ -84,8 +84,13 @@ there was a need for something versatile // so why not?
 
 ### Contents
 
-- [What's included?](#whats-included-click-the-names-to-download)
+- [What's included? (Click the names to download)](#whats-included-click-the-names-to-download)
+    - [oneclickrar.cmd _(recommended for most users)_](#oneclickrarcmd-recommended-for-most-users)
+    - [installrar.cmd](#installrarcmd)
+    - [licenserar.cmd](#licenserarcmd)
+    - [unlicenserar.cmd](#unlicenserarcmd)
   - [Features](#features)
+    - [Script comparison table](#script-comparison-table)
   - [Benefits](#benefits)
   - [Limitations](#limitations)
 - [How to use](#how-to-use)
@@ -93,14 +98,16 @@ there was a need for something versatile // so why not?
     - [Advanced usage](#advanced-usage)
 - [Customization](#customization)
   - [Naming patterns](#naming-patterns)
-    - [Complete naming pattern](#complete-naming-pattern-supported-by-oneclickrarcmd)
-    - [Licensing-only pattern](#licensing-only-pattern-supported-by-licenserarcmd-oneclickrarcmd)
-    - [Install-only pattern](#install-only-pattern-supported-by-installrarcmd-oneclickrarcmd)
+    - [Complete naming pattern (supported by oneclickrar.cmd)](#complete-naming-pattern-supported-by-oneclickrarcmd)
+    - [Licensing-only pattern (supported by licenserar.cmd, oneclickrar.cmd)](#licensing-only-pattern-supported-by-licenserarcmd-oneclickrarcmd)
+    - [Install-only pattern (supported by installrar.cmd, oneclickrar.cmd)](#install-only-pattern-supported-by-installrarcmd-oneclickrarcmd)
 - [Overwriting licenses](#overwriting-licenses)
 - [Download-only mode](#download-only-mode)
+    - [Installing WinRAR with download-only enabled](#installing-winrar-with-download-only-enabled)
 - [Extra stuff](#extra-stuff)
     - [Special function codes for `oneclickrar`](#special-function-codes-for-oneclickrar)
     - [Uninstalling WinRAR](#uninstalling-winrar)
+- [License](#license)
 
 ### Development plans
 
@@ -136,9 +143,9 @@ there was a need for something versatile // so why not?
 
 ### [oneclickrar.cmd][oneclick] _(recommended for most users)_
 
-The one click you need to rule them all. Download, install, update and license WinRAR, all in just one single click (or double). Yes, it's that simple.
+Download, install, update and license WinRAR, all in just one single click (or double). Yes, it's that simple.
 
-Run the following command using an elevated PowerShell terminal. Overwriting is disabled by default. For more functionality, download and customize the script.
+For one-time use, run the following command in a PowerShell terminal (overwriting is disabled). For more functionality, download and customize the script.
 
 ```
 irm "https://shorter.gg/MCrzwB" | iex
@@ -146,9 +153,9 @@ irm "https://shorter.gg/MCrzwB" | iex
 
 ### [installrar.cmd][install]
 
-Only need to install or update WinRAR? Let `installrar` take care of that for you.
+Stay safe and bug-free. Keep your WinRAR installation up-to-date.
 
-Run the following command using a PowerShell terminal. For more functionality, download and customize the script.
+For one-time use, run the following command in a PowerShell terminal. For more functionality, download and customize the script.
 
 ```
 irm "https://shorter.gg/Jizeii" | iex
@@ -156,9 +163,9 @@ irm "https://shorter.gg/Jizeii" | iex
 
 ### [licenserar.cmd][license]
 
-C'mon, you've been using WinRAR unlicensed for years. Get a license and be done with that infinite 40-day trial. (`licenserar` can also install a WinRAR license that you [purchased from RARLAB®][purchase].)
+Get a license to end that infinite 40-day trial period, or install a WinRAR license that you [purchased from RARLAB®][purchase].
 
-Run the following command using an elevated PowerShell terminal. Overwriting is disabled by default. For more functionality, download and customize the script.
+For one-time use, run the following command in a PowerShell terminal (overwriting is disabled). For more functionality, download and customize the script.
 
 ```
 irm "https://shorter.gg/HbZotB" | iex
@@ -166,12 +173,12 @@ irm "https://shorter.gg/HbZotB" | iex
 
 ### [unlicenserar.cmd][unlicense]
 
-A stitch in time saves nine. Return to that 40-day infinite trial period and relive the pain.
+A stitch in time saves nine. Remove your WinRAR license and return to that 40-day infinite trial period.
 
 > [!TIP]
 > Get the full package from the [releases page][release]. It includes everything you need for customization.
 >
-> Yes, [customization](#customization). Read further down past the "features" and the "how to's" for the customization section. It might get a bit "technical".
+> Yes, [customization](#customization). Read further down past the "features" and the "how-tos" for the customization section.
 
 ## Features
 
