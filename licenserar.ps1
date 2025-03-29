@@ -1,5 +1,5 @@
 <#
-  licenserar.ps1, Version 0.2.0
+  licenserar.ps1, Version 0.3.0
   Copyright (c) 2025, neuralpain
 
   .SYNOPSIS
@@ -37,19 +37,16 @@ function New-Toast {
 # Check for WinRAR architecture
 if (Test-Path $winrar64 -PathType Leaf) {
   $rarreg = $rarreg64
-}
-elseif (Test-Path $winrar32 -PathType Leaf) {
+} elseif (Test-Path $winrar32 -PathType Leaf) {
   $rarreg = $rarreg32
-}
-else {
+} else {
   New-Toast -ToastTitle "WinRAR is not installed" -ToastText "Run installrar.cmd or oneclickrar.cmd to install WinRAR before licensing."; exit
 }
 
 # License WinRAR
 if (-not(Test-Path $rarreg -PathType Leaf)) {
-  [IO.File]::WriteAllLines($rarreg, $rarkey)
-}
-else {
+  Start-Process -FilePath PowerShell.exe -Verb RunAs -ArgumentList "-Command [IO.File]::WriteAllLines('$rarreg', '$rarkey')"
+} else {
   New-Toast -ActionButtonUrl "https://github.com/neuralpain/oneclickwinrar#overwriting-licenses" -ToastTitle "A WinRAR license already exists" -ToastText2 "Download licenserar.cmd to overwrite this license."; exit
 }
 
