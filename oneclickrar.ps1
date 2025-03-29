@@ -1,5 +1,5 @@
 <#
-  oneclickrar.ps1, Version 0.2.0
+  oneclickrar.ps1, Version 0.3.0
   Copyright (c) 2025, neuralpain
 
   .SYNOPSIS
@@ -98,8 +98,7 @@ if ($null -eq $script:WINRAR_EXE) {
     $script:FETCH_WINRAR = $true # WinRAR was downloaded
     $script:WINRAR_EXE = (Get-Installer) # get the new installer
     Write-Host "Done."
-  }
-  else {
+  } else {
     New-Toast -ToastTitle "No internet" -ToastText "Please check your internet connection."; exit
   }
 }
@@ -111,16 +110,14 @@ Invoke-Installer $script:WINRAR_EXE (Get-WinRARExeVersion $script:WINRAR_EXE)
 # check for WinRAR architecture
 if (Test-Path $winrar64 -PathType Leaf) {
   $rarreg = $rarreg64
-}
-elseif (Test-Path $winrar32 -PathType Leaf) {
+} elseif (Test-Path $winrar32 -PathType Leaf) {
   $rarreg = $rarreg32
 }
 
 # install WinRAR license
 if (-not(Test-Path $rarreg -PathType Leaf)) {
-  [IO.File]::WriteAllLines($rarreg, $rarkey)
-}
-else {
+  Start-Process -FilePath PowerShell.exe -Verb RunAs -ArgumentList "-Command [IO.File]::WriteAllLines('$rarreg', '$rarkey')"
+} else {
   New-Toast -LongerDuration -ToastTitle "WinRAR installed successfully but..." -ActionButtonUrl "https://github.com/neuralpain/oneclickwinrar#overwriting-licenses" -ToastText "Notice: A WinRAR license already exists." -ToastText2 "Download oneclickrar.cmd to overwrite this license."; exit
 }
 
