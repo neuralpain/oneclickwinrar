@@ -148,7 +148,7 @@ Download, install, update and license WinRAR, all in just one single click (or d
 For one-time use, run the following command in a PowerShell terminal (overwriting is disabled). For more functionality, download and customize the script.
 
 ```
-irm "https://shorter.gg/MCrzwB" | iex
+irm "https://dub.sh/oneclickrar" | iex
 ```
 
 ### [installrar.cmd][install]
@@ -158,7 +158,7 @@ Stay safe and bug-free. Keep your WinRAR installation up-to-date.
 For one-time use, run the following command in a PowerShell terminal. For more functionality, download and customize the script.
 
 ```
-irm "https://shorter.gg/Jizeii" | iex
+irm "https://dub.sh/installrar" | iex
 ```
 
 ### [licenserar.cmd][license]
@@ -168,7 +168,7 @@ Get a license to end that infinite 40-day trial period, or install a WinRAR lice
 For one-time use, run the following command in a PowerShell terminal (overwriting is disabled). For more functionality, download and customize the script.
 
 ```
-irm "https://shorter.gg/HbZotB" | iex
+irm "https://dub.sh/licenserar" | iex
 ```
 
 ### [unlicenserar.cmd][unlicense]
