@@ -125,8 +125,6 @@ there was a need for something versatile // so why not?
 
 </details>
 
-- [ ] Fix downloads for users in China? ([可以用此链接下载包含WinRAR中文版的包][ocwr_chinese])
-
 ### Other plans
 
 <details>
@@ -179,6 +177,8 @@ A stitch in time saves nine. Remove your WinRAR license and return to that 40-da
 > Get the full package from the [releases page][release]. It includes everything you need for customization.
 >
 > Yes, [customization](#customization). Read further down past the "features" and the "how-tos" for the customization section.
+> 
+> For Chinese users on systems without a VPN, download [this package][ocwr_chinese] configured with the Chinese (Simplified) translation of WinRAR for 64-bit operating systems (view previous releases for 32-bit installers).
 
 ## Features
 
