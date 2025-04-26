@@ -55,6 +55,7 @@ $global:ProgressPreference = "SilentlyContinue"
 [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor [System.Net.SecurityProtocolType]::Tls12
 
 $script_name                         = "oneclickrar"
+$script_name_custom                  = "$script_name"
 $script_name_overwrite               = "oneclick-rar"
 $script_name_download_only           = "one-clickrar"
 $script_name_download_only_overwrite = "one-click-rar"
@@ -217,22 +218,29 @@ function Get-WinRARData {
 
   Get-SpecialFunctionCode $_data
 
+  if ($script:SCRIPT_NAME_LOCATION_LEFT) {
+    $script:SCRIPT_NAME_LOCATION_MIDDLE_RIGHT = $null
+    $script_name_custom = $script:SCRIPT_NAME_LOCATION_LEFT
+  } elseif ($script:SCRIPT_NAME_LOCATION_MIDDLE_RIGHT) {
+    $script:SCRIPT_NAME_LOCATION_LEFT = $null
+    $script_name_custom = $script:SCRIPT_NAME_LOCATION_MIDDLE_RIGHT
+  } else {
+    New-Toast -LongerDuration `
+              -ActionButtonUrl "https://github.com/neuralpain/oneclickwinrar#customization" `
+              -ToastTitle "What script is this?" `
+              -ToastText  "Script name is invalid. Check the script name for any typos and try again."; exit
+  }
+
   # VERIFY SCRIPT NAME
-  switch ($script:SCRIPT_NAME_LOCATION_LEFT) {
-    $script_name {
-      $script:SCRIPT_NAME_LOCATION_MIDDLE_RIGHT = $null
-      break
-    }
-    # CHECK FOR OVERWRITE SWITCH
+  switch ($script_name_custom) {
+    $script_name { break }
     $script_name_overwrite {
       $script:OVERWRITE_LICENSE = $true
-      $script:SCRIPT_NAME_LOCATION_MIDDLE_RIGHT = $null
       break
     }
     $script_name_download_only {
-      $script:DOWNLOAD_ONLY   = $true
-      $script:KEEP_DOWNLOAD   = $true
-      $script:SCRIPT_NAME_LOCATION_MIDDLE_RIGHT = $null
+      $script:DOWNLOAD_ONLY = $true
+      $script:KEEP_DOWNLOAD = $true
       break
     }
     $script_name_download_only_overwrite {
@@ -241,41 +249,13 @@ function Get-WinRARData {
       # to keep the download but allow installation
       $script:DOWNLOAD_ONLY = $false
       $script:KEEP_DOWNLOAD = $true
-      $script:SCRIPT_NAME_LOCATION_MIDDLE_RIGHT = $null
       break
     }
     default {
-      switch ($script:SCRIPT_NAME_LOCATION_MIDDLE_RIGHT) {
-        $script_name {
-          $script:SCRIPT_NAME_LOCATION_LEFT = $null
-          break
-        }
-        # CHECK FOR OVERWRITE SWITCH
-        $script_name_overwrite {
-          $script:OVERWRITE_LICENSE = $true
-          $script:SCRIPT_NAME_LOCATION_LEFT = $null
-          break
-        }
-        $script_name_download_only {
-          $script:DOWNLOAD_ONLY   = $true
-          $script:KEEP_DOWNLOAD   = $true
-          $script:SCRIPT_NAME_LOCATION_LEFT = $null
-          break
-        }
-        $script_name_download_only_overwrite {
-          $script:OVERWRITE_LICENSE = $true
-          # when both overwrite and download-only is set,
-          # the function is changed to keep the download
-          # but allow installation
-          $script:DOWNLOAD_ONLY = $false
-          $script:KEEP_DOWNLOAD = $true
-          $script:SCRIPT_NAME_LOCATION_LEFT = $null
-          break
-        }
-        default {
-          New-Toast -LongerDuration -ActionButtonUrl "https://github.com/neuralpain/oneclickwinrar#customization" -ToastTitle "What script is this?" -ToastText "Script name is invalid. Check the script name for any typos and try again."; exit
-        }
-      }
+      New-Toast -LongerDuration `
+                -ActionButtonUrl "https://github.com/neuralpain/oneclickwinrar#customization" `
+                -ToastTitle "What script is this?" `
+                -ToastText  "Script name is invalid. Check the script name for any typos and try again."; exit
     }
   }
 
