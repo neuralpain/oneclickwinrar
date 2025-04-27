@@ -55,13 +55,12 @@ $global:ProgressPreference = "SilentlyContinue"
 [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor [System.Net.SecurityProtocolType]::Tls12
 
 $script_name                         = "oneclickrar"
-$script_name_custom                  = "$script_name"
 $script_name_overwrite               = "oneclick-rar"
 $script_name_download_only           = "one-clickrar"
 $script_name_download_only_overwrite = "one-click-rar"
 
-$winrar   = "winrar-x\d{2}-\d{3}\w*\.exe"  # catch any version for any language
-$wrar     = "wrar\d{3}\w*\.exe"            # catch the old version of WinRAR for any language
+$winrar   = "winrar-x\d{2}-\d{3}\w*\.exe"                                       # catch any version for any language
+$wrar     = "wrar\d{3}\w*\.exe"                                                 # catch the old version of WinRAR for any language
 
 $rarkey   = "RAR registration data`r`nEveryone`r`nGeneral Public License`r`nUID=119fdd47b4dbe9a41555`r`n6412212250155514920287d3b1cc8d9e41dfd22b78aaace2ba4386`r`n9152c1ac6639addbb73c60800b745269020dd21becbc46390d7cee`r`ncce48183d6d73d5e42e4605ab530f6edf8629596821ca042db83dd`r`n68035141fb21e5da4dcaf7bf57494e5455608abc8a9916ffd8e23d`r`n0a68ab79088aa7d5d5c2a0add4c9b3c27255740277f6edf8629596`r`n821ca04340a7c91e88b14ba087e0bfb04b57824193d842e660c419`r`nb8af4562cb13609a2ca469bf36fb8da2eda6f5e978bf1205660302"
 $rarreg64 = "$env:ProgramFiles\WinRAR\rarreg.key"
@@ -79,35 +78,40 @@ $keygen32 = "./bin/winrar-keygen/winrar-keygen-x86.exe"
 $keygen   = $null
 
 $server1_host = "www.rarlab.com"
-$server1 = "https://$server1_host/rar"
+$server1      = "https://$server1_host/rar"
 $server2_host = "www.win-rar.com"
-$server2 = "https://$server2_host/fileadmin/winrar-versions/winrar"
+$server2      = @("https://$server2_host/fileadmin/winrar-versions", "https://$server2_host/fileadmin/winrar-versions/winrar")
 
 $freedom_universe_yt_url = "https://youtu.be/OD_WIKht0U0?t=450"
 
+$link_overwriting = "https://github.com/neuralpain/oneclickwinrar#overwriting-licenses"
+$link_howtouse = "https://github.com/neuralpain/oneclickwinrar#how-to-use"
+$link_customization = "https://github.com/neuralpain/oneclickwinrar#customization"
+$link_endof32bitsupport = "https://www.win-rar.com/singlenewsview.html?&L=0&tx_ttnews%5Btt_news%5D=266&cHash=44c8cdb0ff6581307702dfe4892a3fb5"
+
 $LATEST                     = 711
 $script:WINRAR_EXE          = $null
-$script:FETCH_WINRAR        = $false  # regular WinRAR
-$script:FETCH_WRAR          = $false  # old 32-bit WinRAR
-
-$script:OVERWRITE_LICENSE   = $false
-$script:CUSTOM_LICENSE      = $false
-$script:CUSTOM_DOWNLOAD     = $false
-$script:KEEP_DOWNLOAD       = $false
-$script:DOWNLOAD_ONLY       = $false
+$script:FETCH_WINRAR        = $false                                            # Download standard WinRAR
+$script:FETCH_WRAR          = $false                                            # Download old 32-bit WinRAR naming scheme
 $script:WINRAR_IS_INSTALLED = $false
-$script:SKIP_LICENSING      = $false
+
+$script:CUSTOM_DOWNLOAD     = $false
+$script:DOWNLOAD_ONLY       = $false
+$script:KEEP_DOWNLOAD       = $false
+
+$script:LICENSEE            = $null
+$script:LICENSE_TYPE        = $null
 $script:LICENSE_ONLY        = $false
+$script:CUSTOM_LICENSE      = $false
+$script:SKIP_LICENSING      = $false
+$script:OVERWRITE_LICENSE   = $false
 
-$script:LICENSEE            = $null   # name of licensee
-$script:LICENSE_TYPE        = $null   # type of license
+$script:ARCH                = $null                                             # Download architecture
+$script:RARVER              = $null                                             # WinRAR version
+$script:TAGS                = $null                                             # Other download types, i.e. beta, language
 
-$script:ARCH                = $null   # download architecture
-$script:RARVER              = $null   # download version
-$script:TAGS                = $null   # other download types, i.e. beta, language
-
-$script:SCRIPT_NAME_LOCATION_LEFT         = ""
-$script:SCRIPT_NAME_LOCATION_MIDDLE_RIGHT = ""
+$script:SCRIPT_NAME_LOCATION_LEFT         = $null
+$script:SCRIPT_NAME_LOCATION_MIDDLE_RIGHT = $null
 
 # check if WinRAR is installed before begin
 if (Test-Path $winrar64 -PathType Leaf) {
@@ -118,6 +122,17 @@ elseif (Test-Path $winrar32 -PathType Leaf) {
   $rarloc = $loc32
   $script:WINRAR_IS_INSTALLED = $true
 }
+
+$SetDefaultArchVersion = {
+  if ($null -eq $script:ARCH) { $script:ARCH = "x64" }
+  if ($null -eq $script:RARVER) { $script:RARVER = $LATEST }
+}
+
+$Error_UnknownScript = { New-Toast -LongerDuration -ActionButtonUrl "$link_customization" -ToastTitle "What script is this?" -ToastText  "Script name is invalid. Check the script name for any typos and try again." }
+$Error_UnableToProcess = { New-Toast -ActionButtonUrl "$link_customization" -ToastTitle "Unable to process data" -ToastText "WinRAR data is invalid." -ToastText2 "Check your configuration for any errors or typos and try again." }
+$Error_No32bitSupport = { New-Toast -LongerDuration -ActionButtonUrl "$link_endof32bitsupport"  -ActionButtonText "Read More" -ToastTitle "Unable to process data" -ToastText "WinRAR no longer supports 32-bit on newer versions." -ToastText2 "Check your configuration for any errors or typos and try again." }
+$Error_InvalidArchitecture = { New-Toast -ToastTitle "Unable to process data" -ToastText "The WinRAR architecture is invalid." -ToastText2 "Only x64 and x32 are supported." }
+$Error_InvalidVersionNumber = { New-Toast -ToastTitle "Unable to process data" -ToastText "The WinRAR version is invalid." -ToastText2 "The version number must have 3 digits." }
 
 function New-Toast {
   [CmdletBinding()] Param ([String]$AppId = "oneclickwinrar", [String]$Url, [String]$ToastTitle, [String]$ToastText, [String]$ToastText2, [string]$Attribution, [String]$ActionButtonUrl, [String]$ActionButtonText = "Open documentation", [switch]$KeepAlive, [switch]$LongerDuration)
@@ -134,39 +149,8 @@ function New-Toast {
   $Notifier = [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier($AppId); $Notifier.Show($Toast)
 }
 
-function Get-SpecialFunctionCode($_data) {
-  if (([regex]::matches($_data[0], 'rar')).Count -gt 0 -and ([regex]::matches($_data[0], 'i')).Count -eq 0) {
-    $_switch_code = ([regex]::matches($_data[0], '\d+'))[0].Value
-    $_switch_one  = ([regex]::matches($_data[0], 'one-'))[0].Value
-    $_switch_rar  = ([regex]::matches($_data[0], '-rar'))[0].Value
-
-    if ($null -ne $_switch_one -and $null -ne $_switch_rar) {
-      $script:SCRIPT_NAME_LOCATION_LEFT = $script_name_download_only_overwrite
-    } elseif ($null -ne $_switch_one) {
-      $script:SCRIPT_NAME_LOCATION_LEFT = $script_name_download_only
-    } elseif ($null -ne $_switch_rar) {
-      $script:SCRIPT_NAME_LOCATION_LEFT = $script_name_overwrite
-    } else {
-      $script:SCRIPT_NAME_LOCATION_LEFT = $script_name
-    }
-  }
-  elseif (([regex]::matches($_data[2], 'rar')).Count -gt 0 -and ([regex]::matches($_data[2], 'i')).Count -eq 0) {
-    $_switch_code = ([regex]::matches($_data[2], '\d+'))[0].Value
-    $_switch_one  = ([regex]::matches($_data[2], 'one-'))[0].Value
-    $_switch_rar  = ([regex]::matches($_data[2], '-rar'))[0].Value
-
-    if ($null -ne $_switch_one -and $null -ne $_switch_rar) {
-      $script:SCRIPT_NAME_LOCATION_MIDDLE_RIGHT = $script_name_download_only_overwrite
-    } elseif ($null -ne $_switch_one) {
-      $script:SCRIPT_NAME_LOCATION_MIDDLE_RIGHT = $script_name_download_only
-    } elseif ($null -ne $_switch_rar) {
-      $script:SCRIPT_NAME_LOCATION_MIDDLE_RIGHT = $script_name_overwrite
-    } else {
-      $script:SCRIPT_NAME_LOCATION_MIDDLE_RIGHT = $script_name
-    }
-  }
-
-  switch ($_switch_code) {
+function Get-SpecialCode($code) {
+  switch ($code) {
     0 {
       if ($script:WINRAR_IS_INSTALLED -and (Test-Path "$rarloc\Uninstall.exe" -PathType Leaf)) {
         Write-Host -NoNewLine "Uninstalling WinRAR... "
@@ -192,10 +176,47 @@ function Get-SpecialFunctionCode($_data) {
   }
 }
 
+# TODO - review this function with new changes
+
+function Get-SpecialFunctionCode($_data) {
+  if ([regex]::matches($_data[0], 'rar') -and -not [regex]::matches($_data[0], 'i')) {
+    $switch_code = ([regex]::matches($_data[0], '\d+'))[0].Value
+    $switch_one  = ([regex]::matches($_data[0], 'one-'))[0].Value
+    $switch_rar  = ([regex]::matches($_data[0], '-rar'))[0].Value
+
+    if ($null -ne $switch_one -and $null -ne $switch_rar) {
+      $script:SCRIPT_NAME_LOCATION_LEFT = $script_name_download_only_overwrite
+    } elseif ($null -ne $switch_one) {
+      $script:SCRIPT_NAME_LOCATION_LEFT = $script_name_download_only
+    } elseif ($null -ne $switch_rar) {
+      $script:SCRIPT_NAME_LOCATION_LEFT = $script_name_overwrite
+    } else {
+      $script:SCRIPT_NAME_LOCATION_LEFT = $script_name
+    }
+  }
+  elseif ([regex]::matches($_data[2], 'rar') -and -not [regex]::matches($_data[2], 'i')) {
+    $switch_code = ([regex]::matches($_data[2], '\d+'))[0].Value
+    $switch_one  = ([regex]::matches($_data[2], 'one-'))[0].Value
+    $switch_rar  = ([regex]::matches($_data[2], '-rar'))[0].Value
+
+    if ($null -ne $switch_one -and $null -ne $switch_rar) {
+      $script:SCRIPT_NAME_LOCATION_MIDDLE_RIGHT = $script_name_download_only_overwrite
+    } elseif ($null -ne $switch_one) {
+      $script:SCRIPT_NAME_LOCATION_MIDDLE_RIGHT = $script_name_download_only
+    } elseif ($null -ne $switch_rar) {
+      $script:SCRIPT_NAME_LOCATION_MIDDLE_RIGHT = $script_name_overwrite
+    } else {
+      $script:SCRIPT_NAME_LOCATION_MIDDLE_RIGHT = $script_name
+    }
+  }
+
+  Get-SpecialCode $switch_code
+}
+
 function Get-WinRARData {
   <#
     .SYNOPSIS
-    Parses the script name to determine the type of operation.
+    Parse the script name and determine the type of operation.
 
     .DESCRIPTION
     The script name is parsed to determine the type of operation.
@@ -204,6 +225,8 @@ function Get-WinRARData {
     2. License and overwrite
     3. Download, license, and overwrite
   #>
+
+  $local:custom_name = $null
   $_data = [regex]::matches($CMD_NAME, '[^_]+')
 
   # Download, and overwrite
@@ -220,19 +243,40 @@ function Get-WinRARData {
 
   if ($script:SCRIPT_NAME_LOCATION_LEFT) {
     $script:SCRIPT_NAME_LOCATION_MIDDLE_RIGHT = $null
-    $script_name_custom = $script:SCRIPT_NAME_LOCATION_LEFT
-  } elseif ($script:SCRIPT_NAME_LOCATION_MIDDLE_RIGHT) {
-    $script:SCRIPT_NAME_LOCATION_LEFT = $null
-    $script_name_custom = $script:SCRIPT_NAME_LOCATION_MIDDLE_RIGHT
-  } else {
-    New-Toast -LongerDuration `
-              -ActionButtonUrl "https://github.com/neuralpain/oneclickwinrar#customization" `
-              -ToastTitle "What script is this?" `
-              -ToastText  "Script name is invalid. Check the script name for any typos and try again."; exit
+    $local:custom_name = $script:SCRIPT_NAME_LOCATION_LEFT
+    if ($_data.Count -gt 1 -and $_data.Count -le 4) {                           # GET DOWNLOAD-ONLY DATA
+      $script:CUSTOM_DOWNLOAD = $true
+      # `$_data[0]` is the script name # 1
+      $script:ARCH   = $_data[1].Value # 2
+      $script:RARVER = $_data[2].Value # 3                                      # Not required for download
+      $script:TAGS   = $_data[3].Value # 4                                      # Not required for download
+    }
+    elseif ($_data.Count -ne 1) { &$Error_UnableToProcess; exit }               # data out of bounds
   }
+  elseif ($script:SCRIPT_NAME_LOCATION_MIDDLE_RIGHT) {
+    $script:SCRIPT_NAME_LOCATION_LEFT = $null
+    $local:custom_name = $script:SCRIPT_NAME_LOCATION_MIDDLE_RIGHT
+    if ($_data.Count -gt 1 -and $_data.Count -eq 3) {                           # GET LICENSE-ONLY DATA
+      $script:CUSTOM_LICENSE = $true
+      $script:LICENSEE       = $_data[0].Value # 1
+      $script:LICENSE_TYPE   = $_data[1].Value # 2
+      # `$_data[2]` is the script name         # 3
+    }
+    elseif ($_data.Count -ge 4 -and $_data.Count -le 6) {                       # GET DOWNLOAD AND LICENSE DATA
+      $script:CUSTOM_LICENSE  = $true
+      $script:CUSTOM_DOWNLOAD = $true
+      $script:LICENSEE        = $_data[0].Value # 1
+      $script:LICENSE_TYPE    = $_data[1].Value # 2
+      # `$_data[2]` is the script name # 3
+      $script:ARCH   = $_data[3].Value # 4
+      $script:RARVER = $_data[4].Value # 5                                      # Not required for download
+      $script:TAGS   = $_data[5].Value # 6                                      # Not required for download
+    }
+    elseif ($_data.Count -ne 1) { &$Error_UnableToProcess; exit }               # Data out of bounds
+  } else { &$Error_UnknownScript; exit }
 
   # VERIFY SCRIPT NAME
-  switch ($script_name_custom) {
+  switch ($local:custom_name) {
     $script_name { break }
     $script_name_overwrite {
       $script:OVERWRITE_LICENSE = $true
@@ -251,62 +295,27 @@ function Get-WinRARData {
       $script:KEEP_DOWNLOAD = $true
       break
     }
-    default {
-      New-Toast -LongerDuration `
-                -ActionButtonUrl "https://github.com/neuralpain/oneclickwinrar#customization" `
-                -ToastTitle "What script is this?" `
-                -ToastText  "Script name is invalid. Check the script name for any typos and try again."; exit
-    }
+    default { &$Error_UnknownScript; exit }
   }
 
-  <#
-    VERIFY CONFIGURATION BOUNDS
-  #>
-
-  if ($_data.Count -gt 1 -and $_data.Count -le 4 -and $null -ne $script:SCRIPT_NAME_LOCATION_LEFT) {                    # GET DOWNLOAD-ONLY DATA
-    $script:CUSTOM_DOWNLOAD = $true
-    # `$_data[0]` is the script name # 1
-    $script:ARCH   = $_data[1].Value # 2
-    $script:RARVER = $_data[2].Value # 3 # not required for download
-    $script:TAGS   = $_data[3].Value # 4 # not required for download
-  } elseif ($_data.Count -gt 1 -and $_data.Count -eq 3 -and $null -ne $script:SCRIPT_NAME_LOCATION_MIDDLE_RIGHT) {      # GET LICENSE-ONLY DATA
-    $script:CUSTOM_LICENSE = $true
-    $script:LICENSEE       = $_data[0].Value # 1
-    $script:LICENSE_TYPE   = $_data[1].Value # 2
-    # `$_data[2]` is the script name # 3
-  } elseif ($_data.Count -ge 4 -and $_data.Count -le 6 -and $null -ne $script:SCRIPT_NAME_LOCATION_MIDDLE_RIGHT) {      # GET DOWNLOAD AND LICENSE DATA
-    $script:CUSTOM_LICENSE  = $true
-    $script:CUSTOM_DOWNLOAD = $true
-    $script:LICENSEE        = $_data[0].Value # 1
-    $script:LICENSE_TYPE    = $_data[1].Value # 2
-    # `$_data[2]` is the script name # 3
-    $script:ARCH   = $_data[3].Value # 4
-    $script:RARVER = $_data[4].Value # 5 # not required for download
-    $script:TAGS   = $_data[5].Value # 6 # not required for download
-  } elseif ($_data.Count -ne 1) {
-    New-Toast -ActionButtonUrl "https://github.com/neuralpain/oneclickwinrar#customization" `
-              -ToastTitle "Unable to process data" `
-              -ToastText  "WinRAR data is invalid." `
-              -ToastText2 "Check your configuration for any errors or typos and try again."; exit
-  }
+  &$SetDefaultArchVersion
 
   # VERIFY DOWNLOAD DATA
   if ($script:CUSTOM_DOWNLOAD) {
-    # architecture is omitted if the data does not contain an `x`
-    if (([regex]::matches($script:ARCH, 'x')).Count -eq 0) {
-      # copy config to correct variables (LIFO)
+    if (([regex]::matches($script:ARCH, 'x')).Count -eq 0) {                    # architecture is omitted if the data does not contain an `x`
+      # Copy the config to the correct variables (LIFO)
       $script:TAGS   = $script:RARVER
       $script:RARVER = $script:ARCH
       $script:ARCH   = "x64" # assume 64-bit
     }
     if ($script:ARCH -ne "x64" -and $script:ARCH -ne "x32") {
-      New-Toast -ToastTitle "Unable to process data" -ToastText "The WinRAR architecture is invalid." -ToastText2 "Only x64 and x32 are supported."; exit
+      &$Error_InvalidArchitecture; exit
     }
     if (-not($script:RARVER.Length -ge 3) -and $script:RARVER -lt 100) {
-      New-Toast -ToastTitle "Unable to process data" -ToastText "The WinRAR version is invalid." -ToastText2 "The version number must have 3 digits."; exit
+      &$Error_InvalidVersionNumber; exit
     }
-    if ($null -eq $script:RARVER) {
-      $script:RARVER = $LATEST
+    if ($script:ARCH -eq "x32" -and $script:RARVER -gt 701) {
+      &$Error_No32bitSupport; exit
     }
   }
 }
@@ -323,17 +332,23 @@ function Invoke-Installer($x, $v) {
     New-Toast -ToastTitle "Installation error" -ToastText "The script has run into a problem during installation. Please restart the script."; exit
   }
   finally {
-    if ($script:FETCH_WINRAR -and -not $script:KEEP_DOWNLOAD) { Remove-Item $script:WINRAR_EXE }
+    if ($script:FETCH_WINRAR -and -not $script:KEEP_DOWNLOAD) {
+      Remove-Item $script:WINRAR_EXE
+    }
   }
 }
 
 function Get-OldInstaller {
   $files = Get-ChildItem -Path $pwd | Where-Object { $_.Name -match '^wrar' }
   if ($CUSTOM_DOWNLOAD) {
-    $download = "wrar${Script:RARVER}${Script:TAGS}.exe"
-    foreach ($file in $files) { if ($file -match $download) { return $file } }
+    $download = "wrar${script:RARVER}${script:TAGS}.exe"
+    foreach ($file in $files) {
+      if ($file -match $download) { return $file }
+    }
   } else {
-    foreach ($file in $files) { if ($file -match $wrar) { return $file } }
+    foreach ($file in $files) {
+      if ($file -match $wrar) { return $file }
+    }
   }
 }
 
@@ -341,12 +356,14 @@ function Get-Installer {
   $files = Get-ChildItem -Path $pwd | Where-Object { $_.Name -match '^winrar-x' }
   if ($CUSTOM_DOWNLOAD) {
     if ($script:RARVER -lt 611 -and $script:ARCH -eq "x32") {
-      # if the user wants to download an older version of 32-bit WinRAR
       $script:FETCH_WRAR = $true
       Get-OldInstaller
     } else {
-      $download = "winrar-${Script:ARCH}-${Script:RARVER}${Script:TAGS}.exe"
-      foreach ($file in $files) { if ($file -match $download) { return $file } }
+      $script:FETCH_WINRAR = $true
+      $download = "winrar-${script:ARCH}-${script:RARVER}${script:TAGS}.exe"
+      foreach ($file in $files) {
+        if ($file -match $download) { return $file }
+      }
     }
   } else {
     foreach ($file in $files) {
@@ -359,22 +376,14 @@ function Get-Installer {
 function Get-WinRARExeVersion {
   param($x, [Switch]$IntToDouble)
 
-  $v = if ($IntToDouble) {
-    $x
-  } elseif ($x -match "(?<version>\d{3})") {
-    $matches['version']
-  } else {
-    return $null
-  }
+  $v =  if ($IntToDouble) { $x }
+        elseif ($x -match "(?<version>\d{3})") { $matches['version'] }
+        else { return $null }
 
   return "{0:N2}" -f ($v / 100)
 }
 
 function Add-WinRarLicense {
-  # check for WinRAR architecture
-  # (the final `else` block in `licenserar.cmd` is unnecessary,
-  # because WinRAR will be installed before the license, else
-  # the script will exit)
   if (Test-Path $winrar64 -PathType Leaf) {
     $keygen = $keygen64
     $rarreg = $rarreg64
@@ -383,16 +392,19 @@ function Add-WinRarLicense {
     $keygen = $keygen32
     $rarreg = $rarreg32
   }
+  else {
+    New-Toast -ToastTitle "WinRAR is not installed" -ToastText "Run this script to install WinRAR before licensing."; exit
+  }
 
   # install WinRAR license
   if (-not(Test-Path $rarreg -PathType Leaf) -or $script:OVERWRITE_LICENSE) {
     if ($script:CUSTOM_LICENSE) {
       if (Test-Path $keygen -PathType Leaf) {
-        & $keygen "$($script:LICENSEE)" "$($script:LICENSE_TYPE)" | Out-File -Encoding utf8 $rarreg
+        &$keygen "$($script:LICENSEE)" "$($script:LICENSE_TYPE)" | Out-File -Encoding utf8 $rarreg
       }
       else {
-        New-Toast -ActionButtonUrl "https://github.com/neuralpain/oneclickwinrar#how-to-use" `
-                  -ToastTitle "Missing keygen" `
+        New-Toast -ActionButtonUrl "$link_howtouse" `
+                  -ToastTitle "Missing `"bin`" folder" `
                   -ToastText  "Unable to generate a license. Ensure that the `"bin`" file is available in the same directory as the script."; exit
       }
     }
@@ -409,13 +421,13 @@ function Add-WinRarLicense {
     if ($script:LICENSE_ONLY) {
       New-Toast -LongerDuration `
                 -ToastTitle "Unable to license WinRAR" `
-                -ActionButtonUrl "https://github.com/neuralpain/oneclickwinrar#overwriting-licenses" `
+                -ActionButtonUrl "$link_overwriting" `
                 -ToastText  "Notice: A WinRAR license already exists." `
                 -ToastText2 "View the documentation on how to use the override switch to install a new license."; exit
     } else {
       New-Toast -LongerDuration `
                 -ToastTitle "WinRAR installed successfully but..." `
-                -ActionButtonUrl "https://github.com/neuralpain/oneclickwinrar#overwriting-licenses" `
+                -ActionButtonUrl "$link_overwriting" `
                 -ToastText  "Notice: A WinRAR license already exists." `
                 -ToastText2 "View the documentation on how to use the override switch to install a new license."; exit
     }
@@ -423,74 +435,54 @@ function Add-WinRarLicense {
 }
 
 function Get-WinRarInstaller {
-  param($HostUri, $HostUriDir, [Switch]$Default)
-
+  param($HostUri, $HostUriDir)
   Write-Host "Connecting to $HostUri... " -NoNewLine
   if (Test-Connection "$HostUri" -Count 2 -Quiet) {
-    if ($Default) {
-      Write-Host -NoNewLine "OK.`nDownloading WinRAR $(Get-WinRARExeVersion $script:RARVER -IntToDouble) ($script:ARCH)... "
-      Start-BitsTransfer "$HostUriDir/winrar-x64-${LATEST}.exe" $pwd\ -ErrorAction SilentlyContinue
+    Write-Host -NoNewLine "OK.`nDownloading WinRAR $(Get-WinRARExeVersion $script:RARVER -IntToDouble) ($script:ARCH)... "
+    if ($script:FETCH_WRAR) {
+      Start-BitsTransfer "$HostUriDir/wrar$script:RARVER$script:TAGS.exe" $pwd\ -ErrorAction SilentlyContinue
     } else {
-      Write-Host -NoNewLine "OK.`nDownloading WinRAR $(Get-WinRARExeVersion $script:RARVER -IntToDouble) ($script:ARCH)... "
-      if ($script:FETCH_WRAR) {
-        Start-BitsTransfer "$HostUriDir/wrar${Script:RARVER}${Script:TAGS}.exe" $pwd\ -ErrorAction SilentlyContinue
-      } else {
-        Start-BitsTransfer "$HostUriDir/winrar-${Script:ARCH}-${Script:RARVER}${Script:TAGS}.exe" $pwd\ -ErrorAction SilentlyContinue
-      }
+      Start-BitsTransfer "$HostUriDir/winrar-$($script:ARCH)-$($script:RARVER)$($script:TAGS).exe" $pwd\ -ErrorAction SilentlyContinue
     }
   } else {
     New-Toast -ToastTitle "No internet" -ToastText "Please check your internet connection."; exit
   }
 }
 
-# grab the name of the script file and process any
+# Grab the name of the script file and process any
 # customization data set by the user
 if ($CMD_NAME -ne $script_name) { Get-WinRARData }
+else { &$SetDefaultArchVersion }
 
 if (-not($script:LICENSE_ONLY)) {
-  # this ensures that the script does not
-  # unnecessarily download a new installer if one
-  # is available in the current directory
+  # This ensures that the script does not unnecessarily
+  # download a new installer if one is available in the
+  # current directory
   $script:WINRAR_EXE = (Get-Installer)
 
   # if there are no installers, proceed to download one
   if ($null -eq $script:WINRAR_EXE) {
-    if ($script:CUSTOM_DOWNLOAD) {
-      $Error.Clear()
-      Get-WinRarInstaller -HostUri $server1_host -HostUriDir $server1
+    $Error.Clear()
+    Get-WinRarInstaller -HostUri $server1_host -HostUriDir $server1
+    $local:retrycount = 0
+    foreach ($wdir in $server2) {
       if ($Error) {
-        Write-Host -NoNewLine "`nNo installer found at $server1_host`n"
         $Error.Clear()
-        Get-WinRarInstaller -HostUri $server2_host -HostUriDir $server2
-        if ($Error) {
-          Write-Host -NoNewLine "`nNo installer found at $server2_host`n"
-          New-Toast -ToastTitle "Unable to fetch download" `
-                    -ToastText  "WinRAR $(Get-WinRARExeVersion $script:RARVER -IntToDouble) ($script:ARCH) may not exist on the server." `
-                    -ToastText2 "Check the version number and try again."; exit
-        }
-        if ($script:DOWNLOAD_ONLY) {
-          New-Toast -ToastTitle "Download Complete" `
-                    -ToastText  "WinRAR $(Get-WinRARExeVersion $script:RARVER -IntToDouble) ($script:ARCH) was successfully downloaded." `
-                    -ToastText2 "Run this script again if you ever need to install it."; exit
-        }
+        $local:retrycount++
+        Write-Host -NoNewLine "`nRetrying... $local:retrycount`n"
+        Get-WinRarInstaller -HostUri $server2_host -HostUriDir $wdir
       }
-    } else {
-      $Error.Clear()
-      Get-WinRarInstaller -HostUri $server1_host -HostUriDir $server1 -Default
-      if ($Error) {
-        $Error.Clear()
-        Get-WinRarInstaller -HostUri $server2_host -HostUriDir $server2
-        if ($Error) {
-          New-Toast -ToastTitle "Unable to fetch download" `
-                    -ToastText  "Are you still connected to the internet?" `
-                    -ToastText2 "Please check your internet connection."; exit
-        }
-        if ($script:DOWNLOAD_ONLY) {
-          Write-Host "Done."
-          New-Toast -ToastTitle "Download Complete" `
-                    -ToastText  "WinRAR $(Get-WinRARExeVersion $LATEST -IntToDouble) ($script:ARCH) was successfully downloaded." `
-                    -ToastText2 "Run this script again if you ever need to install it."; exit
-        }
+    }
+    if ($Error) {
+      Write-Host -NoNewLine "`nNo installer found at $server2_host`n"
+      if ($script:CUSTOM_DOWNLOAD) {
+        New-Toast -ToastTitle "Unable to fetch download" `
+                  -ToastText  "WinRAR $(Get-WinRARExeVersion $script:RARVER -IntToDouble) ($script:ARCH) may not exist on the server." `
+                  -ToastText2 "Check the version number and try again."; exit
+      } else {
+        New-Toast -ToastTitle "Unable to fetch download" `
+                  -ToastText  "Are you still connected to the internet?" `
+                  -ToastText2 "Please check your internet connection."; exit
       }
     }
     if ($script:DOWNLOAD_ONLY) {
@@ -498,7 +490,6 @@ if (-not($script:LICENSE_ONLY)) {
                 -ToastText  "WinRAR $(Get-WinRARExeVersion $script:RARVER -IntToDouble) ($script:ARCH) was successfully downloaded." `
                 -ToastText2 "Run this script again if you ever need to install it."; exit
     }
-    $script:FETCH_WINRAR = $true # WinRAR was downloaded
     $script:WINRAR_EXE = (Get-Installer) # get the new installer
     Write-Host "Done."
   } elseif ($script:DOWNLOAD_ONLY) {
