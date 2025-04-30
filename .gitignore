@@ -3,6 +3,7 @@
 *.zip
 *.rar
 *.txt
+*.tmp
 
 # include keygen executable
 !winrar-keygen*.exe
