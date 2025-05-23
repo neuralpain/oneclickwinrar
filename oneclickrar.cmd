@@ -234,19 +234,18 @@ function New-Toast {
 }
 
 function Write-Info {
-  Param(
-    [Parameter(Mandatory=$true, Position=0)][ValidateNotNullOrEmpty()]
-    [string]$Message
-  )
+  Param([Parameter(Mandatory=$true, Position=0)][ValidateNotNullOrEmpty()][string]$Message)
   Write-Host "INFO: $Message" -ForegroundColor DarkCyan
 }
 
 function Write-Warn {
-  Param(
-    [Parameter(Mandatory=$true, Position=0)][ValidateNotNullOrEmpty()]
-    [string]$Message
-  )
+  Param([Parameter(Mandatory=$true, Position=0)][ValidateNotNullOrEmpty()][string]$Message)
   Write-Host "WARN: $Message" -ForegroundColor Yellow
+}
+
+function Write-Err {
+  Param([Parameter(Mandatory=$true, Position=0)][ValidateNotNullOrEmpty()][string]$Message)
+  Write-Host "ERROR: $Message" -ForegroundColor Red
 }
 
 function Stop-OcwrOperation {
@@ -266,6 +265,41 @@ function Stop-OcwrOperation {
 
   $ScriptBlock
   Pause; exit
+}
+
+function Confirm-QueryResult {
+  [CmdletBinding()]
+  param(
+    [Parameter(Position=0, Mandatory=$true)]
+    [string]$Query,
+    [switch]$ExpectPositive,
+    [switch]$ExpectNegative,
+    [Parameter(Mandatory=$true)]
+    [scriptblock]$ResultPositive,
+    [Parameter(Mandatory=$true)]
+    [scriptblock]$ResultNegative
+  )
+
+  $q = Read-Host "$Query $(if($ExpectPositive){"(Y/n)"}elseif($ExpectNegative){"(y/N)"})"
+
+  if($ExpectPositive){
+    if ([string]::IsNullOrEmpty($q) -or $q -match '(Y|y)') {
+      if ($ResultPositive) { & $ResultPositive }
+    } else {
+      if ($ResultNegative) { & $ResultNegative }
+    }
+  }
+  elseif($ExpectNegative){
+    if ([string]::IsNullOrEmpty($q) -or $q -match '(N|n)') {
+      if ($ResultNegative) { & $ResultNegative }
+    } else {
+      if ($ResultPositive) { & $ResultPositive }
+    }
+  }
+  else {
+    Write-Err "Nothing to expect."
+    Stop-OcwrOperation -ExitType Error
+  }
 }
 
 # --- DATA PROCESSING
@@ -546,46 +580,59 @@ function Confirm-DownloadConfig {
     # Confirm correct varsion number for 32-bit installer
     if ($script:ARCH -eq "x32" -and $script:RARVER -gt $LATEST_32BIT) {
       Write-Warn "No 32-bit installer available for WinRAR $(Format-VersionNumber $script:RARVER)."
-      $query = Read-Host "Use latest 32-bit version $(Format-VersionNumber $LATEST_32BIT)? (Y/n)"
-      if ($query -match '(N|n)') {
-        &$Error_No32bitSupport
-        Stop-OcwrOperation -ExitType Error
-      }
-      else {
-        Write-Info "User confirmed use of version $(Format-VersionNumber $LATEST_32BIT)."
-        $script:RARVER = $LATEST_32BIT
-      }
+      Confirm-QueryResult -ExpectPositive `
+        -Query "Use latest 32-bit version $(Format-VersionNumber $LATEST_32BIT)?" `
+        -ResultPositive {
+          Write-Info "User confirmed use of version $(Format-VersionNumber $LATEST_32BIT)."
+          $script:RARVER = $LATEST_32BIT
+        } `
+        -ResultNegative {
+          &$Error_No32bitSupport
+          Stop-OcwrOperation -ExitType Error
+        }
     }
     if ($script:ARCH -eq "x64" -and $script:RARVER -lt $FIRST_64BIT) {
       Write-Warn "No 64-bit installer available for WinRAR $(Format-VersionNumber $script:RARVER)."
-      $query = Read-Host "Use earliest 64-bit version $(Format-VersionNumber $FIRST_64BIT)? (Y/n)"
-      if ($query -match '(N|n)') {
-        $query = Read-Host "Use 32-bit for version $(Format-VersionNumber $script:RARVER)? (Y/n)"
-        if ($query -match '(N|n)') {
-          &$Error_InvalidVersionNumber
-          Stop-OcwrOperation -ExitType Error
-        } else {
-          Write-Info "User confirmed switch to 32-bit for version $(Format-VersionNumber $script:RARVER)."
-          $script:ARCH = 'x32'
+      Confirm-QueryResult -ExpectPositive `
+        -Query "Use earliest 64-bit version $(Format-VersionNumber $FIRST_64BIT)?" `
+        -ResultPositive {
+          Write-Info "User confirmed use of version $(Format-VersionNumber $FIRST_64BIT)."
+          $script:RARVER = $FIRST_64BIT
+        } `
+        -ResultNegative {
+          Confirm-QueryResult -ExpectPositive `
+            -Query "Use 32-bit for version $(Format-VersionNumber $script:RARVER)?" `
+            -ResultPositive {
+              Write-Info "User confirmed switch to 32-bit for version $(Format-VersionNumber $script:RARVER)."
+              $script:ARCH = 'x32'
+            } `
+            -ResultNegative {
+              &$Error_InvalidVersionNumber
+              Stop-OcwrOperation -ExitType Error
+            }
         }
-      }
-      else {
-        Write-Info "User confirmed use of version $(Format-VersionNumber $FIRST_64BIT)."
-        $script:RARVER = $FIRST_64BIT
-      }
     }
     # 2. Verify version number in RARVER
     if ($script:RARVER -match '^\d{3,}$' -and $KNOWN_VERSIONS -notcontains $script:RARVER) {
-      if ($script:RARVER -gt $LATEST) { Write-Warn "Version $(Format-VersionNumber $script:RARVER) is newer than the known latest $(Format-VersionNumber $LATEST)." }
-      elseif ($script:RARVER -lt $OLDEST) { Write-Warn "Version $(Format-VersionNumber $OLDEST) is the earliest known available WinRAR version." }
-      else { Write-Warn "Version $(Format-VersionNumber $script:RARVER) is not a known WinRAR version." }
-      $query = Read-Host "Attempt to retrieve unknown version $(Format-VersionNumber $script:RARVER)? (y/N)"
-      if ($query -notmatch '(Y|y)') {
-        &$Error_InvalidVersionNumber
-        Stop-OcwrOperation -ExitType Error
-      } else {
-        Write-Info "User confirmed retrieval of unknown version $(Format-VersionNumber $script:RARVER). This version may not exist on the server."
+      if ($script:RARVER -gt $LATEST) {
+        Write-Warn "Version $(Format-VersionNumber $script:RARVER) is newer than the known latest $(Format-VersionNumber $LATEST)."
       }
+      elseif ($script:RARVER -lt $OLDEST) {
+        Write-Warn "Version $(Format-VersionNumber $OLDEST) is the earliest known available WinRAR version."
+      }
+      else {
+        Write-Warn "Version $(Format-VersionNumber $script:RARVER) is not a known WinRAR version."
+      }
+
+      Confirm-QueryResult -ExpectNegative `
+        -Query "Attempt to retrieve unknown version $(Format-VersionNumber $script:RARVER)?" `
+        -ResultPositive {
+          &$Error_InvalidVersionNumber
+          Stop-OcwrOperation -ExitType Error
+        } `
+        -ResultNegative {
+          Write-Info "User confirmed retrieval of unknown version $(Format-VersionNumber $script:RARVER). This version may not exist on the server."
+        }
     }
   } else {
     # If not CUSTOM_INSTALLATION
@@ -640,7 +687,7 @@ function Invoke-Installer($x, $v) {
   }
   finally {
     if (($script:FETCH_WINRAR -or $script:FETCH_WRAR) -and $script:DOWNLOAD_WINRAR -and -not $script:KEEP_DOWNLOAD) {
-      Remove-Item $script:WINRAR_EXE #FIXME - for some reason this does not want to delete # fixed -neuralpain
+      Remove-Item $script:WINRAR_EXE
     }
   }
 }
@@ -730,12 +777,10 @@ function Confirm-CurrentWinrarInstallation {
   $civ = $(&$script:WINRAR_INSTALLED_LOCATION\rar.exe "-iver") # current installed version
   if ("$civ" -match $(Format-VersionNumber $script:RARVER)) {
     Write-Info "This version of WinRAR is already installed: $(Format-Text $(Format-VersionNumber $script:RARVER) -Foreground White -Formatting Underline)"
-    $query = Read-Host "Continue with installation? (y/N)"
-    if ($query -match '(Y|y)') {
-      Write-Info "User confirmed re-installation of WinRAR verison $(Format-VersionNumber $script:RARVER)."
-    } else {
-      Stop-OcwrOperation
-    }
+    Confirm-QueryResult -ExpectNegative `
+      -Query "Continue with installation?" `
+      -ResultPositive { Write-Info "User confirmed re-installation of WinRAR verison $(Format-VersionNumber $script:RARVER)." } `
+      -ResultNegative { Stop-OcwrOperation }
   }
 }
 
@@ -823,16 +868,17 @@ function Invoke-OcwrLicensing {
         }
         else {
           Write-Info "WinRAR is not installed."
-          $query = Read-Host "Do you want to install WinRAR version $(Format-VersionNumber $script:RARVER)? (y/N)"
-          if ($query -match '(Y|y)') {
-            $script:LICENSE_ONLY = $false
-            Invoke-OwcrInstallation
-          }
-          else {
-            Stop-OcwrOperation -ExitType Error -ScriptBlock {
-              New-Toast -ToastTitle "WinRAR is not installed" -ToastText "Run this script to install WinRAR before licensing."
+          Confirm-QueryResult -ExpectNegative `
+            -Query "Do you want to install WinRAR version $(Format-VersionNumber $script:RARVER)?" `
+            -ResultPositive {
+              $script:LICENSE_ONLY = $false
+              Invoke-OwcrInstallation
+            } `
+            -ResultNegative {
+              Stop-OcwrOperation -ExitType Error -ScriptBlock {
+                New-Toast -ToastTitle "WinRAR is not installed" -ToastText "Run this script to install WinRAR before licensing."
+              }
             }
-          }
         }
         break
       }
@@ -843,16 +889,17 @@ function Invoke-OcwrLicensing {
         }
         else {
           Write-Info "WinRAR is not installed."
-          $query = Read-Host "Do you want to install WinRAR version $(Format-VersionNumber $script:RARVER)? (y/N)"
-          if ($query -match '(Y|y)') {
-            $script:LICENSE_ONLY = $false
-            Invoke-OwcrInstallation
-          }
-          else {
-            Stop-OcwrOperation -ExitType Error -ScriptBlock {
-              New-Toast -ToastTitle "WinRAR is not installed" -ToastText "Run this script to install WinRAR before licensing."
+          Confirm-QueryResult -ExpectNegative `
+            -Query "Do you want to install WinRAR version $(Format-VersionNumber $script:RARVER)?" `
+            -ResultPositive {
+              $script:LICENSE_ONLY = $false
+              Invoke-OwcrInstallation
+            } `
+            -ResultNegative {
+              Stop-OcwrOperation -ExitType Error -ScriptBlock {
+                New-Toast -ToastTitle "WinRAR is not installed" -ToastText "Run this script to install WinRAR before licensing."
+              }
             }
-          }
         }
         break
       }
@@ -887,28 +934,28 @@ function Invoke-OcwrLicensing {
     }
     else {
       Write-Info "A WinRAR license already exists."
-      $query = Read-Host "Do you want to overwrite the current license? (y/N)"
-      if ($query -match '(Y|y)') {
-        $script:OVERWRITE_LICENSE = $true
-        Invoke-OcwrLicensing
-      }
-      else {
-        Stop-OcwrOperation -ExitType Warning -ScriptBlock {
+      Confirm-QueryResult -ExpectNegative `
+        -Query "Do you want to overwrite the current license?" `
+        -ResultPositive {
+          $script:OVERWRITE_LICENSE = $true
+          Invoke-OcwrLicensing
+        } `
+        -ResultNegative {
+          $Text_viewDocumentationForLicensing = "View the documentation on how to use the override switch to install a new license."
+          $Text_LicenseAlreadyExists = "Notice: A WinRAR license already exists."
           if ($script:LICENSE_ONLY) {
             New-Toast -LongerDuration `
-                      -ToastTitle "Unable to license WinRAR" `
-                      -ActionButtonUrl "$link_overwriting" `
-                      -ToastText  "Notice: A WinRAR license already exists." `
-                      -ToastText2 "View the documentation on how to use the override switch to install a new license."
+                      -ToastTitle "Unable to license WinRAR" -ActionButtonUrl $link_overwriting `
+                      -ToastText  $Text_LicenseAlreadyExists `
+                      -ToastText2 $Text_viewDocumentationForLicensing
           } else {
             New-Toast -LongerDuration `
-                      -ToastTitle "WinRAR installed successfully but.." `
-                      -ActionButtonUrl "$link_overwriting" `
-                      -ToastText  "Notice: A WinRAR license already exists." `
-                      -ToastText2 "View the documentation on how to use the override switch to install a new license."
+                      -ToastTitle "WinRAR installed successfully but.." -ActionButtonUrl $link_overwriting `
+                      -ToastText  $Text_LicenseAlreadyExists `
+                      -ToastText2 $Text_viewDocumentationForLicensing
           }
+          Stop-OcwrOperation -ExitType Warning
         }
-      }
     }
   }
 }
@@ -917,6 +964,7 @@ Invoke-OcwrLicensing
 
 # --- SUCCESSFUL EXIT TOAST MESSAGES
 
+<#
 if ($script:SKIP_LICENSING) {
     New-Toast -Url $link_freedom_universe_yt `
               -ToastTitle "WinRAR installed successfully" `
@@ -942,3 +990,13 @@ if ($script:SKIP_LICENSING) {
               -ToastTitle "WinRAR installed and licensed successfully" `
               -ToastText  "Freedom throughout the universe!"; exit
 }
+#>
+
+$exit_Url = $link_freedom_universe_yt
+$exit_ToastTitle = "WinRAR installed successfully"
+$exit_ToastText = "Freedom throughout the universe!"
+$exit_ToastText2 = $null
+
+$exit_ToastTitle = "WinRAR$(if(-not $script:LICENSE_ONLY){" installed "})$(if(-not ($script:SKIP_LICENSING -or $script:LICENSE_ONLY)){"and"})$(if($script:LICENSE_ONLY -or $script:CUSTOM_LICENSE){" licensed "})successfully"
+if ($script:CUSTOM_LICENSE) { $exit_ToastText2 = $exit_ToastText; $exit_ToastText = "Licensed to `"$($script:licensee)`""}
+New-Toast -Url $exit_Url -ToastTitle $exit_ToastTitle -ToastText  $exit_ToastText -ToastText2 $exit_ToastText2; exit
