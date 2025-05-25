@@ -748,13 +748,21 @@ function Get-WinRarInstaller {
     $lang = $script:TAGS.Trim($beta).ToUpper()
   }
 
-  Write-Host "Connecting to $HostUri... " -NoNewLine
+  Write-Host "Connecting to $HostUri... "
   if (Test-Connection "$HostUri" -Count 2 -Quiet) {
-    Write-Host -NoNewLine "OK.`nDownloading WinRAR $($version)$(if($beta){" Beta $beta"}) ($($script:ARCH))$(if($lang){" ($(Get-LanguageName))"})... "
     if ($script:FETCH_WRAR) {
-      Start-BitsTransfer "$HostUriDir/wrar$($script:RARVER)$($script:TAGS).exe" $pwd\ -ErrorAction SilentlyContinue
+      $download_url = "$HostUriDir/wrar$($script:RARVER)$($script:TAGS).exe"
     } else {
-      Start-BitsTransfer "$HostUriDir/winrar-$($script:ARCH)-$($script:RARVER)$($script:TAGS).exe" $pwd\ -ErrorAction SilentlyContinue
+      $download_url = "$HostUriDir/winrar-$($script:ARCH)-$($script:RARVER)$($script:TAGS).exe"
+    }
+    Write-Host -NoNewLine "Verifying download... "
+    $responseCode = $(Invoke-WebRequest -Uri $download_url -Method Head -UseBasicParsing -TimeoutSec 10 -ErrorAction Stop).StatusCode
+    if ($responseCode -eq 200) {
+      Write-Host -NoNewLine "OK.`nDownloading WinRAR $($version)$(if($beta){" Beta $beta"}) ($($script:ARCH))$(if($lang){" ($(Get-LanguageName))"})... "
+      Start-BitsTransfer $download_url $pwd\ -ErrorAction SilentlyContinue
+    }
+    else {
+      Write-Error -Message "Download unavailable." -ErrorId "404" -Category NotSpecified 2>$null
     }
   } else {
     New-Toast -ToastTitle "No internet" -ToastText "Please check your internet connection."; exit
