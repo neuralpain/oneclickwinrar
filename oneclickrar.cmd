@@ -263,7 +263,7 @@ function Stop-OcwrOperation {
     default { Write-Host "Operation terminated." }
   }
 
-  $ScriptBlock
+  &$ScriptBlock
   Pause; exit
 }
 
@@ -399,9 +399,21 @@ function Get-SpecialCode {
     2 { $script:SKIP_LICENSING = $true; break }
     3 { $script:LICENSE_ONLY   = $true; break }
     default {
-      New-Toast -ActionButtonUrl "$link_customization" `
-                -ToastTitle "Code "$script:custom_code" is not an option" `
-                -ToastText  "Check the script name for any typos and try again."
+      Write-Warn "Custom code function `"$script:custom_code`" was not found."
+      Confirm-QueryResult -ExpectNegative `
+        -Query "Proceed as normal without custom code?" `
+        -ResultPositive {
+          Write-Info "User confirmed ignore code function. Proceeding as normal."
+          return
+        } `
+        -ResultNegative {
+          Stop-OcwrOperation -ExitType Error -ScriptBlock {
+            New-Toast -ActionButtonUrl "$link_customization" `
+                      -ToastTitle "Custom Code Error" `
+                      -ToastText "Code `"$script:custom_code`" is not an option" `
+                      -ToastText2 "Check the script name for any typos and try again."
+          }
+        }
     }
   }
 }
@@ -421,8 +433,13 @@ function Confirm-ScriptNamePosition {
 
     $one = ([regex]::matches($data, 'one')).Count -gt 0
     $rar = ([regex]::matches($data, 'rar')).Count -gt 0
+    $d_code = ([regex]::matches($data, '\d{1}')).Count -gt 0
+    $i_char = ([regex]::matches($data, 'i')).Count -gt 0
 
     if ($one -and $rar) {
+      if (($i_char -and $d_code) -or (-not $i_char -and -not $d_code)) {
+        &$Error_UnknownScript; exit
+      }
       $script:custom_name = $data # Assign the STRING value
       $script:SCRIPT_NAME_LOCATION = $position
       break
