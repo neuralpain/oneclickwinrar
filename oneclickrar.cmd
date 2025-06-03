@@ -799,6 +799,7 @@ function Select-CurrentWinrarInstallation {
 }
 
 function Confirm-CurrentWinrarInstallation {
+  Select-CurrentWinrarInstallation
   $civ = $(&$script:WINRAR_INSTALLED_LOCATION\rar.exe "-iver") # current installed version
   if ("$civ" -match $(Format-VersionNumber $script:RARVER)) {
     Write-Info "This version of WinRAR is already installed: $(Format-Text $(Format-VersionNumber $script:RARVER) -Foreground White -Formatting Underline)"
@@ -819,7 +820,6 @@ if ($CMD_NAME -ne $script_name) { Confirm-ConfigData }
 else { Set-DefaultArchVersion }
 
 if ($script:WINRAR_IS_INSTALLED) {
-  Select-CurrentWinrarInstallation
   Confirm-CurrentWinrarInstallation
 }
 
