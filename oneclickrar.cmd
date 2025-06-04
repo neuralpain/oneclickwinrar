@@ -709,7 +709,7 @@ function Invoke-Installer($x, $v) {
   }
 }
 
-function Get-Installer {
+function Get-LocalWinrarInstaller {
   $name = $null
   $file_pattern = $null
   $name_pattern = $null
@@ -746,7 +746,7 @@ function Format-VersionNumber {
   return "{0:N2}" -f ($VersionNumber / 100)
 }
 
-function Get-FormattedWinrarVersion {
+function Format-VersionNumberFromExecutable {
   Param($Executable, [Switch]$IntToDouble)
 
   $version =  if ($IntToDouble) { $Executable }
@@ -756,10 +756,10 @@ function Get-FormattedWinrarVersion {
   return $version
 }
 
-function Get-WinRarInstaller {
+function Get-WinrarInstaller {
   Param($HostUri, $HostUriDir)
 
-  $version = Get-FormattedWinrarVersion $script:RARVER -IntToDouble
+  $version = Format-VersionNumberFromExecutable $script:RARVER -IntToDouble
   if ($script:TAGS) {
     $beta = [regex]::matches($script:TAGS, '\d+')[0].Value
     $lang = $script:TAGS.Trim($beta).ToUpper()
@@ -828,7 +828,7 @@ function Invoke-OwcrInstallation {
     # This ensures that the script does not unnecessarily
     # download a new installer if one is available in the
     # current directory
-    $script:WINRAR_EXE = (Get-Installer)
+    $script:WINRAR_EXE = (Get-LocalWinrarInstaller)
 
     # if there are no installers, proceed to download one
     if ($null -eq $script:WINRAR_EXE) {
@@ -836,15 +836,15 @@ function Invoke-OwcrInstallation {
 
       $Error.Clear()
       $local:retrycount = 0
-      $local:version = (Get-FormattedWinrarVersion $script:RARVER -IntToDouble)
+      $local:version = (Format-VersionNumberFromExecutable $script:RARVER -IntToDouble)
 
-      Get-WinRarInstaller -HostUri $server1_host -HostUriDir $server1
+      Get-WinrarInstaller -HostUri $server1_host -HostUriDir $server1
       foreach ($wdir in $server2) {
         if ($Error) {
           $Error.Clear()
           $local:retrycount++
           Write-Host -NoNewLine "`nFailed. Retrying... $local:retrycount`n"
-          Get-WinRarInstaller -HostUri $server2_host -HostUriDir $wdir
+          Get-WinrarInstaller -HostUri $server2_host -HostUriDir $wdir
         }
       }
       if ($Error) {
@@ -863,18 +863,18 @@ function Invoke-OwcrInstallation {
                   -ToastText  "WinRAR $($local:version) ($script:ARCH) was successfully downloaded." `
                   -ToastText2 "Run this script again if you ever need to install it."; exit
       }
-      $script:WINRAR_EXE = (Get-Installer) # get the new installer
+      $script:WINRAR_EXE = (Get-LocalWinrarInstaller) # get the new installer
       Write-Host "Done."
     } else {
-      Write-Info "Found executable versioned at $(Format-Text (Get-FormattedWinrarVersion $script:WINRAR_EXE) -Foreground White -Formatting Underline)"
+      Write-Info "Found executable versioned at $(Format-Text (Format-VersionNumberFromExecutable $script:WINRAR_EXE) -Foreground White -Formatting Underline)"
     }
     if ($script:DOWNLOAD_ONLY) {
       New-Toast -ToastTitle "Download Aborted" `
-                -ToastText  "An installer for WinRAR $(Get-FormattedWinrarVersion $script:WINRAR_EXE) ($script:ARCH) already exists." `
+                -ToastText  "An installer for WinRAR $(Format-VersionNumberFromExecutable $script:WINRAR_EXE) ($script:ARCH) already exists." `
                 -ToastText2 "Check the requested download version and try again."; exit
     }
 
-    Invoke-Installer $script:WINRAR_EXE (Get-FormattedWinrarVersion $script:WINRAR_EXE)
+    Invoke-Installer $script:WINRAR_EXE (Format-VersionNumberFromExecutable $script:WINRAR_EXE)
   }
 }
 
