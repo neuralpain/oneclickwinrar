@@ -39,19 +39,27 @@ exit /b
 
 # --- PS --- #>
 
-# https://www.rarlab.com/rar/winrar-x64-711.exe
-# https://www.win-rar.com/fileadmin/winrar-versions/winrar/winrar-x64-711.exe
-# https://www.win-rar.com/fileadmin/winrar-versions/en/20253103/wrr/winrar-x64-711.exe
-
 <#
   .SYNOPSIS
-  Install and license WinRAR Archiver.
+    Install and license WinRAR Archiver.
 
   .DESCRIPTION
-  oneclickrar.cmd is a combination of installrar.cmd and
-  licenserar.cmd but there are some small modifications to
-  that were made to allow the two scripts to work together
-  as a single unit.
+    oneclickrar.cmd is a combination of installrar.cmd and licenserar.cmd with
+    modifications and added functionality.
+
+  .NOTES
+    Complete naming pattern:
+
+    <licensee>_<license-type>_<script-name>_<architecture>_<version>_<tags>.cmd
+
+  .EXAMPLE
+    oneclickrar.cmd           --- Default
+    oneclickrar_x32.cmd       --- 32-bit with default settings
+    oneclickrar_700.cmd       --- Install version 7.00 with defaults
+    oneclickrar_x64_700.cmd   --- Installing 64-bit version for 7.00
+    My Name_My License_oneclickrar.cmd    --- License with default installation
+    My Name_My License_oneclickrar_x64_700.cmd    --- Full customization
+
 #>
 
 $global:ProgressPreference = "SilentlyContinue"
@@ -161,9 +169,11 @@ $printvariables = {
   Write-Host "SCRIPT_NAME_LOCATION: $script:SCRIPT_NAME_LOCATION"
 }
 
-# check if WinRAR is installed before begin
-
 function Get-InstalledWinrarLocations {
+  <#
+    .DESCRIPTION
+      Confirm the location of any installed versions of WinRAR.
+  #>
   if ((Test-Path $winrar64 -PathType Leaf) -and (Test-Path $winrar32 -PathType Leaf)) {
     $script:WINRAR_INSTALLED_LOCATION = $loc96
     $script:WINRAR_IS_INSTALLED = $true
@@ -183,6 +193,10 @@ function Get-InstalledWinrarLocations {
 }
 
 function Set-DefaultArchVersion {
+  <#
+    .DESCRIPTION
+      Set config defaults.
+  #>
   if ($null -eq $script:ARCH) {
     Write-Info "Using default `"x64`" architecture."
     $script:ARCH = "x64"
@@ -202,8 +216,6 @@ $Error_TooManyParams = { New-Toast -ActionButtonUrl "$link_customization" -Toast
 $Error_No32bitSupport = { New-Toast -LongerDuration -ActionButtonUrl "$link_endof32bitsupport"  -ActionButtonText "Read More" -ToastTitle "Unable to process data" -ToastText "WinRAR no longer supports 32-bit on newer versions." -ToastText2 "Check your configuration for any errors or typos and try again." }
 $Error_UnableToProcess = { New-Toast -ActionButtonUrl "$link_customization" -ToastTitle "Unable to process data" -ToastText "WinRAR data is invalid." -ToastText2 "Check your configuration for any errors or typos and try again." }
 $Error_UnableToProcessSpecialCode = { New-Toast -ActionButtonUrl "$link_customization" -ToastTitle "Unable to process special code" -ToastText "Check your configuration for any errors or typos and try again." }
-# $Error_InvalidArchitecture = { New-Toast -ToastTitle "Unable to process data" -ToastText "The WinRAR architecture is invalid." -ToastText2 "Only x64 and x32 are supported." }
-# $Error_InvalidVersionNumber = { New-Toast -ToastTitle "Unable to process data" -ToastText "The WinRAR version is invalid." -ToastText2 "The version number must have 3 digits." }
 $Error_InvalidVersionNumber = { New-Toast -ToastTitle "Unable to process data" -ToastText "The WinRAR version is invalid." -ToastText2 "The version number provided is greater than the latest version available." }
 
 # --- UTILITY
@@ -234,23 +246,43 @@ function New-Toast {
 }
 
 function Write-Info {
-  Param([Parameter(Mandatory=$true, Position=0)][ValidateNotNullOrEmpty()][string]$Message)
+  Param(
+    [Parameter(Mandatory=$true, Position=0)]
+    [ValidateNotNullOrEmpty()]
+    [string]$Message
+  )
   Write-Host "INFO: $Message" -ForegroundColor DarkCyan
 }
 
 function Write-Warn {
-  Param([Parameter(Mandatory=$true, Position=0)][ValidateNotNullOrEmpty()][string]$Message)
+  Param(
+    [Parameter(Mandatory=$true, Position=0)]
+    [ValidateNotNullOrEmpty()]
+    [string]$Message
+  )
   Write-Host "WARN: $Message" -ForegroundColor Yellow
 }
 
 function Write-Err {
-  Param([Parameter(Mandatory=$true, Position=0)][ValidateNotNullOrEmpty()][string]$Message)
+  Param(
+    [Parameter(Mandatory=$true, Position=0)]
+    [ValidateNotNullOrEmpty()]
+    [string]$Message
+  )
   Write-Host "ERROR: $Message" -ForegroundColor Red
 }
 
 function Stop-OcwrOperation {
+  <#
+    .DESCRIPTION
+      Termination function with messages and optional script block to run final
+      instructions before closing the terminal
+
+    .EXAMPLE
+      Stop-OcwrOperation -ExitType [Error|Warning|Complete] -ScriptBlock {...}
+  #>
   Param(
-    [Parameter(Position=0, Mandatory=$false)]
+    [Parameter(Mandatory=$false, Position=0)]
     [string]$ExitType,
     [scriptblock]$ScriptBlock
   )
@@ -268,6 +300,18 @@ function Stop-OcwrOperation {
 }
 
 function Confirm-QueryResult {
+  <#
+    .DESCRIPTION
+      A function for structuring queries better within the code.
+      The code does not have to be altered much to change the way the response
+      is received; thereby enhancing readability and efficiency.
+
+    .EXAMPLE
+      Confirm-QueryResult -Expect[Positive|Negative] `
+        -Query "...?" `
+        -ResultPositive { ... } `
+        -ResultNegative { ... }
+  #>
   [CmdletBinding()]
   param(
     [Parameter(Position=0, Mandatory=$true)]
@@ -304,13 +348,16 @@ function Confirm-QueryResult {
 
 # --- DATA PROCESSING
 
-# A function that is only contains a single one-line easy-to-understand command
-# which is only used once should be a statement
-# function Confirm-VersionNumber {
-#   return ($KNOWN_VERSIONS -contains $script:RARVER)
-# }
-
 function Get-LanguageName {
+  <#
+    .DESCRIPTION
+      Return the full language name based on the code provided in the
+      configuration via TAGS.
+
+    .NOTES
+      No parameter inputs required. TAGS are implied from the global variable.
+  #>
+
   if ([string]::IsNullOrEmpty($script:TAGS)) { return $null }
 
   $extractedLangCode = $null
@@ -322,8 +369,8 @@ function Get-LanguageName {
     $extractedLangCode = $script:TAGS # TAGS is the language code.
   }
 
-  # If the extracted language code is null or empty (e.g., if $script:TAGS was "b1", Trim("b1") results in ""),
-  # then it's not a valid code to search for.
+  # If the extracted language code is null or empty (e.g., if $script:TAGS was
+  # "b1", Trim("b1") results in ""), then it's not a valid code to search for.
   if ([string]::IsNullOrEmpty($extractedLangCode)) { return $null }
 
   $position = 0
@@ -340,9 +387,10 @@ function Get-LanguageName {
 
   if ($isFound) {
     if ($position -lt $LANG_NAME_LIST.Count) {
-      return $LANG_NAME_LIST[$position]
+      return $LANG_NAME_LIST[$position] # return the language name
     } else {
-      # "Internal error: Language code found, but index $position is out of bounds for LANG_NAME_LIST."
+      # "Internal error: Language code found, but index $position is out of
+      # bounds for LANG_NAME_LIST."
       return $null
     }
   } else {
@@ -351,6 +399,29 @@ function Get-LanguageName {
 }
 
 function Get-SpecialCode {
+  <#
+    .SYNOPSIS
+      Enable or execute actions based on a specified code.
+
+    .DESCRIPTION
+      Determine the specified prerequisite action or extra functions requested
+      by the user.
+
+      List of code functions:
+        0 --- Uninstall WinRAR and exit.
+        1 --- Unlicense the selected WinRAR installation.
+        2 --- Only install WinRAR; do not license.
+        3 --- Only license WinRAR; do not install.
+
+    .EXAMPLE
+      one-cl0ckrar.cmd
+        --- No further action will be taken after uninstallation is completed
+      onecl3ckrar_620.cmd   --- WinRAR 6.20 will not be installed
+
+    .NOTES
+      Single reference within `Confirm-ConfigData`.
+  #>
+
   # REVIEW - DEBUGGING NAME: onecl0ckrar, test_script_onecl0ckrar
   if ($script:custom_name -match 'click' -and -not [string]::IsNullOrEmpty([regex]::matches($script:custom_name, '\d+')[0].Value)) { &$Error_UnableToProcessSpecialCode; exit }
   $script:custom_code = ([regex]::matches($script:custom_name, '\d+'))[0].Value
@@ -419,6 +490,18 @@ function Get-SpecialCode {
 }
 
 function Confirm-ScriptNamePosition {
+  <#
+    .SYNOPSIS
+      Verify and validate the script name.
+
+    .DESCRIPTION
+      Verifies the position of the script name from a custom config.
+      The script name is at either position [0] or position [2].
+      Extra verification is done to ensure that a valid script name exists.
+
+    .NOTES
+      Single reference within `Confirm-ConfigData`.
+  #>
   Param($Config)
 
   $position = 0
@@ -428,7 +511,7 @@ function Confirm-ScriptNamePosition {
 
     if ($position -notin (0, 2)) {
       $position++  # Increment conceptual position
-      continue      # Skip this data item
+      continue     # Skip this data item
     }
 
     $one = ([regex]::matches($data, 'one')).Count -gt 0
@@ -455,6 +538,18 @@ function Confirm-ScriptNamePosition {
 }
 
 function Confirm-SpecialSwitch {
+  <#
+    .SYNOPSIS
+      Verify and enable special functions.
+
+    .DESCRIPTION
+      Verifies whether or not an special function was specified by `-one-` or
+      `-rar` and then enables the respective function.
+
+    .NOTES
+      Single reference within `Confirm-ConfigData`.
+  #>
+
   $switch_one = ([regex]::matches($script:custom_name, 'one-')).Count -gt 0
   $switch_rar = ([regex]::matches($script:custom_name, '-rar')).Count -gt 0
 
@@ -470,6 +565,17 @@ function Confirm-SpecialSwitch {
 }
 
 function Get-DataFromConfig {
+  <#
+    .SYNOPSIS
+      Retrieve the config data.
+
+    .DESCRIPTION
+      Copy custom specified license and installation configuration data
+      based on the position of the script name.
+
+    .NOTES
+      Single reference within `Confirm-ConfigData`.
+  #>
   Param($Config)
 
   if ($null -eq $Config.Count -or $null -eq $script:SCRIPT_NAME_LOCATION -or $script:SCRIPT_NAME_LOCATION -notin (0,2)) {
@@ -520,16 +626,20 @@ function Get-DataFromConfig {
 
 function Set-OcwrOperationMode {
   <#
-  .SYNOPSIS
-  Determine the primary operation mode.
+    .SYNOPSIS
+      Determine the primary operation mode.
 
-  .DESCRIPTION
-  This function determines the primary operation mode based on $script:custom_name,
-  which would have been standardized by Confirm-SpecialSwitch if it was a variant.
+    .DESCRIPTION
+      This function determines the primary operation mode based on
+      $script:custom_name, which would have been standardized by
+      `Confirm-SpecialSwitch` if it was a variant.
 
-  If $script:custom_name still contains a special code (e.g. "onecl0ckrar"),
-  it will fall to the 'default' case here if not matched by specific variants.
-  The special code itself is handled by Get-SpecialCode.
+      If $script:custom_name still contains a special code (e.g. "onecl0ckrar"),
+      it will fall to the 'default' case here if not matched by specific
+      variants. The special code itself is handled by `Get-SpecialCode`.
+
+    .NOTES
+      Single reference within `Confirm-ConfigData`.
   #>
 
   switch ($script:custom_name) {
@@ -545,7 +655,7 @@ function Set-OcwrOperationMode {
     }
     $script_name_download_only_overwrite {
       $script:OVERWRITE_LICENSE = $true
-      # when both overwrite and download-only is set, the function is changed
+      # When both overwrite and download-only is set, the function is changed
       # to keep the download but allow installation
       $script:DOWNLOAD_ONLY = $false
       $script:KEEP_DOWNLOAD = $true
@@ -556,6 +666,15 @@ function Set-OcwrOperationMode {
 }
 
 function Confirm-DownloadConfig {
+  <#
+    .DESCRIPTION
+      Verify and validate download config data and reorder to correct data
+      positions before executing any subsequent actions.
+
+    .NOTES
+      Single reference within `Confirm-ConfigData`.
+  #>
+
   if ($script:CUSTOM_INSTALLATION) {
     # 1. Verify ARCH data. Copy the config to the correct variables (LIFO)
     # If ARCH has a value, but is not an architecture value
@@ -586,14 +705,11 @@ function Confirm-DownloadConfig {
         $script:ARCH = "x32" # Assume 32-bit
       }
       else {
-        # Write-Info "Architecture will be set to 64-bit." # feels like double the message
         Write-Info "Using default `"x64`" architecture."
         $script:ARCH = "x64" # Assume 64-bit
       }
     }
-    <# This if statement is not necessary
-    if ($script:ARCH -ne "x64" -and $script:ARCH -ne "x32") { &$Error_InvalidArchitecture; exit }
-    #>
+
     # Confirm correct varsion number for 32-bit installer
     if ($script:ARCH -eq "x32" -and $script:RARVER -gt $LATEST_32BIT) {
       Write-Warn "No 32-bit installer available for WinRAR $(Format-VersionNumber $script:RARVER)."
@@ -608,6 +724,7 @@ function Confirm-DownloadConfig {
           Stop-OcwrOperation -ExitType Error
         }
     }
+
     if ($script:ARCH -eq "x64" -and $script:RARVER -lt $FIRST_64BIT) {
       Write-Warn "No 64-bit installer available for WinRAR $(Format-VersionNumber $script:RARVER)."
       Confirm-QueryResult -ExpectPositive `
@@ -629,6 +746,7 @@ function Confirm-DownloadConfig {
             }
         }
     }
+
     # 2. Verify version number in RARVER
     if ($script:RARVER -match '^\d{3,}$' -and $KNOWN_VERSIONS -notcontains $script:RARVER) {
       if ($script:RARVER -gt $LATEST) {
@@ -661,37 +779,41 @@ function Confirm-DownloadConfig {
 function Confirm-ConfigData {
   <#
     .SYNOPSIS
-    Parse the script name and determine the type of operation.
+      Parse the script name and determine the type of operation.
 
     .DESCRIPTION
-    The script name is parsed to determine the type of operation.
-    There are three types of operations:
-    1. Download and overwrite
-    2. License and overwrite
-    3. Download, license, and overwrite
+      The script name is parsed to determine the type of operation.
+      There are three types of operations:
+        1. Download and overwrite
+        2. License and overwrite
+        3. Download, license, and overwrite
   #>
 
   $config = [regex]::matches($CMD_NAME, '[^_]+')
 
   Confirm-ScriptNamePosition $config
-  # Write-Host "`n--- Confirm-ScriptNamePosition ---"; &$printvariables
   Get-DataFromConfig $config
-  # Write-Host "`n--- Get-DataFromConfig ---"; &$printvariables
   Get-SpecialCode
-  # Write-Host "`n--- Get-SpecialCode ---"; &$printvariables
   Confirm-SpecialSwitch
-  # Write-Host "`n--- Confirm-SpecialSwitch ---"; &$printvariables
   Set-OcwrOperationMode
-  # Write-Host "`n--- Set-OcwrOperationMode ---"; &$printvariables
   Confirm-DownloadConfig
-  # Write-Host "`n--- Confirm-DownloadConfig ---"; &$printvariables
-  &$printvariables
-  Pause
+  # &$printvariables
+  # Pause
 }
 
 # --- INSTALLATION
 
 function Invoke-Installer($x, $v) {
+  <#
+    .SYNOPSIS
+      Run the installer.
+
+    .PARAMETER x
+      The executable file.
+
+    .PARAMETER v
+      WinRAR version number.
+  #>
   Write-Host "Installing WinRAR $v... " -NoNewLine
   try {
     Start-Process $x "/s" -Wait
@@ -710,6 +832,10 @@ function Invoke-Installer($x, $v) {
 }
 
 function Get-LocalWinrarInstaller {
+  <#
+    .DESCRIPTION
+      Find any WinRAR installer executables in the current directory.
+  #>
   $name = $null
   $file_pattern = $null
   $name_pattern = $null
@@ -720,7 +846,7 @@ function Get-LocalWinrarInstaller {
     $file_pattern = $wrar_file_pattern
     $name_pattern = $wrar_name_pattern
   } else {
-    $script:FETCH_WINRAR = $true  # potential issue with this specifically; idk what it is yet
+    $script:FETCH_WINRAR = $true
     $name = "$winrar_name-$($script:ARCH)-"
     $file_pattern = $winrar_file_pattern
     $name_pattern = $winrar_name_pattern
@@ -741,13 +867,25 @@ function Get-LocalWinrarInstaller {
 }
 
 function Format-VersionNumber {
+  <#
+    .DESCRIPTION
+      Format version numbers as x.xx
+  #>
   Param($VersionNumber)
   if ($null -eq $VersionNumber) { return $null }
   return "{0:N2}" -f ($VersionNumber / 100)
 }
 
 function Format-VersionNumberFromExecutable {
-  Param($Executable, [Switch]$IntToDouble)
+  <#
+    .DESCRIPTION
+      Retrieve the WinRAR version form the executable name and format it.
+  #>
+  Param(
+    [Parameter(Position=0, Mandatory=$true)]
+    $Executable,
+    [Switch]$IntToDouble
+  )
 
   $version =  if ($IntToDouble) { $Executable }
               elseif ($Executable -match "(?<version>\d{3})") { $matches['version'] }
@@ -757,6 +895,16 @@ function Format-VersionNumberFromExecutable {
 }
 
 function Get-WinrarInstaller {
+  <#
+    .DESCRIPTION
+      Download a WinRAR installer from the available servers.
+
+    .PARAMETER HostUri
+      Server domain.
+
+    .PARAMETER HostUriDir
+      Installer download path on the server.
+  #>
   Param($HostUri, $HostUriDir)
 
   $version = Format-VersionNumberFromExecutable $script:RARVER -IntToDouble
@@ -787,6 +935,10 @@ function Get-WinrarInstaller {
 }
 
 function Select-CurrentWinrarInstallation {
+  <#
+    .DESCRIPTION
+      Find any WinRAR installer executables in the current directory.
+  #>
   if ($script:WINRAR_INSTALLED_LOCATION -eq $loc96) {
     Write-Warn "Both 32-bit and 64-bit versions of WinRAR exist on the system. $(Format-Text "Select one." -Foreground Red -Formatting Underline)"
     do {
@@ -799,7 +951,12 @@ function Select-CurrentWinrarInstallation {
 }
 
 function Confirm-CurrentWinrarInstallation {
+  <#
+    .DESCRIPTION
+      Verify and confirm the current WinRAR installation to be worked on.
+  #>
   Select-CurrentWinrarInstallation
+  # `-iver` switch returns the version number of the current (Win)RAR installation
   $civ = $(&$script:WINRAR_INSTALLED_LOCATION\rar.exe "-iver") # current installed version
   if ("$civ" -match $(Format-VersionNumber $script:RARVER)) {
     Write-Info "This version of WinRAR is already installed: $(Format-Text $(Format-VersionNumber $script:RARVER) -Foreground White -Formatting Underline)"
@@ -824,6 +981,10 @@ if ($script:WINRAR_IS_INSTALLED) {
 }
 
 function Invoke-OwcrInstallation {
+  <#
+    .DESCRIPTION
+      Installation instructions to be executed (if not disabled).
+  #>
   if (-not $script:LICENSE_ONLY) {
     # This ensures that the script does not unnecessarily
     # download a new installer if one is available in the
@@ -883,8 +1044,11 @@ Invoke-OwcrInstallation
 # --- LICENSING
 
 function Invoke-OcwrLicensing {
+  <#
+    .DESCRIPTION
+      Licensing instructions to be executed (if not disabled).
+  #>
   if (-not $script:SKIP_LICENSING) {
-    # $rarloc = (Get-InstalledWinrarLocations)
     switch ($script:ARCH) {
       'x64' {
         if (Test-Path $winrar64 -PathType Leaf) {
