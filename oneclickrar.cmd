@@ -1153,7 +1153,6 @@ Invoke-OcwrLicensing
 
 # --- SUCCESSFUL EXIT TOAST MESSAGES
 
-<#
 if ($script:SKIP_LICENSING) {
     New-Toast -Url $link_freedom_universe_yt `
               -ToastTitle "WinRAR installed successfully" `
@@ -1179,13 +1178,18 @@ if ($script:SKIP_LICENSING) {
               -ToastTitle "WinRAR installed and licensed successfully" `
               -ToastText  "Freedom throughout the universe!"; exit
 }
-#>
 
+<### has bugs. maybe continue work on this in version 0.13.0 or later
 $exit_Url = $link_freedom_universe_yt
 $exit_ToastTitle = "WinRAR installed successfully"
 $exit_ToastText = "Freedom throughout the universe!"
 $exit_ToastText2 = $null
 
-$exit_ToastTitle = "WinRAR$(if(-not $script:LICENSE_ONLY){" installed "})$(if(-not ($script:SKIP_LICENSING -or $script:LICENSE_ONLY)){"and"})$(if($script:LICENSE_ONLY -or $script:CUSTOM_LICENSE){" licensed "})successfully"
+$exit_ToastTitle = "WinRAR$( `
+if(-not $script:LICENSE_ONLY){" installed "} `
+if(-not ($script:SKIP_LICENSING -or $script:LICENSE_ONLY)){"and"} `
+if($script:LICENSE_ONLY -or $script:CUSTOM_LICENSE){" licensed "} `
+)successfully"
 if ($script:CUSTOM_LICENSE) { $exit_ToastText2 = $exit_ToastText; $exit_ToastText = "Licensed to `"$($script:licensee)`""}
 New-Toast -Url $exit_Url -ToastTitle $exit_ToastTitle -ToastText  $exit_ToastText -ToastText2 $exit_ToastText2; exit
+#>
