@@ -910,21 +910,27 @@ function Get-WinrarInstaller {
     $lang = $script:TAGS.Trim($beta).ToUpper()
   }
 
-  Write-Host "Connecting to $HostUri... "
+  Write-Host -NoNewline "Connecting to $HostUri... "
   if (Test-Connection "$HostUri" -Count 2 -Quiet) {
+    Write-Host -NoNewLine "OK.`nVerifying download... "
     if ($script:FETCH_WRAR) {
       $download_url = "$HostUriDir/wrar$($script:RARVER)$($script:TAGS).exe"
     } else {
       $download_url = "$HostUriDir/winrar-$($script:ARCH)-$($script:RARVER)$($script:TAGS).exe"
     }
-    Write-Host -NoNewLine "Verifying download... "
-    $responseCode = $(Invoke-WebRequest -Uri $download_url -Method Head -UseBasicParsing -TimeoutSec 10 -ErrorAction Stop).StatusCode
-    if ($responseCode -eq 200) {
-      Write-Host -NoNewLine "OK.`nDownloading WinRAR $($version)$(if($beta){" Beta $beta"}) ($($script:ARCH))$(if($lang){" ($(Get-LanguageName))"})... "
-      Start-BitsTransfer $download_url $pwd\ -ErrorAction SilentlyContinue
+    try {
+      $responseCode = $(Invoke-WebRequest -Uri $download_url -Method Head -UseBasicParsing -TimeoutSec 10 -ErrorAction Stop).StatusCode
+      if ($responseCode -eq 200) {
+        Write-Host -NoNewLine "OK.`nDownloading WinRAR $($version)$(if($beta){" Beta $beta"}) ($($script:ARCH))$(if($lang){" ($(Get-LanguageName))"})... "
+        Start-BitsTransfer $download_url $pwd\ -ErrorAction SilentlyContinue
+      }
+      else {
+        Write-Error -Message "`nDownload unavailable." -ErrorId "404" -Category NotSpecified 2>$null
+      }
     }
-    else {
-      Write-Error -Message "Download unavailable." -ErrorId "404" -Category NotSpecified 2>$null
+    catch {
+      New-Toast -ToastTitle "Unable to make a connection" -ToastText "Please check your internet or firewall rules."
+      Stop-OcwrOperation -ExitType Error -Message $(Format-Text "`nUnable to make a connection. Please check your internet or firewall rules." -Foreground Red)
     }
   } else {
     New-Toast -ToastTitle "No internet" -ToastText "Please check your internet connection."; exit
