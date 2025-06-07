@@ -282,16 +282,18 @@ function Stop-OcwrOperation {
       Stop-OcwrOperation -ExitType [Error|Warning|Complete] -ScriptBlock {...}
   #>
   Param(
-    [Parameter(Mandatory=$false, Position=0)]
-    [string]$ExitType
+    [Parameter(Mandatory=$false)]
+    [string]$ExitType,
+    [Parameter(Mandatory=$false)]
+    [string]$Message
   )
 
   switch ($ExitType) {
-    Terminate { Write-Host "Operation terminated with NORMAL." } # i don't know why this is still here but it doesn't affect operation
-    Error { Write-Host "Operation terminated with ERROR." -ForegroundColor Red }
-    Warning { Write-Host "Operation terminated with WARNING." -ForegroundColor Yellow }
-    Complete { Write-Host "Operation completed successfully." -ForegroundColor Green }
-    default { Write-Host "Operation terminated." }
+    Terminate { Write-Host "$(if($Message){"$Message`n"})Operation terminated normally." } # i don't know why this is still here but it doesn't affect operation
+    Error     { Write-Host "$(if($Message){"ERROR: $Message`n"})Operation terminated with ERROR." -ForegroundColor Red }
+    Warning   { Write-Host "$(if($Message){"WARN: $Message`n"})Operation terminated with WARNING." -ForegroundColor Yellow }
+    Complete  { Write-Host "$(if($Message){"$Message`n"})Operation completed successfully." -ForegroundColor Green }
+    default   { Write-Host "$(if($Message){"$Message`n"})Operation terminated." }
   }
 
   Pause; exit
