@@ -147,28 +147,6 @@ $script:RARVER               = $null              # WinRAR version
 $script:TAGS                 = $null              # Other download types, i.e. beta, language
 # --- END SWITCH / CONFIGS ---
 
-$printvariables = {
-  Write-Host "custom_name: $script:custom_name"
-  Write-Host "custom_code: $script:custom_code"
-  Write-Host "WINRAR_EXE: $script:WINRAR_EXE"
-  Write-Host "FETCH_WINRAR: $script:FETCH_WINRAR"
-  Write-Host "FETCH_WRAR: $script:FETCH_WRAR"
-  Write-Host "WINRAR_IS_INSTALLED: $script:WINRAR_IS_INSTALLED"
-  Write-Host "CUSTOM_INSTALLATION: $script:CUSTOM_INSTALLATION"
-  Write-Host "DOWNLOAD_ONLY: $script:DOWNLOAD_ONLY"
-  Write-Host "KEEP_DOWNLOAD: $script:KEEP_DOWNLOAD"
-  Write-Host "licensee: $script:licensee"
-  Write-Host "license_type: $script:license_type"
-  Write-Host "LICENSE_ONLY: $script:LICENSE_ONLY"
-  Write-Host "CUSTOM_LICENSE: $script:CUSTOM_LICENSE"
-  Write-Host "SKIP_LICENSING: $script:SKIP_LICENSING"
-  Write-Host "OVERWRITE_LICENSE: $script:OVERWRITE_LICENSE"
-  Write-Host "ARCH: $script:ARCH"
-  Write-Host "RARVER: $script:RARVER"
-  Write-Host "TAGS: $script:TAGS"
-  Write-Host "SCRIPT_NAME_LOCATION: $script:SCRIPT_NAME_LOCATION"
-}
-
 function Get-InstalledWinrarLocations {
   <#
     .DESCRIPTION
@@ -422,7 +400,6 @@ function Get-SpecialCode {
       Single reference within `Confirm-ConfigData`.
   #>
 
-  # REVIEW - DEBUGGING NAME: onecl0ckrar, test_script_onecl0ckrar
   if ($script:custom_name -match 'click' -and -not [string]::IsNullOrEmpty([regex]::matches($script:custom_name, '\d+')[0].Value)) { &$Error_UnableToProcessSpecialCode; exit }
   $script:custom_code = ([regex]::matches($script:custom_name, '\d+'))[0].Value
   if ($null -eq $script:custom_code) { return }
@@ -679,7 +656,6 @@ function Confirm-DownloadConfig {
     if ($null -ne $script:ARCH -and $script:ARCH -notmatch 'x(64|32)') {
       # If the ARCH value is not RARVER, then it is TAGS
       if ($script:ARCH -notmatch '^\d{3,}$') {
-        # REVIEW - DEBUGGING NAME: oneclickrar_b1ru
         $script:TAGS = $script:ARCH
         # Defaults from here
         Write-Warn "No version provided."
@@ -688,7 +664,6 @@ function Confirm-DownloadConfig {
       }
       # If the ARCH value is RARVER
       else {
-        # REVIEW - DEBUGGING NAME: oneclickrar_100_ru
         $script:TAGS = $script:RARVER
         $script:RARVER = $script:ARCH
       }
@@ -769,7 +744,6 @@ function Confirm-DownloadConfig {
     }
   } else {
     # If not CUSTOM_INSTALLATION
-    # REVIEW - DEBUGGING NAME: oneclick-rar
     Set-DefaultArchVersion
   }
 }
@@ -795,8 +769,6 @@ function Confirm-ConfigData {
   Confirm-SpecialSwitch
   Set-OcwrOperationMode
   Confirm-DownloadConfig
-  # &$printvariables
-  # Pause
 }
 
 # --- INSTALLATION
