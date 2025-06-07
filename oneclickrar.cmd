@@ -283,8 +283,7 @@ function Stop-OcwrOperation {
   #>
   Param(
     [Parameter(Mandatory=$false, Position=0)]
-    [string]$ExitType,
-    [scriptblock]$ScriptBlock
+    [string]$ExitType
   )
 
   switch ($ExitType) {
@@ -295,7 +294,6 @@ function Stop-OcwrOperation {
     default { Write-Host "Operation terminated." }
   }
 
-  &$ScriptBlock
   Pause; exit
 }
 
@@ -444,9 +442,8 @@ function Get-SpecialCode {
           Write-Host "Uninstalling WinRAR ($(if($rarloc -eq $loc64){'x64'}else{'x32'}))... "
           Start-Process "$rarloc\Uninstall.exe" "/s" -Wait
           $script:WINRAR_IS_INSTALLED = $false # unnecessary to add this here but logically correct
-          Stop-OcwrOperation -ExitType Complete -ScriptBlock {
-            New-Toast -ToastTitle "WinRAR uninstalled successfully" -ToastText "Run oneclickrar.cmd to reinstall."
-          }
+          New-Toast -ToastTitle "WinRAR uninstalled successfully" -ToastText "Run oneclickrar.cmd to reinstall."
+          Stop-OcwrOperation -ExitType Complete
         } else {
           New-Toast -ToastTitle "WinRAR uninstaller is missing" -ToastText "WinRAR may not be installed correctly." -ToastText2 "Verify installation at $($rarloc)"
           Stop-OcwrOperation -ExitType Error
@@ -478,12 +475,11 @@ function Get-SpecialCode {
           return
         } `
         -ResultNegative {
-          Stop-OcwrOperation -ExitType Error -ScriptBlock {
-            New-Toast -ActionButtonUrl "$link_customization" `
-                      -ToastTitle "Custom Code Error" `
-                      -ToastText "Code `"$script:custom_code`" is not an option" `
-                      -ToastText2 "Check the script name for any typos and try again."
-          }
+          New-Toast -ActionButtonUrl "$link_customization" `
+                    -ToastTitle "Custom Code Error" `
+                    -ToastText "Code `"$script:custom_code`" is not an option" `
+                    -ToastText2 "Check the script name for any typos and try again."
+          Stop-OcwrOperation -ExitType Error
         }
     }
   }
@@ -820,9 +816,8 @@ function Invoke-Installer($x, $v) {
     Write-Host "Done."
   }
   catch {
-    Stop-OcwrOperation -ScriptBlock {
-      New-Toast -ToastTitle "Installation error" -ToastText "The script has run into a problem during installation. Please restart the script."
-    }
+    New-Toast -ToastTitle "Installation error" -ToastText "The script has run into a problem during installation. Please restart the script."
+    Stop-OcwrOperation
   }
   finally {
     if (($script:FETCH_WINRAR -or $script:FETCH_WRAR) -and $script:DOWNLOAD_WINRAR -and -not $script:KEEP_DOWNLOAD) {
@@ -1064,9 +1059,8 @@ function Invoke-OcwrLicensing {
               Invoke-OwcrInstallation
             } `
             -ResultNegative {
-              Stop-OcwrOperation -ExitType Error -ScriptBlock {
-                New-Toast -ToastTitle "WinRAR is not installed" -ToastText "Run this script to install WinRAR before licensing."
-              }
+              New-Toast -ToastTitle "WinRAR is not installed" -ToastText "Run this script to install WinRAR before licensing."
+              Stop-OcwrOperation -ExitType Error
             }
         }
         break
@@ -1085,17 +1079,15 @@ function Invoke-OcwrLicensing {
               Invoke-OwcrInstallation
             } `
             -ResultNegative {
-              Stop-OcwrOperation -ExitType Error -ScriptBlock {
-                New-Toast -ToastTitle "WinRAR is not installed" -ToastText "Run this script to install WinRAR before licensing."
-              }
+              New-Toast -ToastTitle "WinRAR is not installed" -ToastText "Run this script to install WinRAR before licensing."
+              Stop-OcwrOperation -ExitType Error
             }
         }
         break
       }
       default {
-        Stop-OcwrOperation -ExitType Error -ScriptBlock {
-          New-Toast -ToastTitle "There was a problem licensing WinRAR" -ToastText "Please verify the script config and try again."; exit
-        }
+        New-Toast -ToastTitle "There was a problem licensing WinRAR" -ToastText "Please verify the script config and try again."; exit
+        Stop-OcwrOperation -ExitType Error
         break
       }
     }
