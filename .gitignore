@@ -1,9 +1,13 @@
-.history
+# files
 *.exe
 *.zip
 *.rar
 *.txt
 *.tmp
+
+# folders
+release/
+tests/
 
 # include keygen executable
 !winrar-keygen*.exe
