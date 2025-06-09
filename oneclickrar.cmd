@@ -176,7 +176,7 @@ function Set-DefaultArchVersion {
       Set config defaults.
   #>
   if ($null -eq $script:ARCH) {
-    Write-Info "Using default `"x64`" architecture."
+    Write-Info "Using default 64-bit architecture."
     $script:ARCH = "x64"
   }
   if ($null -eq $script:RARVER) {
@@ -667,9 +667,6 @@ function Confirm-DownloadConfig {
         $script:TAGS = $script:RARVER
         $script:RARVER = $script:ARCH
       }
-      if (-not [string]::IsNullOrEmpty($script:TAGS)) {
-        Write-Info "WinRAR language set to: $(Format-Text $(Get-LanguageName) -Foreground White -Formatting Underline)."
-      }
       # Defaults from here
       Write-Warn "No architecture provided."
       if ($script:RARVER -lt $FIRST_64BIT) {
@@ -678,49 +675,65 @@ function Confirm-DownloadConfig {
         $script:ARCH = "x32" # Assume 32-bit
       }
       else {
-        Write-Info "Using default `"x64`" architecture."
+        Write-Info "Using default 64-bit architecture."
         $script:ARCH = "x64" # Assume 64-bit
       }
     }
 
-    # Confirm correct varsion number for 32-bit installer
-    if ($script:ARCH -eq "x32" -and $script:RARVER -gt $LATEST_32BIT) {
-      Write-Warn "No 32-bit installer available for WinRAR $(Format-VersionNumber $script:RARVER)."
-      Confirm-QueryResult -ExpectPositive `
-        -Query "Use latest 32-bit version $(Format-VersionNumber $LATEST_32BIT)?" `
-        -ResultPositive {
-          Write-Info "User confirmed use of version $(Format-VersionNumber $LATEST_32BIT)."
-          $script:RARVER = $LATEST_32BIT
-        } `
-        -ResultNegative {
-          &$Error_No32bitSupport
-          Stop-OcwrOperation -ExitType Error
-        }
+    # 2. Verify RARVER data.
+    # 2.1. Confirm correct varsion number for 32-bit installer
+    if ($script:ARCH -eq "x32") {
+      if ($null -eq $script:RARVER) {
+        Write-Warn "No version provided."
+        Write-Info "Using latest 32-bit version $(Format-VersionNumber $LATEST_32BIT)."
+        $script:RARVER = $LATEST_32BIT
+      }
+      elseif ($script:RARVER -gt $LATEST_32BIT) {
+        Write-Warn "No 32-bit installer available for WinRAR $(Format-VersionNumber $script:RARVER)."
+        Confirm-QueryResult -ExpectPositive `
+          -Query "Use latest 32-bit version $(Format-VersionNumber $LATEST_32BIT)?" `
+          -ResultPositive {
+            Write-Info "User confirmed use of version $(Format-VersionNumber $LATEST_32BIT)."
+            $script:RARVER = $LATEST_32BIT
+          } `
+          -ResultNegative {
+            &$Error_No32bitSupport
+            Stop-OcwrOperation -ExitType Error
+          }
+      }
     }
 
-    if ($script:ARCH -eq "x64" -and $script:RARVER -lt $FIRST_64BIT) {
-      Write-Warn "No 64-bit installer available for WinRAR $(Format-VersionNumber $script:RARVER)."
-      Confirm-QueryResult -ExpectPositive `
-        -Query "Use earliest 64-bit version $(Format-VersionNumber $FIRST_64BIT)?" `
-        -ResultPositive {
-          Write-Info "User confirmed use of version $(Format-VersionNumber $FIRST_64BIT)."
-          $script:RARVER = $FIRST_64BIT
-        } `
-        -ResultNegative {
-          Confirm-QueryResult -ExpectPositive `
-            -Query "Use 32-bit for version $(Format-VersionNumber $script:RARVER)?" `
-            -ResultPositive {
-              Write-Info "User confirmed switch to 32-bit for version $(Format-VersionNumber $script:RARVER)."
-              $script:ARCH = 'x32'
-            } `
-            -ResultNegative {
-              &$Error_InvalidVersionNumber
-              Stop-OcwrOperation -ExitType Error
-            }
-        }
+    # 2.2. Confirm correct varsion number for 64-bit installer
+    if ($script:ARCH -eq "x64") {
+      if ($null -eq $script:RARVER) {
+        Write-Warn "No version provided."
+        Write-Info "Using latest 64-bit version $(Format-VersionNumber $LATEST)."
+        $script:RARVER = $LATEST
+      }
+      elseif ($script:RARVER -lt $FIRST_64BIT) {
+        Write-Warn "No 64-bit installer available for WinRAR $(Format-VersionNumber $script:RARVER)."
+        Confirm-QueryResult -ExpectPositive `
+          -Query "Use earliest 64-bit version $(Format-VersionNumber $FIRST_64BIT)?" `
+          -ResultPositive {
+            Write-Info "User confirmed use of version $(Format-VersionNumber $FIRST_64BIT)."
+            $script:RARVER = $FIRST_64BIT
+          } `
+          -ResultNegative {
+            Confirm-QueryResult -ExpectPositive `
+              -Query "Use 32-bit for version $(Format-VersionNumber $script:RARVER)?" `
+              -ResultPositive {
+                Write-Info "User confirmed switch to 32-bit for version $(Format-VersionNumber $script:RARVER)."
+                $script:ARCH = 'x32'
+              } `
+              -ResultNegative {
+                &$Error_InvalidVersionNumber
+                Stop-OcwrOperation -ExitType Error
+              }
+          }
+      }
     }
 
-    # 2. Verify version number in RARVER
+    # 2.3. Sanity check for RARVER
     if ($script:RARVER -match '^\d{3,}$' -and $KNOWN_VERSIONS -notcontains $script:RARVER) {
       if ($script:RARVER -gt $LATEST) {
         Write-Warn "Version $(Format-VersionNumber $script:RARVER) is newer than the known latest $(Format-VersionNumber $LATEST)."
@@ -741,6 +754,14 @@ function Confirm-DownloadConfig {
         -ResultNegative {
           Write-Info "User confirmed retrieval of unknown version $(Format-VersionNumber $script:RARVER). This version may not exist on the server."
         }
+    }
+
+    # 3. Verify TAGS data.
+    if ($null -eq (Get-LanguageName)) { $script:TAGS = $null } # quick patch
+    if ([string]::IsNullOrEmpty($script:TAGS) -or $script:TAGS -eq 'en') {
+      Write-Info "WinRAR language set to: $(Format-Text "English" -Foreground White -Formatting Underline)."
+    } else {
+      Write-Info "WinRAR language set to: $(Format-Text $(Get-LanguageName) -Foreground White -Formatting Underline)."
     }
   } else {
     # If not CUSTOM_INSTALLATION
@@ -784,10 +805,9 @@ function Invoke-Installer($x, $v) {
     .PARAMETER v
       WinRAR version number.
   #>
-  Write-Host "Installing WinRAR $v... " -NoNewLine
+  Write-Host "Installing WinRAR $v... "
   try {
     Start-Process $x "/s" -Wait
-    Write-Host "Done."
   }
   catch {
     New-Toast -ToastTitle "Installation error" -ToastText "The script has run into a problem during installation. Please restart the script."
@@ -876,15 +896,15 @@ function Get-WinrarInstaller {
   #>
   Param($HostUri, $HostUriDir)
 
-  $version = Format-VersionNumberFromExecutable $script:RARVER -IntToDouble
+  $version = Format-VersionNumber $script:RARVER
   if ($script:TAGS) {
     $beta = [regex]::matches($script:TAGS, '\d+')[0].Value
     $lang = $script:TAGS.Trim($beta).ToUpper()
   }
 
-  Write-Host -NoNewline "Connecting to $HostUri... "
+  Write-Host "Connecting to $HostUri... "
   if (Test-Connection "$HostUri" -Count 2 -Quiet) {
-    Write-Host -NoNewLine "OK.`nVerifying download... "
+    Write-Host "Verifying download... "
     if ($script:FETCH_WRAR) {
       $download_url = "$HostUriDir/wrar$($script:RARVER)$($script:TAGS).exe"
     } else {
@@ -893,16 +913,16 @@ function Get-WinrarInstaller {
     try {
       $responseCode = $(Invoke-WebRequest -Uri $download_url -Method Head -UseBasicParsing -TimeoutSec 10 -ErrorAction Stop).StatusCode
       if ($responseCode -eq 200) {
-        Write-Host -NoNewLine "OK.`nDownloading WinRAR $($version)$(if($beta){" Beta $beta"}) ($($script:ARCH))$(if($lang){" ($(Get-LanguageName))"})... "
+        Write-Host "Downloading WinRAR $($version)$(if($beta){" Beta $beta"}) ($($script:ARCH))$(if($lang){" ($(Get-LanguageName))"})... "
         Start-BitsTransfer $download_url $pwd\ -ErrorAction SilentlyContinue
       }
       else {
-        Write-Error -Message "`nDownload unavailable." -ErrorId "404" -Category NotSpecified 2>$null
+        Write-Error -Message "Download unavailable." -ErrorId "404" -Category NotSpecified 2>$null
       }
     }
     catch {
       New-Toast -ToastTitle "Unable to make a connection" -ToastText "Please check your internet or firewall rules."
-      Stop-OcwrOperation -ExitType Error -Message $(Format-Text "`nUnable to make a connection. Please check your internet or firewall rules." -Foreground Red)
+      Stop-OcwrOperation -ExitType Error -Message $(Format-Text "Unable to make a connection. Please check your internet or firewall rules." -Foreground Red)
     }
   } else {
     New-Toast -ToastTitle "No internet" -ToastText "Please check your internet connection."; exit
@@ -912,17 +932,25 @@ function Get-WinrarInstaller {
 function Select-CurrentWinrarInstallation {
   <#
     .DESCRIPTION
-      Find any WinRAR installer executables in the current directory.
+      Find and select which installed architecture of WinRAR to work on.
+      Confirm selection if multiple architectures are available.
   #>
   if ($script:WINRAR_INSTALLED_LOCATION -eq $loc96) {
-    Write-Warn "Both 32-bit and 64-bit versions of WinRAR exist on the system. $(Format-Text "Select one." -Foreground Red -Formatting Underline)"
-    do {
-      $query = Read-Host "Enter `"1`" for 32-bit and `"2`" for 64-bit"
-      if ($query -eq 1) { $script:WINRAR_INSTALLED_LOCATION = $loc32; break }
-      elseif ($query -eq 2) { $script:WINRAR_INSTALLED_LOCATION = $loc64; break }
-    } while ($true)
+    switch ($script:ARCH) {
+      'x64' {
+        $script:WINRAR_INSTALLED_LOCATION = $loc64
+        break
+      }
+      'x32' {
+        $script:WINRAR_INSTALLED_LOCATION = $loc32
+        break
+      }
+      default {
+        Stop-OcwrOperation -ExitType Error -Message "No architecture provided."
+      }
+    }
   }
-  Write-Info "Selected WinRAR installation: $(Format-Text $($script:WINRAR_INSTALLED_LOCATION) -Foreground White -Formatting Underline)."
+  Write-Info "Installation directory: $(Format-Text $($script:WINRAR_INSTALLED_LOCATION) -Foreground White -Formatting Underline)."
 }
 
 function Confirm-CurrentWinrarInstallation {
@@ -972,7 +1000,7 @@ function Invoke-OwcrInstallation {
 
       $Error.Clear()
       $local:retrycount = 0
-      $local:version = (Format-VersionNumberFromExecutable $script:RARVER -IntToDouble)
+      $local:version = (Format-VersionNumber $script:RARVER)
 
       Get-WinrarInstaller -HostUri $server1_host -HostUriDir $server1
       foreach ($wdir in $server2) {
@@ -1000,7 +1028,6 @@ function Invoke-OwcrInstallation {
                   -ToastText2 "Run this script again if you ever need to install it."; exit
       }
       $script:WINRAR_EXE = (Get-LocalWinrarInstaller) # get the new installer
-      Write-Host "Done."
     } else {
       Write-Info "Found executable versioned at $(Format-Text (Format-VersionNumberFromExecutable $script:WINRAR_EXE) -Foreground White -Formatting Underline)"
     }
