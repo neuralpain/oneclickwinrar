@@ -1,13 +1,13 @@
 <# :# DO NOT REMOVE THIS LINE
 
 :: oneclickrar.cmd
-:: Last updated @ v0.12.0.711 [beta.2 250517]
+:: Last updated @ v0.12.0.711
 :: Copyright (c) 2023, neuralpain
 :: Install and license WinRAR
 
 @echo off
+mode 78,40
 title oneclickrar (v0.12.0.711)
-rem mode 48,12
 
 :: PwshBatch.cmd <https://gist.github.com/neuralpain/4ca8a6c9aca4f0a1af2440f474e92d05>
 setlocal EnableExtensions DisableDelayedExpansion
@@ -56,10 +56,9 @@ exit /b
     oneclickrar.cmd           --- Default
     oneclickrar_x32.cmd       --- 32-bit with default settings
     oneclickrar_700.cmd       --- Install version 7.00 with defaults
-    oneclickrar_x64_700.cmd   --- Installing 64-bit version for 7.00
+    oneclickrar_x64_700.cmd   --- Install 64-bit version for 7.00
     My Name_My License_oneclickrar.cmd    --- License with default installation
     My Name_My License_oneclickrar_x64_700.cmd    --- Full customization
-
 #>
 
 $global:ProgressPreference = "SilentlyContinue"
@@ -67,134 +66,20 @@ $global:ProgressPreference = "SilentlyContinue"
 # ([System.Security.Principal.WindowsPrincipal][System.Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([System.Security.Principal.WindowsBuiltInRole]::Administrator)
 [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor [System.Net.SecurityProtocolType]::Tls12
 
-$script_name                         = "oneclickrar"
-$script_name_overwrite               = "oneclick-rar"
-$script_name_download_only           = "one-clickrar"
-$script_name_download_only_overwrite = "one-click-rar"
-
-# catch any version for any language
-$winrar_name         = "winrar"
-$winrar_name_pattern = "^winrar-x"
-$winrar_file_pattern = "winrar-x\d{2}-\d{3}\w*\.exe"
-
-# catch the old version of WinRAR for any language
-$wrar_name           = "wrar"
-$wrar_name_pattern   = "^wrar"
-$wrar_file_pattern   = "wrar\d{3}\w*\.exe"
-
-$rarreg   = $null
-$rarkey   = "RAR registration data`r`nEveryone`r`nGeneral Public License`r`nUID=119fdd47b4dbe9a41555`r`n6412212250155514920287d3b1cc8d9e41dfd22b78aaace2ba4386`r`n9152c1ac6639addbb73c60800b745269020dd21becbc46390d7cee`r`ncce48183d6d73d5e42e4605ab530f6edf8629596821ca042db83dd`r`n68035141fb21e5da4dcaf7bf57494e5455608abc8a9916ffd8e23d`r`n0a68ab79088aa7d5d5c2a0add4c9b3c27255740277f6edf8629596`r`n821ca04340a7c91e88b14ba087e0bfb04b57824193d842e660c419`r`nb8af4562cb13609a2ca469bf36fb8da2eda6f5e978bf1205660302"
-$rarreg64 = "$env:ProgramFiles\WinRAR\rarreg.key"
-$rarreg32 = "${env:ProgramFiles(x86)}\WinRAR\rarreg.key"
-
-$rarloc   = $null
-$loc32    = "${env:ProgramFiles(x86)}\WinRAR"
-$loc64    = "$env:ProgramFiles\WinRAR"
-$loc96    = "x96"
-$winrar64 = "$loc64\WinRAR.exe"
-$winrar32 = "$loc32\WinRAR.exe"
-
-$keygen   = $null
-$keygen64 = "./bin/winrar-keygen/winrar-keygen-x64.exe"
-$keygen32 = "./bin/winrar-keygen/winrar-keygen-x86.exe"
-
-$server1_host = "www.rarlab.com"
-$server1      = "https://$server1_host/rar"
-$server2_host = "www.win-rar.com"
-$server2      = @("https://$server2_host/fileadmin/winrar-versions", "https://$server2_host/fileadmin/winrar-versions/winrar")
-
-$KNOWN_VERSIONS = @(290, 300, 310, 320, 330, 340, 350, 360, 370, 371, 380, 390, 393, 400, 401, 410, 411, 420, 500, 501, 510, 511, 520, 521, 530, 531, 540, 550, 560, 561, 570, 571, 580, 590, 591, 600, 601, 602, 610, 611, 620, 621, 622, 623, 624, 700, 701, 710, 711)
-$LANG_CODE_LIST = @("ar","al","am","az","by","ba","bg","bur","ca","sc","tc","cro","cz","dk","nl","-","eu","est","fi","fr","gl","d","el","he","hu","id","it","jp","kr","lt","mk","mn","no","prs","pl","pt","br","ro","ru","srbcyr","srblat","sk","slv","es","ln","esco","sw","th","tr","uk","uz","va","vn")
-$LANG_NAME_LIST = @("Arabic","Albanian","Armenian","Azerbaijani","Belarusian","Bosnian","Bulgarian","Burmese (Myanmar)","Catalan","Chinese Simplified","Chinese Traditional","Croatian","Czech","Danish","Dutch","English","Euskera","Estonian","Finnish","French","Galician","German","Greek","Hebrew","Hungarian","Indonesian","Italian","Japanese","Korean","Lithuanian","Macedonian","Mongolian","Norwegian","Persian","Polish","Portuguese","Portuguese Brazilian","Romanian","Russian","Serbian Cyrillic","Serbian Latin","Slovak","Slovenian","Spanish","Spanish (Latin American)","Spanish Colombian","Swedish","Thai","Turkish","Ukrainian","Uzbek","Valencian","Vietnamese")
-
-$link_freedom_universe_yt = "https://youtu.be/OD_WIKht0U0?t=450"
-$link_overwriting         = "https://github.com/neuralpain/oneclickwinrar#overwriting-licenses"
-$link_howtouse            = "https://github.com/neuralpain/oneclickwinrar#how-to-use"
-$link_customization       = "https://github.com/neuralpain/oneclickwinrar#customization"
-$link_endof32bitsupport   = "https://www.win-rar.com/singlenewsview.html?&L=0&tx_ttnews%5Btt_news%5D=266&cHash=44c8cdb0ff6581307702dfe4892a3fb5"
-
-$OLDEST                      = 290
-$LATEST                      = 711
-$FIRST_64BIT                 = 390
-$LATEST_32BIT                = 701
-$LATEST_OLD_WRAR             = 611
-
-# --- SWITCH / CONFIGS ---
-$script:custom_name          = $null
-$script:custom_code          = $null
-$script:SCRIPT_NAME_LOCATION = $null
-
-$script:WINRAR_EXE           = $null
-$script:FETCH_WINRAR         = $false             # Download standard WinRAR
-$script:FETCH_WRAR           = $false             # Download old 32-bit WinRAR naming scheme
-$script:WINRAR_IS_INSTALLED  = $false
-$script:WINRAR_INSTALLED_LOCATION = $null
-
-$script:CUSTOM_INSTALLATION  = $false
-$script:DOWNLOAD_ONLY        = $false
-$script:DOWNLOAD_WINRAR      = $false
-$script:KEEP_DOWNLOAD        = $false
-
-$script:licensee             = $null
-$script:license_type         = $null
-$script:LICENSE_ONLY         = $false             # SKIP INSTALLATION
-$script:CUSTOM_LICENSE       = $false
-$script:SKIP_LICENSING       = $false             # INSTALL ONLY
-$script:OVERWRITE_LICENSE    = $false
-
-$script:ARCH                 = $null              # Download architecture
-$script:RARVER               = $null              # WinRAR version
-$script:TAGS                 = $null              # Other download types, i.e. beta, language
-# --- END SWITCH / CONFIGS ---
-
-function Get-InstalledWinrarLocations {
-  <#
-    .DESCRIPTION
-      Confirm the location of any installed versions of WinRAR.
-  #>
-  if ((Test-Path $winrar64 -PathType Leaf) -and (Test-Path $winrar32 -PathType Leaf)) {
-    $script:WINRAR_INSTALLED_LOCATION = $loc96
-    $script:WINRAR_IS_INSTALLED = $true
-  }
-  elseif (Test-Path $winrar64 -PathType Leaf) {
-    $script:WINRAR_INSTALLED_LOCATION = $loc64
-    $script:WINRAR_IS_INSTALLED = $true
-  }
-  elseif (Test-Path $winrar32 -PathType Leaf) {
-    $script:WINRAR_INSTALLED_LOCATION = $loc32
-    $script:WINRAR_IS_INSTALLED = $true
-  }
-  else {
-    $script:WINRAR_INSTALLED_LOCATION = $null
-    $script:WINRAR_IS_INSTALLED = $false
-  }
+function Write-Info {
+  Param([Parameter(Mandatory=$true)][ValidateNotNullOrEmpty()][string]$Message)
+  Write-Host "INFO: $Message" -ForegroundColor DarkCyan
 }
 
-function Set-DefaultArchVersion {
-  <#
-    .DESCRIPTION
-      Set config defaults.
-  #>
-  if ($null -eq $script:ARCH) {
-    Write-Info "Using default 64-bit architecture."
-    $script:ARCH = "x64"
-  }
-  if ($null -eq $script:RARVER) {
-    Write-Info "Using default version $($LATEST)."
-    $script:RARVER = $LATEST
-  }
-  if ($null -eq $script:TAGS) {
-    Write-Info "WinRAR language set to: $(Format-Text "English" -Foreground White -Formatting Underline)."
-    $script:RARVER = $LATEST
-  }
+function Write-Warn {
+  Param([Parameter(Mandatory=$true)][ValidateNotNullOrEmpty()][string]$Message)
+  Write-Host "WARN: $Message" -ForegroundColor Yellow
 }
 
-$Error_UnknownScript = { New-Toast -LongerDuration -ActionButtonUrl "$link_customization" -ToastTitle "What script is this?" -ToastText  "Script name is invalid. Check the script name for any typos and try again." }
-$Error_TooManyParams = { New-Toast -ActionButtonUrl "$link_customization" -ToastTitle "Too many parameters" -ToastText "WinRAR data is invalid." -ToastText2 "Check your configuration for any errors or typos and try again." }
-$Error_No32bitSupport = { New-Toast -LongerDuration -ActionButtonUrl "$link_endof32bitsupport"  -ActionButtonText "Read More" -ToastTitle "Unable to process data" -ToastText "WinRAR no longer supports 32-bit on newer versions." -ToastText2 "Check your configuration for any errors or typos and try again." }
-$Error_UnableToProcess = { New-Toast -ActionButtonUrl "$link_customization" -ToastTitle "Unable to process data" -ToastText "WinRAR data is invalid." -ToastText2 "Check your configuration for any errors or typos and try again." }
-$Error_UnableToProcessSpecialCode = { New-Toast -ActionButtonUrl "$link_customization" -ToastTitle "Unable to process special code" -ToastText "Check your configuration for any errors or typos and try again." }
-$Error_InvalidVersionNumber = { New-Toast -ToastTitle "Unable to process data" -ToastText "The WinRAR version is invalid." -ToastText2 "The version number provided is greater than the latest version available." }
+function Write-Err {
+  Param([Parameter(Mandatory=$true)][ValidateNotNullOrEmpty()][string]$Message)
+  Write-Host "ERROR: $Message" -ForegroundColor Red
+}
 
 # --- UTILITY
 
@@ -223,31 +108,23 @@ function New-Toast {
   $Notifier = [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier($AppId); $Notifier.Show($Toast)
 }
 
-function Write-Info {
-  Param(
-    [Parameter(Mandatory=$true, Position=0)]
-    [ValidateNotNullOrEmpty()]
-    [string]$Message
-  )
-  Write-Host "INFO: $Message" -ForegroundColor DarkCyan
-}
-
-function Write-Warn {
-  Param(
-    [Parameter(Mandatory=$true, Position=0)]
-    [ValidateNotNullOrEmpty()]
-    [string]$Message
-  )
-  Write-Host "WARN: $Message" -ForegroundColor Yellow
-}
-
-function Write-Err {
-  Param(
-    [Parameter(Mandatory=$true, Position=0)]
-    [ValidateNotNullOrEmpty()]
-    [string]$Message
-  )
-  Write-Host "ERROR: $Message" -ForegroundColor Red
+function Write-Title {
+  Write-Host;
+  Write-Host "                                ___                __                     "
+  Write-Host "                               /\_ \    __        /\ \                    "
+  Write-Host "     ___     ___      __    ___\//\ \  /\_\    ___\ \ \/`'\               "
+  Write-Host "    / __``\ /`' _ ``\  /`'__``\ /`'___\\ \ \ \/\ \  /`'___\ \ , <         "
+  Write-Host "   /\ \L\ \/\ \/\ \/\  __//\ \__/ \_\ \_\ \ \/\ \__/\ \ \\``\             "
+  Write-Host "   \ \____/\ \_\ \_\ \____\ \____\/\____\\ \_\ \____\\ \_\ \_\            "
+  Write-Host "    \/___/  \/_/\/_/\/____/\/____/\/____/ \/_/\/____/ \/_/\/_/            "
+  Write-Host "         __      __              ____    ______  ____                     "
+  Write-Host "        /\ \  __/\ \  __        /\  _``\ /\  _  \/\  _``\                 "
+  Write-Host "        \ \ \/\ \ \ \/\_\    ___\ \ \L\ \ \ \L\ \ \ \L\ \                 "
+  Write-Host "         \ \ \ \ \ \ \/\ \ /`' _ ``\ \ ,  /\ \  __ \ \ ,  /               "
+  Write-Host "          \ \ \_/ \_\ \ \ \/\ \/\ \ \ \\ \\ \ \/\ \ \ \\ \                "
+  Write-Host "           \ ``\___x___/\ \_\ \_\ \_\ \_\ \_\ \_\ \_\ \_\ \_\             "
+  Write-Host "            `'\/__//__/  \/_/\/_/\/_/\/_/\/ /\/_/\/_/\/_/\/ /  $(Format-Text "v0.12.0.711" -Foreground Magenta)"
+  Write-Host;Write-Host;
 }
 
 function Stop-OcwrOperation {
@@ -305,22 +182,243 @@ function Confirm-QueryResult {
   $q = Read-Host "$Query $(if($ExpectPositive){"(Y/n)"}elseif($ExpectNegative){"(y/N)"})"
 
   if($ExpectPositive){
-    if ([string]::IsNullOrEmpty($q) -or $q -match '(Y|y)') {
-      if ($ResultPositive) { & $ResultPositive }
-    } else {
+    if (-not([string]::IsNullOrEmpty($q)) -and ($q.Length -eq 1 -and $q -match '(N|n)')) {
       if ($ResultNegative) { & $ResultNegative }
+    } else {
+      if ($ResultPositive) { & $ResultPositive } # Default is positive
     }
   }
   elseif($ExpectNegative){
-    if ([string]::IsNullOrEmpty($q) -or $q -match '(N|n)') {
-      if ($ResultNegative) { & $ResultNegative }
-    } else {
+    if (-not([string]::IsNullOrEmpty($q)) -and ($q.Length -eq 1 -and $q -match '(Y|y)')) {
       if ($ResultPositive) { & $ResultPositive }
+    } else {
+      if ($ResultNegative) { & $ResultNegative } # Default is negative
     }
   }
   else {
     Write-Err "Nothing to expect."
     Stop-OcwrOperation -ExitType Error
+  }
+}
+
+# --- VARIABLES
+
+$script_name                         = "oneclickrar"
+$script_name_overwrite               = "oneclick-rar"
+$script_name_download_only           = "one-clickrar"
+$script_name_download_only_overwrite = "one-click-rar"
+
+# catch any version for any language
+$winrar_name         = "winrar"
+$winrar_name_pattern = "^winrar-x"
+$winrar_file_pattern = "winrar-x\d{2}-\d{3}\w*\.exe"
+
+# catch the old version of WinRAR for any language
+$wrar_name           = "wrar"
+$wrar_name_pattern   = "^wrar"
+$wrar_file_pattern   = "wrar\d{3}\w*\.exe"
+
+$rarloc   = $null
+$loc32    = "${env:ProgramFiles(x86)}\WinRAR"
+$loc64    = "$env:ProgramFiles\WinRAR"
+$loc96    = "x96"
+
+$winrar64 = "$loc64\WinRAR.exe"
+$winrar32 = "$loc32\WinRAR.exe"
+
+$rarreg   = $null
+$rarkey   = "RAR registration data`r`nEveryone`r`nGeneral Public License`r`nUID=119fdd47b4dbe9a41555`r`n6412212250155514920287d3b1cc8d9e41dfd22b78aaace2ba4386`r`n9152c1ac6639addbb73c60800b745269020dd21becbc46390d7cee`r`ncce48183d6d73d5e42e4605ab530f6edf8629596821ca042db83dd`r`n68035141fb21e5da4dcaf7bf57494e5455608abc8a9916ffd8e23d`r`n0a68ab79088aa7d5d5c2a0add4c9b3c27255740277f6edf8629596`r`n821ca04340a7c91e88b14ba087e0bfb04b57824193d842e660c419`r`nb8af4562cb13609a2ca469bf36fb8da2eda6f5e978bf1205660302"
+$rarreg64 = "$loc64\rarreg.key"
+$rarreg32 = "$loc32\rarreg.key"
+
+$keygen   = $null
+$keygen64 = "./bin/winrar-keygen/winrar-keygen-x64.exe"
+$keygen32 = "./bin/winrar-keygen/winrar-keygen-x86.exe"
+
+$server1_host = "www.rarlab.com"
+$server1      = "https://$server1_host/rar"
+$server2_host = "www.win-rar.com"
+$server2      = @("https://$server2_host/fileadmin/winrar-versions", "https://$server2_host/fileadmin/winrar-versions/winrar")
+
+$KNOWN_VERSIONS = @(290, 300, 310, 320, 330, 340, 350, 360, 370, 371, 380, 390, 393, 400, 401, 410, 411, 420, 500, 501, 510, 511, 520, 521, 530, 531, 540, 550, 560, 561, 570, 571, 580, 590, 591, 600, 601, 602, 610, 611, 620, 621, 622, 623, 624, 700, 701, 710, 711)
+$LANG_CODE_LIST = @("ar","al","am","az","by","ba","bg","bur","ca","sc","tc","cro","cz","dk","nl","-","eu","est","fi","fr","gl","d","el","he","hu","id","it","jp","kr","lt","mk","mn","no","prs","pl","pt","br","ro","ru","srbcyr","srblat","sk","slv","es","ln","esco","sw","th","tr","uk","uz","va","vn")
+$LANG_NAME_LIST = @("Arabic","Albanian","Armenian","Azerbaijani","Belarusian","Bosnian","Bulgarian","Burmese (Myanmar)","Catalan","Chinese Simplified","Chinese Traditional","Croatian","Czech","Danish","Dutch","English","Euskera","Estonian","Finnish","French","Galician","German","Greek","Hebrew","Hungarian","Indonesian","Italian","Japanese","Korean","Lithuanian","Macedonian","Mongolian","Norwegian","Persian","Polish","Portuguese","Portuguese Brazilian","Romanian","Russian","Serbian Cyrillic","Serbian Latin","Slovak","Slovenian","Spanish","Spanish (Latin American)","Spanish Colombian","Swedish","Thai","Turkish","Ukrainian","Uzbek","Valencian","Vietnamese")
+
+$link_freedom_universe_yt    = "https://youtu.be/OD_WIKht0U0?t=450"
+$link_overwriting            = "https://github.com/neuralpain/oneclickwinrar#overwriting-licenses"
+$link_howtouse               = "https://github.com/neuralpain/oneclickwinrar#how-to-use"
+$link_customization          = "https://github.com/neuralpain/oneclickwinrar#customization"
+$link_endof32bitsupport      = "https://www.win-rar.com/singlenewsview.html?&L=0&tx_ttnews%5Btt_news%5D=266&cHash=44c8cdb0ff6581307702dfe4892a3fb5"
+
+$OLDEST                      = 290
+$LATEST                      = 711
+$FIRST_64BIT                 = 390
+$LATEST_32BIT                = 701
+$LATEST_OLD_WRAR             = 611
+
+# --- SWITCH / CONFIGS ---
+$script:custom_name          = $null
+$script:custom_code          = $null
+$script:SCRIPT_NAME_LOCATION = $null
+
+$script:WINRAR_EXE           = $null
+$script:FETCH_WINRAR         = $false             # Download standard WinRAR
+$script:FETCH_WRAR           = $false             # Download old 32-bit WinRAR naming scheme
+$script:WINRAR_IS_INSTALLED  = $false
+$script:WINRAR_INSTALLED_LOCATION = $null
+
+$script:CUSTOM_INSTALLATION  = $false
+$script:DOWNLOAD_ONLY        = $false
+$script:DOWNLOAD_WINRAR      = $false
+$script:KEEP_DOWNLOAD        = $false
+
+$script:licensee             = $null
+$script:license_type         = $null
+$script:LICENSE_ONLY         = $false             # SKIP INSTALLATION
+$script:CUSTOM_LICENSE       = $false
+$script:SKIP_LICENSING       = $false             # INSTALL ONLY
+$script:OVERWRITE_LICENSE    = $false
+
+$script:ARCH                 = $null              # Download architecture
+$script:RARVER               = $null              # WinRAR version
+$script:TAGS                 = $null              # Other download types, i.e. beta, language
+# --- END SWITCH / CONFIGS ---
+
+# --- MESSAGES
+
+# General
+
+$Error_UnknownScript = {
+  New-Toast -LongerDuration -ActionButtonUrl $link_customization -ToastTitle "What script is this?" -ToastText  "Script name is invalid. Check the script name for any typos and try again."
+  Stop-OcwrOperation -ExitType Error -Message "Script name is invalid. Please check for errors."
+}
+
+$Error_UnknownError = {
+  Stop-OcwrOperation -ExitType Error -Message "An unknown error occured."
+}
+
+$Error_WinrarNotInstalled = {
+  New-Toast -ToastTitle "WinRAR is not installed" -ToastText "Check your installation and try again."
+  Stop-OcwrOperation -ExitType Error -Message "WinRAR is not installed."
+}
+
+$Error_NoInternetConnection = {
+  New-Toast -ToastTitle "No internet" -ToastText "Please check your internet connection."
+  Stop-OcwrOperation -ExitType Error -Message "Internet connection lost or unavailable."
+}
+
+$Error_TooManyArgs = {
+  New-Toast -LongerDuration -ActionButtonUrl $link_customization -ToastTitle "Too many arguments!" -ToastText "It seems like you've made a customization error. Check the customization data and try again."
+  Stop-OcwrOperation -ExitType Error -Message "Too many arguments. Check your configuration."
+}
+
+$Error_UnableToProcess = {
+  New-Toast -ActionButtonUrl "$link_customization" -ToastTitle "Unable to process data" -ToastText "WinRAR data is invalid." -ToastText2 "Check your configuration for any errors or typos and try again."
+  Stop-OcwrOperation -ExitType Error -Message "WinRAR data is invalid."
+}
+
+$Error_UnableToProcessSpecialCode = {
+  New-Toast -ActionButtonUrl "$link_customization" -ToastTitle "Unable to process special code" -ToastText "Check your configuration for any errors or typos and try again."
+  Stop-OcwrOperation -ExitType Error -Message "Unable to process special code."
+}
+
+# Licensing
+
+$Error_LicenseExists = {
+  New-Toast -LongerDuration -ToastTitle "Unable to license WinRAR" -ActionButtonUrl $link_overwriting -ToastText  "Notice: A WinRAR license already exists." -ToastText2 "View the documentation on how to use the override switch to install a new license."
+  Stop-OcwrOperation -ExitType Warning -Message "Unable to license WinRAR due to existing license."
+}
+
+$Error_ButLicenseExists = {
+  New-Toast -LongerDuration -ToastTitle "WinRAR installed successfully but.." -ActionButtonUrl $link_overwriting -ToastText  "Notice: A WinRAR license already exists." -ToastText2 "View the documentation on how to use the override switch to install a new license."
+  Stop-OcwrOperation -ExitType Warning -Message "Unable to license WinRAR due to existing license."
+}
+
+$Error_BinFolderMissing = {
+  New-Toast -ActionButtonUrl $link_howtouse -ToastTitle "Missing `"bin`" folder" -ToastText  "Unable to generate a license. Ensure that the `"bin`" file is available in the same directory as the script."
+  Stop-OcwrOperation -ExitType Warning -Message "Missing `"bin`" folder"
+}
+
+# Installation
+
+$Error_No32bitSupport = {
+  New-Toast -LongerDuration -ActionButtonUrl "$link_endof32bitsupport"  -ActionButtonText "Read More" -ToastTitle "Unable to process data" -ToastText "WinRAR no longer supports 32-bit on newer versions." -ToastText2 "Check your configuration for any errors or typos and try again."
+  Stop-OcwrOperation -ExitType Error -Message "No 32-bit support for this version of WinRAR."
+}
+
+$Error_InvalidVersionNumber = {
+  New-Toast -ToastTitle "Unable to process data" -ToastText "The WinRAR version is invalid." -ToastText2 "The version number provided is greater than the latest version available."
+  Stop-OcwrOperation -ExitType Error -Message "Invalid version number."
+}
+
+$Error_UnableToConnectToDownload = {
+  New-Toast -ToastTitle "Unable to make a connection" -ToastText "Please check your internet or firewall rules."
+  Stop-OcwrOperation -ExitType Error -Message "Unable to make a connection."
+}
+
+# Uninstall
+
+$UninstallSuccess = {
+  New-Toast -ToastTitle "WinRAR uninstalled successfully" -ToastText "Run oneclickrar.cmd to reinstall."
+  Stop-OcwrOperation -ExitType Complete
+}
+
+$UnlicenseSuccess = {
+  New-Toast -ToastTitle "WinRAR unlicensed successfully" -ToastText "Enjoy your 40-day infinite trial period!"
+  Stop-OcwrOperation -ExitType Complete
+}
+
+$Error_UninstallerMissing = {
+  New-Toast -ToastTitle "WinRAR uninstaller is missing" -ToastText "WinRAR may not be installed correctly." -ToastText2 "Verify installation at $($rarloc)"
+  Stop-OcwrOperation -ExitType Error -Message "WinRAR uninstaller is missing"
+}
+
+$Error_UnlicenseFailed = {
+  New-Toast -ToastTitle "Unable to un-license WinRAR" -ToastText "A WinRAR license was not found on your device."
+  Stop-OcwrOperation -ExitType Error -Message "No license found."
+}
+
+# --- FUNCTIONS
+
+function Get-InstalledWinrarLocations {
+  <#
+    .DESCRIPTION
+      Confirm the location of any installed versions of WinRAR.
+  #>
+  if ((Test-Path $winrar64 -PathType Leaf) -and (Test-Path $winrar32 -PathType Leaf)) {
+    $script:WINRAR_INSTALLED_LOCATION = $loc96
+    $script:WINRAR_IS_INSTALLED = $true
+  }
+  elseif (Test-Path $winrar64 -PathType Leaf) {
+    $script:WINRAR_INSTALLED_LOCATION = $loc64
+    $script:WINRAR_IS_INSTALLED = $true
+  }
+  elseif (Test-Path $winrar32 -PathType Leaf) {
+    $script:WINRAR_INSTALLED_LOCATION = $loc32
+    $script:WINRAR_IS_INSTALLED = $true
+  }
+  else {
+    $script:WINRAR_INSTALLED_LOCATION = $null
+    $script:WINRAR_IS_INSTALLED = $false
+  }
+}
+
+function Set-DefaultArchVersion {
+  <#
+    .DESCRIPTION
+      Set config defaults.
+  #>
+  if ($null -eq $script:ARCH) {
+    Write-Info "Using default 64-bit architecture"
+    $script:ARCH = "x64"
+  }
+  if ($null -eq $script:RARVER) {
+    Write-Info "Using default version $(Format-VersionNumber $LATEST)"
+    $script:RARVER = $LATEST
+  }
+  if ($null -eq $script:TAGS) {
+    Write-Info "WinRAR language set to $(Format-Text "English" -Foreground White -Formatting Underline)"
+    $script:RARVER = $LATEST
   }
 }
 
@@ -333,7 +431,7 @@ function Get-LanguageName {
       configuration via TAGS.
 
     .NOTES
-      No parameter inputs required. TAGS are implied from the global variable.
+      No parameter inputs required. TAGS is implied from the global variable.
   #>
 
   if ([string]::IsNullOrEmpty($script:TAGS)) { return $null }
@@ -358,7 +456,7 @@ function Get-LanguageName {
   foreach ($code in $LANG_CODE_LIST) {
     if ($code -eq $extractedLangCode) {
       $isFound = $true
-      break # Exit loop once found
+      break
     }
     $position++
   }
@@ -400,7 +498,9 @@ function Get-SpecialCode {
       Single reference within `Confirm-ConfigData`.
   #>
 
-  if ($script:custom_name -match 'click' -and -not [string]::IsNullOrEmpty([regex]::matches($script:custom_name, '\d+')[0].Value)) { &$Error_UnableToProcessSpecialCode; exit }
+  if ($script:custom_name -match 'click' -and -not [string]::IsNullOrEmpty([regex]::matches($script:custom_name, '\d+')[0].Value)) {
+    &$Error_UnableToProcessSpecialCode
+  }
   $script:custom_code = ([regex]::matches($script:custom_name, '\d+'))[0].Value
   if ($null -eq $script:custom_code) { return }
 
@@ -420,28 +520,17 @@ function Get-SpecialCode {
         if (Test-Path "$rarloc\Uninstall.exe" -PathType Leaf) {
           Write-Host "Uninstalling WinRAR ($(if($rarloc -eq $loc64){'x64'}else{'x32'}))... "
           Start-Process "$rarloc\Uninstall.exe" "/s" -Wait
-          $script:WINRAR_IS_INSTALLED = $false # unnecessary to add this here but logically correct
-          New-Toast -ToastTitle "WinRAR uninstalled successfully" -ToastText "Run oneclickrar.cmd to reinstall."
-          Stop-OcwrOperation -ExitType Complete
-        } else {
-          New-Toast -ToastTitle "WinRAR uninstaller is missing" -ToastText "WinRAR may not be installed correctly." -ToastText2 "Verify installation at $($rarloc)"
-          Stop-OcwrOperation -ExitType Error
-        }
-      } else {
-        New-Toast -ToastTitle "WinRAR is not installed" -ToastText "Check your installation and try again."
-        Stop-OcwrOperation
-      }
+          &$UninstallSuccess
+        } else { &$Error_UninstallerMissing }
+      } else { &$Error_WinrarNotInstalled }
     }
     1 {
       Write-Host -NoNewLine "Un-licensing WinRAR... "
       if (Test-Path "$rarloc\rarreg.key" -PathType Leaf) {
         Remove-Item "$rarloc\rarreg.key" -Force | Out-Null
         New-Toast -ToastTitle "WinRAR unlicensed successfully" -ToastText "Enjoy your 40-day infinite trial period!"
-        Stop-OcwrOperation -ExitType Complete
-      } else {
-        New-Toast -ToastTitle "Unable to un-license WinRAR" -ToastText "A WinRAR license was not found on your device."
-        Stop-OcwrOperation -ExitType Error
-      }
+        &$UnlicenseSuccess
+      } else { &$Error_UnlicenseFailed }
     }
     2 { $script:SKIP_LICENSING = $true; break }
     3 { $script:LICENSE_ONLY   = $true; break }
@@ -554,7 +643,7 @@ function Get-DataFromConfig {
   Param($Config)
 
   if ($null -eq $Config.Count -or $null -eq $script:SCRIPT_NAME_LOCATION -or $script:SCRIPT_NAME_LOCATION -notin (0,2)) {
-    &$Error_UnableToProcess; exit
+    &$Error_UnableToProcess
   }
   if ($script:SCRIPT_NAME_LOCATION -eq 0) {
     # Download, and overwrite
@@ -567,9 +656,7 @@ function Get-DataFromConfig {
       $script:RARVER = $Config[2].Value # 3                                     # Not required for download
       $script:TAGS   = $Config[3].Value # 4                                     # Not required for download
     }
-    elseif ($Config.Count -ne 1) {
-      &$Error_TooManyParams; exit
-    }
+    elseif ($Config.Count -ne 1) { &$Error_TooManyArgs }
   }
   elseif ($script:SCRIPT_NAME_LOCATION -eq 2) {
     # License, download, and overwrite
@@ -591,12 +678,8 @@ function Get-DataFromConfig {
       $script:RARVER = $Config[4].Value # 5                                     # Not required for download
       $script:TAGS   = $Config[5].Value # 6                                     # Not required for download
     }
-    else {
-      &$Error_TooManyParams; exit
-    }
-  } else {
-    &$Error_UnableToProcess; exit
-  }
+    else { &$Error_TooManyArgs }
+  } else { &$Error_UnableToProcess }
 }
 
 function Set-OcwrOperationMode {
@@ -636,7 +719,7 @@ function Set-OcwrOperationMode {
       $script:KEEP_DOWNLOAD = $true
       break
     }
-    default { &$Error_UnknownScript; exit }
+    default { &$Error_UnknownScript }
   }
 }
 
@@ -658,8 +741,8 @@ function Confirm-DownloadConfig {
       if ($script:ARCH -notmatch '^\d{3,}$') {
         $script:TAGS = $script:ARCH
         # Defaults from here
-        Write-Warn "No version provided."
-        Write-Info "Using latest WinRAR verison $(Format-VersionNumber $LATEST)."
+        Write-Warn "No version provided"
+        Write-Info "Using latest WinRAR version $(Format-VersionNumber $LATEST)"
         $script:RARVER = $LATEST
       }
       # If the ARCH value is RARVER
@@ -668,67 +751,61 @@ function Confirm-DownloadConfig {
         $script:RARVER = $script:ARCH
       }
       # Defaults from here
-      Write-Warn "No architecture provided."
+      Write-Warn "No architecture provided"
       if ($script:RARVER -lt $FIRST_64BIT) {
-        Write-Warn "Version $(Format-VersionNumber $script:RARVER) is $(Format-Text "32-bit only" -Formatting Underline)."
-        Write-Info "Using 32-bit for versions older than $(Format-Text $(Format-VersionNumber $FIRST_64BIT) -Foreground Red)."
+        Write-Warn "Version $(Format-VersionNumber $script:RARVER) is $(Format-Text "32-bit only" -Formatting Underline)"
+        Write-Info "Using 32-bit for versions older than $(Format-Text $(Format-VersionNumber $FIRST_64BIT) -Formatting Underline)"
         $script:ARCH = "x32" # Assume 32-bit
       }
       else {
-        Write-Info "Using default 64-bit architecture."
+        Write-Info "Using default 64-bit architecture"
         $script:ARCH = "x64" # Assume 64-bit
       }
     }
 
     # 2. Verify RARVER data.
-    # 2.1. Confirm correct varsion number for 32-bit installer
+    # 2.1. Confirm correct version number for 32-bit installer
     if ($script:ARCH -eq "x32") {
       if ($null -eq $script:RARVER) {
-        Write-Warn "No version provided."
-        Write-Info "Using latest 32-bit version $(Format-VersionNumber $LATEST_32BIT)."
+        Write-Warn "No version provided"
+        Write-Info "Using latest 32-bit version $(Format-VersionNumber $LATEST_32BIT)"
         $script:RARVER = $LATEST_32BIT
       }
       elseif ($script:RARVER -gt $LATEST_32BIT) {
-        Write-Warn "No 32-bit installer available for WinRAR $(Format-VersionNumber $script:RARVER)."
+        Write-Warn "No 32-bit installer available for WinRAR $(Format-VersionNumber $script:RARVER)"
         Confirm-QueryResult -ExpectPositive `
           -Query "Use latest 32-bit version $(Format-VersionNumber $LATEST_32BIT)?" `
           -ResultPositive {
-            Write-Info "User confirmed use of version $(Format-VersionNumber $LATEST_32BIT)."
+            Write-Info "Confirmed use of version $(Format-VersionNumber $LATEST_32BIT)"
             $script:RARVER = $LATEST_32BIT
           } `
-          -ResultNegative {
-            &$Error_No32bitSupport
-            Stop-OcwrOperation -ExitType Error
-          }
+          -ResultNegative { &$Error_No32bitSupport }
       }
     }
 
-    # 2.2. Confirm correct varsion number for 64-bit installer
+    # 2.2. Confirm correct version number for 64-bit installer
     if ($script:ARCH -eq "x64") {
       if ($null -eq $script:RARVER) {
-        Write-Warn "No version provided."
-        Write-Info "Using latest 64-bit version $(Format-VersionNumber $LATEST)."
+        Write-Warn "No version provided"
+        Write-Info "Using latest 64-bit version $(Format-VersionNumber $LATEST)"
         $script:RARVER = $LATEST
       }
       elseif ($script:RARVER -lt $FIRST_64BIT) {
-        Write-Warn "No 64-bit installer available for WinRAR $(Format-VersionNumber $script:RARVER)."
+        Write-Warn "No 64-bit installer available for WinRAR $(Format-VersionNumber $script:RARVER)"
         Confirm-QueryResult -ExpectPositive `
           -Query "Use earliest 64-bit version $(Format-VersionNumber $FIRST_64BIT)?" `
           -ResultPositive {
-            Write-Info "User confirmed use of version $(Format-VersionNumber $FIRST_64BIT)."
+            Write-Info "Confirmed use of version $(Format-VersionNumber $FIRST_64BIT)"
             $script:RARVER = $FIRST_64BIT
           } `
           -ResultNegative {
             Confirm-QueryResult -ExpectPositive `
               -Query "Use 32-bit for version $(Format-VersionNumber $script:RARVER)?" `
               -ResultPositive {
-                Write-Info "User confirmed switch to 32-bit for version $(Format-VersionNumber $script:RARVER)."
+                Write-Info "Confirmed switch to 32-bit for version $(Format-VersionNumber $script:RARVER)"
                 $script:ARCH = 'x32'
               } `
-              -ResultNegative {
-                &$Error_InvalidVersionNumber
-                Stop-OcwrOperation -ExitType Error
-              }
+              -ResultNegative { &$Error_InvalidVersionNumber }
           }
       }
     }
@@ -736,32 +813,30 @@ function Confirm-DownloadConfig {
     # 2.3. Sanity check for RARVER
     if ($script:RARVER -match '^\d{3,}$' -and $KNOWN_VERSIONS -notcontains $script:RARVER) {
       if ($script:RARVER -gt $LATEST) {
-        Write-Warn "Version $(Format-VersionNumber $script:RARVER) is newer than the known latest $(Format-VersionNumber $LATEST)."
+        Write-Warn "Version $(Format-VersionNumber $script:RARVER) is newer than the known latest $(Format-VersionNumber $LATEST)"
       }
       elseif ($script:RARVER -lt $OLDEST) {
-        Write-Warn "Version $(Format-VersionNumber $OLDEST) is the earliest known available WinRAR version."
+        Write-Warn "Version $(Format-VersionNumber $OLDEST) is the earliest known available WinRAR version"
       }
       else {
-        Write-Warn "Version $(Format-VersionNumber $script:RARVER) is not a known WinRAR version."
+        Write-Warn "Version $(Format-VersionNumber $script:RARVER) is not a known WinRAR version"
       }
 
       Confirm-QueryResult -ExpectNegative `
         -Query "Attempt to retrieve unknown version $(Format-VersionNumber $script:RARVER)?" `
         -ResultPositive {
-          &$Error_InvalidVersionNumber
-          Stop-OcwrOperation -ExitType Error
+          Write-Info "Confirmed retrieval of unknown version $(Format-VersionNumber $script:RARVER)"
+          Write-Warn "Version $(Format-VersionNumber $script:RARVER) may not exist on the server"
         } `
-        -ResultNegative {
-          Write-Info "User confirmed retrieval of unknown version $(Format-VersionNumber $script:RARVER). This version may not exist on the server."
-        }
+        -ResultNegative { &$Error_InvalidVersionNumber }
     }
 
     # 3. Verify TAGS data.
     if ($null -eq (Get-LanguageName)) { $script:TAGS = $null } # quick patch
     if ([string]::IsNullOrEmpty($script:TAGS) -or $script:TAGS -eq 'en') {
-      Write-Info "WinRAR language set to: $(Format-Text "English" -Foreground White -Formatting Underline)."
+      Write-Info "WinRAR language set to $(Format-Text "English" -Foreground White -Formatting Underline)"
     } else {
-      Write-Info "WinRAR language set to: $(Format-Text $(Get-LanguageName) -Foreground White -Formatting Underline)."
+      Write-Info "WinRAR language set to $(Format-Text $(Get-LanguageName) -Foreground White -Formatting Underline)"
     }
   } else {
     # If not CUSTOM_INSTALLATION
@@ -794,30 +869,32 @@ function Confirm-ConfigData {
 
 # --- INSTALLATION
 
-function Invoke-Installer($x, $v) {
+function Format-VersionNumber {
   <#
-    .SYNOPSIS
-      Run the installer.
-
-    .PARAMETER x
-      The executable file.
-
-    .PARAMETER v
-      WinRAR version number.
+    .DESCRIPTION
+      Format version numbers as x.xx
   #>
-  Write-Host "Installing WinRAR $v... "
-  try {
-    Start-Process $x "/s" -Wait
-  }
-  catch {
-    New-Toast -ToastTitle "Installation error" -ToastText "The script has run into a problem during installation. Please restart the script."
-    Stop-OcwrOperation
-  }
-  finally {
-    if (($script:FETCH_WINRAR -or $script:FETCH_WRAR) -and $script:DOWNLOAD_WINRAR -and -not $script:KEEP_DOWNLOAD) {
-      Remove-Item $script:WINRAR_EXE
-    }
-  }
+  Param($VersionNumber)
+  if ($null -eq $VersionNumber) { return $null }
+  return "{0:N2}" -f ($VersionNumber / 100)
+}
+
+function Format-VersionNumberFromExecutable {
+  <#
+    .DESCRIPTION
+      Retrieve the WinRAR version form the executable name and format it.
+  #>
+  Param(
+    [Parameter(Mandatory=$true, Position=0)]
+    $Executable,
+    [Switch]$IntToDouble
+  )
+
+  $version = if ($IntToDouble) { $Executable }
+             elseif ($Executable -match "(?<version>\d{3})") { $matches['version'] }
+             else { return $null }
+  $version = Format-VersionNumber $version
+  return $version
 }
 
 function Get-LocalWinrarInstaller {
@@ -855,34 +932,6 @@ function Get-LocalWinrarInstaller {
   }
 }
 
-function Format-VersionNumber {
-  <#
-    .DESCRIPTION
-      Format version numbers as x.xx
-  #>
-  Param($VersionNumber)
-  if ($null -eq $VersionNumber) { return $null }
-  return "{0:N2}" -f ($VersionNumber / 100)
-}
-
-function Format-VersionNumberFromExecutable {
-  <#
-    .DESCRIPTION
-      Retrieve the WinRAR version form the executable name and format it.
-  #>
-  Param(
-    [Parameter(Position=0, Mandatory=$true)]
-    $Executable,
-    [Switch]$IntToDouble
-  )
-
-  $version =  if ($IntToDouble) { $Executable }
-              elseif ($Executable -match "(?<version>\d{3})") { $matches['version'] }
-              else { return $null }
-  $version = Format-VersionNumber $version
-  return $version
-}
-
 function Get-WinrarInstaller {
   <#
     .DESCRIPTION
@@ -904,29 +953,34 @@ function Get-WinrarInstaller {
 
   Write-Host "Connecting to $HostUri... "
   if (Test-Connection "$HostUri" -Count 2 -Quiet) {
+    # Verify that connection to the host is good for downloading
+    try { Invoke-WebRequest -Uri $HostUri | Out-Null }
+    catch { &$Error_UnableToConnectToDownload }
+
     Write-Host "Verifying download... "
+
     if ($script:FETCH_WRAR) {
       $download_url = "$HostUriDir/wrar$($script:RARVER)$($script:TAGS).exe"
-    } else {
+    }
+    else {
       $download_url = "$HostUriDir/winrar-$($script:ARCH)-$($script:RARVER)$($script:TAGS).exe"
     }
+
     try {
       $responseCode = $(Invoke-WebRequest -Uri $download_url -Method Head -UseBasicParsing -TimeoutSec 10 -ErrorAction Stop).StatusCode
-      if ($responseCode -eq 200) {
-        Write-Host "Downloading WinRAR $($version)$(if($beta){" Beta $beta"}) ($($script:ARCH))$(if($lang){" ($(Get-LanguageName))"})... "
-        Start-BitsTransfer $download_url $pwd\ -ErrorAction SilentlyContinue
-      }
-      else {
-        Write-Error -Message "Download unavailable." -ErrorId "404" -Category NotSpecified 2>$null
-      }
     }
     catch {
-      New-Toast -ToastTitle "Unable to make a connection" -ToastText "Please check your internet or firewall rules."
-      Stop-OcwrOperation -ExitType Error -Message $(Format-Text "Unable to make a connection. Please check your internet or firewall rules." -Foreground Red)
+      Write-Error -Message "Unable to download." -ErrorId "404" -Category NotSpecified 2>$null
     }
-  } else {
-    New-Toast -ToastTitle "No internet" -ToastText "Please check your internet connection."; exit
-  }
+
+    if ($responseCode -eq 200) {
+      Write-Host "Downloading WinRAR $($version)$(if($beta){" Beta $beta"}) ($($script:ARCH))$(if($lang){" ($(Get-LanguageName))"})... "
+      Start-BitsTransfer $download_url $pwd\ -ErrorAction SilentlyContinue
+    }
+    else {
+      Write-Error -Message "Download unavailable." -ErrorId "404" -Category NotSpecified 2>$null
+    }
+  } else { &$Error_NoInternetConnection }
 }
 
 function Select-CurrentWinrarInstallation {
@@ -946,11 +1000,11 @@ function Select-CurrentWinrarInstallation {
         break
       }
       default {
-        Stop-OcwrOperation -ExitType Error -Message "No architecture provided."
+        Stop-OcwrOperation -ExitType Error -Message "No architecture provided"
       }
     }
   }
-  Write-Info "Installation directory: $(Format-Text $($script:WINRAR_INSTALLED_LOCATION) -Foreground White -Formatting Underline)."
+  Write-Info "Installation directory: $(Format-Text $($script:WINRAR_INSTALLED_LOCATION) -Foreground White -Formatting Underline)"
 }
 
 function Confirm-CurrentWinrarInstallation {
@@ -965,22 +1019,35 @@ function Confirm-CurrentWinrarInstallation {
     Write-Info "This version of WinRAR is already installed: $(Format-Text $(Format-VersionNumber $script:RARVER) -Foreground White -Formatting Underline)"
     Confirm-QueryResult -ExpectNegative `
       -Query "Continue with installation?" `
-      -ResultPositive { Write-Info "User confirmed re-installation of WinRAR verison $(Format-VersionNumber $script:RARVER)." } `
+      -ResultPositive {
+        Write-Info "Confirmed re-installation of WinRAR version $(Format-VersionNumber $script:RARVER)"
+      } `
       -ResultNegative { Stop-OcwrOperation }
   }
 }
 
-# --- BEGIN
+function Invoke-Installer($x, $v) {
+  <#
+    .SYNOPSIS
+      Run the installer.
 
-# Begin by retrieving any current installations of WinRAR
-Get-InstalledWinrarLocations
-# Grab the name of the script file and process any
-# customization data set by the user
-if ($CMD_NAME -ne $script_name) { Confirm-ConfigData }
-else { Set-DefaultArchVersion }
+    .PARAMETER x
+      The executable file.
 
-if ($script:WINRAR_IS_INSTALLED) {
-  Confirm-CurrentWinrarInstallation
+    .PARAMETER v
+      WinRAR version number.
+  #>
+  Write-Host "Installing WinRAR $v... "
+  try { Start-Process $x "/s" -Wait }
+  catch {
+    New-Toast -ToastTitle "Installation error" -ToastText "The script has run into a problem during installation. Please restart the script."
+    Stop-OcwrOperation -ExitType Error -Message "An unknown error occured."
+  }
+  finally {
+    if (($script:FETCH_WINRAR -or $script:FETCH_WRAR) -and $script:DOWNLOAD_WINRAR -and -not $script:KEEP_DOWNLOAD) {
+      Remove-Item $script:WINRAR_EXE
+    }
+  }
 }
 
 function Invoke-OwcrInstallation {
@@ -1015,17 +1082,20 @@ function Invoke-OwcrInstallation {
         if ($script:CUSTOM_INSTALLATION) {
           New-Toast -ToastTitle "Unable to fetch download" `
                     -ToastText  "WinRAR $($local:version) ($script:ARCH) may not exist on the server." `
-                    -ToastText2 "Check the version number and try again."; exit
+                    -ToastText2 "Check the version number and try again."
+          Stop-OcwrOperation -ExitType Error -Message "Unable to fetch download. Check the version number and try again."
         } else {
           New-Toast -ToastTitle "Unable to fetch download" `
                     -ToastText  "Are you still connected to the internet?" `
-                    -ToastText2 "Please check your internet connection."; exit
+                    -ToastText2 "Please check your internet connection."
+          Stop-OcwrOperation -ExitType Error -Message "Unable to fetch download"
         }
       }
       if ($script:DOWNLOAD_ONLY) {
         New-Toast -ToastTitle "Download Complete" `
                   -ToastText  "WinRAR $($local:version) ($script:ARCH) was successfully downloaded." `
-                  -ToastText2 "Run this script again if you ever need to install it."; exit
+                  -ToastText2 "Run this script again if you ever need to install it."
+        Stop-OcwrOperation -ExitType Complete
       }
       $script:WINRAR_EXE = (Get-LocalWinrarInstaller) # get the new installer
     } else {
@@ -1034,16 +1104,13 @@ function Invoke-OwcrInstallation {
     if ($script:DOWNLOAD_ONLY) {
       New-Toast -ToastTitle "Download Aborted" `
                 -ToastText  "An installer for WinRAR $(Format-VersionNumberFromExecutable $script:WINRAR_EXE) ($script:ARCH) already exists." `
-                -ToastText2 "Check the requested download version and try again."; exit
+                -ToastText2 "Check the requested download version and try again."
+      Stop-OcwrOperation -ExitType Warning -Message "An installer for WinRAR $(Format-VersionNumberFromExecutable $script:WINRAR_EXE) ($script:ARCH) already exists"
     }
 
     Invoke-Installer $script:WINRAR_EXE (Format-VersionNumberFromExecutable $script:WINRAR_EXE)
   }
 }
-
-Invoke-OwcrInstallation
-
-# --- LICENSING
 
 function Invoke-OcwrLicensing {
   <#
@@ -1058,17 +1125,14 @@ function Invoke-OcwrLicensing {
           $rarreg = $rarreg64
         }
         else {
-          Write-Info "WinRAR is not installed."
+          Write-Info "WinRAR is not installed"
           Confirm-QueryResult -ExpectNegative `
             -Query "Do you want to install WinRAR version $(Format-VersionNumber $script:RARVER)?" `
             -ResultPositive {
               $script:LICENSE_ONLY = $false
               Invoke-OwcrInstallation
             } `
-            -ResultNegative {
-              New-Toast -ToastTitle "WinRAR is not installed" -ToastText "Run this script to install WinRAR before licensing."
-              Stop-OcwrOperation -ExitType Error
-            }
+            -ResultNegative { &$Error_WinrarNotInstalled }
         }
         break
       }
@@ -1078,23 +1142,19 @@ function Invoke-OcwrLicensing {
           $rarreg = $rarreg32
         }
         else {
-          Write-Info "WinRAR is not installed."
+          Write-Info "WinRAR is not installed"
           Confirm-QueryResult -ExpectNegative `
             -Query "Do you want to install WinRAR version $(Format-VersionNumber $script:RARVER)?" `
             -ResultPositive {
               $script:LICENSE_ONLY = $false
               Invoke-OwcrInstallation
             } `
-            -ResultNegative {
-              New-Toast -ToastTitle "WinRAR is not installed" -ToastText "Run this script to install WinRAR before licensing."
-              Stop-OcwrOperation -ExitType Error
-            }
+            -ResultNegative { &$Error_WinrarNotInstalled }
         }
         break
       }
       default {
-        New-Toast -ToastTitle "There was a problem licensing WinRAR" -ToastText "Please verify the script config and try again."; exit
-        Stop-OcwrOperation -ExitType Error
+        &$Error_UnknownError
         break
       }
     }
@@ -1105,11 +1165,7 @@ function Invoke-OcwrLicensing {
         if (Test-Path $keygen -PathType Leaf) {
           &$keygen "$($script:licensee)" "$($script:license_type)" | Out-File -Encoding utf8 $rarreg
         }
-        else {
-          New-Toast -ActionButtonUrl "$link_howtouse" `
-                    -ToastTitle "Missing `"bin`" folder" `
-                    -ToastText  "Unable to generate a license. Ensure that the `"bin`" file is available in the same directory as the script."; exit
-        }
+        else { &$Error_BinFolderMissing }
       }
       else {
         if (Test-Path "rarreg.key" -PathType Leaf) {
@@ -1121,7 +1177,7 @@ function Invoke-OcwrLicensing {
       }
     }
     else {
-      Write-Info "A WinRAR license already exists."
+      Write-Info "A WinRAR license already exists"
       Confirm-QueryResult -ExpectNegative `
         -Query "Do you want to overwrite the current license?" `
         -ResultPositive {
@@ -1129,24 +1185,33 @@ function Invoke-OcwrLicensing {
           Invoke-OcwrLicensing
         } `
         -ResultNegative {
-          $Text_viewDocumentationForLicensing = "View the documentation on how to use the override switch to install a new license."
-          $Text_LicenseAlreadyExists = "Notice: A WinRAR license already exists."
-          if ($script:LICENSE_ONLY) {
-            New-Toast -LongerDuration `
-                      -ToastTitle "Unable to license WinRAR" -ActionButtonUrl $link_overwriting `
-                      -ToastText  $Text_LicenseAlreadyExists `
-                      -ToastText2 $Text_viewDocumentationForLicensing
-          } else {
-            New-Toast -LongerDuration `
-                      -ToastTitle "WinRAR installed successfully but.." -ActionButtonUrl $link_overwriting `
-                      -ToastText  $Text_LicenseAlreadyExists `
-                      -ToastText2 $Text_viewDocumentationForLicensing
-          }
-          Stop-OcwrOperation -ExitType Warning
+          if ($script:LICENSE_ONLY) { &$Error_LicenseExists }
+          else { &$Error_ButLicenseExists }
         }
     }
   }
 }
+
+# --- BEGIN
+
+Write-Title
+
+# Begin by retrieving any current installations of WinRAR
+Get-InstalledWinrarLocations
+
+# Grab the name of the script file and process any
+# customization config data set by the user
+if ($CMD_NAME -ne $script_name) {
+  Confirm-ConfigData
+} else {
+  Set-DefaultArchVersion
+}
+
+if ($script:WINRAR_IS_INSTALLED) {
+  Confirm-CurrentWinrarInstallation
+}
+
+Invoke-OwcrInstallation
 
 Invoke-OcwrLicensing
 
@@ -1155,28 +1220,30 @@ Invoke-OcwrLicensing
 if ($script:SKIP_LICENSING) {
     New-Toast -Url $link_freedom_universe_yt `
               -ToastTitle "WinRAR installed successfully" `
-              -ToastText  "Freedom throughout the universe!"; exit
+              -ToastText  "Freedom throughout the universe!"
 } elseif ($script:LICENSE_ONLY) {
   if ($script:CUSTOM_LICENSE) {
     New-Toast -Url $link_freedom_universe_yt `
               -ToastTitle "WinRAR licensed successfully" `
               -ToastText  "Licensed to `"$($script:licensee)`"" `
-              -ToastText2 "Freedom throughout the universe!"; exit
+              -ToastText2 "Freedom throughout the universe!"
   } else {
     New-Toast -Url $link_freedom_universe_yt `
               -ToastTitle "WinRAR licensed successfully" `
-              -ToastText  "Freedom throughout the universe!"; exit
+              -ToastText  "Freedom throughout the universe!"
   }
 } elseif ($script:CUSTOM_LICENSE) {
     New-Toast -Url $link_freedom_universe_yt `
               -ToastTitle "WinRAR installed and licensed successfully" `
               -ToastText  "Licensed to `"$($script:licensee)`"" `
-              -ToastText2 "Freedom throughout the universe!"; exit
+              -ToastText2 "Freedom throughout the universe!"
 } else {
     New-Toast -Url $link_freedom_universe_yt `
               -ToastTitle "WinRAR installed and licensed successfully" `
-              -ToastText  "Freedom throughout the universe!"; exit
+              -ToastText  "Freedom throughout the universe!"
 }
+
+Stop-OcwrOperation -ExitType Complete
 
 <### has bugs. maybe continue work on this in version 0.13.0 or later
 $exit_Url = $link_freedom_universe_yt
