@@ -201,7 +201,7 @@ $server1         = "https://$server1_host/rar"
 $server2_host    = "www.win-rar.com"
 $server2         = @("https://$server2_host/fileadmin/winrar-versions", "https://$server2_host/fileadmin/winrar-versions/winrar")
 
-$KNOWN_VERSIONS  = @(290, 300, 310, 320, 330, 340, 350, 360, 370, 371, 380, 390, 393, 400, 401, 410, 411, 420, 500, 501, 510, 511, 520, 521, 530, 531, 540, 550, 560, 561, 570, 571, 580, 590, 591, 600, 601, 602, 610, 611, 620, 621, 622, 623, 624, 700, 701, 710, 711)
+$KNOWN_VERSIONS  = @(290, 300, 310, 320, 330, 340, 350, 360, 370, 371, 380, 390, 393, 400, 401, 410, 411, 420, 500, 501, 510, 511, 520, 521, 530, 531, 540, 550, 560, 561, 570, 571, 580, 590, 591, 600, 601, 602, 610, 611, 620, 621, 622, 623, 624, 700, 701, 710, 711, 712)
 $LANG_CODE_LIST  = @("ar","al","am","az","by","ba","bg","bur","ca","sc","tc","cro","cz","dk","nl","-","eu","est","fi","fr","gl","d","el","he","hu","id","it","jp","kr","lt","mk","mn","no","prs","pl","pt","br","ro","ru","srbcyr","srblat","sk","slv","es","ln","esco","sw","th","tr","uk","uz","va","vn")
 $LANG_NAME_LIST  = @("Arabic","Albanian","Armenian","Azerbaijani","Belarusian","Bosnian","Bulgarian","Burmese (Myanmar)","Catalan","Chinese Simplified","Chinese Traditional","Croatian","Czech","Danish","Dutch","English","Euskera","Estonian","Finnish","French","Galician","German","Greek","Hebrew","Hungarian","Indonesian","Italian","Japanese","Korean","Lithuanian","Macedonian","Mongolian","Norwegian","Persian","Polish","Portuguese","Portuguese Brazilian","Romanian","Russian","Serbian Cyrillic","Serbian Latin","Slovak","Slovenian","Spanish","Spanish (Latin American)","Spanish Colombian","Swedish","Thai","Turkish","Ukrainian","Uzbek","Valencian","Vietnamese")
 
