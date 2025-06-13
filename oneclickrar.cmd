@@ -983,11 +983,28 @@ function Get-WinrarInstaller {
   } else { &$Error_NoInternetConnection }
 }
 
-function Select-CurrentWinrarInstallation {
+function Select-WinrarInstallation {
   <#
     .DESCRIPTION
       Find and select which installed architecture of WinRAR to work on.
       Confirm selection if multiple architectures are available.
+  #>
+  if ($script:WINRAR_INSTALLED_LOCATION -eq $loc96) {
+    Write-Warn "Found 32-bit and 64-bit directories for WinRAR. $(Format-Text "Select one." -Foreground Red)"
+    do {
+      $query = Read-Host "Enter `"1`" for 32-bit and `"2`" for 64-bit"
+      if ($query -eq 1) { $script:WINRAR_INSTALLED_LOCATION = $loc32; break }
+      elseif ($query -eq 2) { $script:WINRAR_INSTALLED_LOCATION = $loc64; break }
+    } while ($true)
+  }
+  Write-Info "Selected WinRAR installation: $(Format-Text $($script:WINRAR_INSTALLED_LOCATION) -Foreground White -Formatting Underline)"
+}
+
+function Select-CurrentWinrarInstallation {
+  <#
+    .DESCRIPTION
+      Select WinRAR installation directory based on the proposed installation
+      architecture.
   #>
   if ($script:WINRAR_INSTALLED_LOCATION -eq $loc96) {
     switch ($script:ARCH) {
@@ -1012,7 +1029,6 @@ function Confirm-CurrentWinrarInstallation {
     .DESCRIPTION
       Verify and confirm the current WinRAR installation to be worked on.
   #>
-  Select-CurrentWinrarInstallation
   # `-iver` switch returns the version number of the current (Win)RAR installation
   $civ = $(&$script:WINRAR_INSTALLED_LOCATION\rar.exe "-iver") # current installed version
   if ("$civ" -match $(Format-VersionNumber $script:RARVER)) {
@@ -1207,7 +1223,11 @@ if ($CMD_NAME -ne $script_name) {
   Set-DefaultArchVersion
 }
 
-if ($script:WINRAR_IS_INSTALLED) {
+if ($script:LICENSE_ONLY) {
+  Select-WinrarInstallation
+}
+elseif ($script:WINRAR_IS_INSTALLED) {
+  Select-CurrentWinrarInstallation
   Confirm-CurrentWinrarInstallation
 }
 
