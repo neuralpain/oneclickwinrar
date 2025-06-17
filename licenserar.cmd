@@ -341,6 +341,16 @@ if (-not $script:WINRAR_IS_INSTALLED) {
 if ($CMD_NAME -ne $script_name) {
   $config = [regex]::matches($CMD_NAME, '[^_]+')
   if ($config.Count -gt 3) { &$Error_TooManyArgs }
+  elseif ($config.Count -eq 2) {
+    if ($config[1].Value -eq $script_name) {
+      $script:CUSTOM_LICENSE = $true
+      $script:licensee = $config[0].Value
+      $script:license_type = "Single User License"
+    }
+    else {
+      &$Error_UnknownScript
+    }
+  }
   elseif ($config.Count -eq 1) {
     # User only wants to overwrite the existing license
     if ($config[0].Value -eq $script_name_overwrite) {
@@ -372,16 +382,16 @@ if ($CMD_NAME -ne $script_name) {
 Invoke-OcwrLicensing
 
 if ($script:CUSTOM_LICENSE) {
-  Write-Host "Licensee: $($script:licensee)`nLicense: $($script:license_type)"
+  Write-Host "`nLicensee:`t$($script:licensee)`nLicense:`t$($script:license_type)`n"
   New-Toast -Url "https://ko-fi.com/neuralpain" `
             -ToastTitle "WinRAR licensed successfully" `
             -ToastText "Licensee: $($script:licensee)`nLicense: $($script:license_type)" `
             -ToastText2 "Thanks for using oneclickwinrar!"
-  Stop-OcwrOperation -ExitType Complete
 }
 else {
   New-Toast -Url "https://ko-fi.com/neuralpain" `
             -ToastTitle "WinRAR licensed successfully" `
             -ToastText "Thanks for using oneclickwinrar!"
-  Stop-OcwrOperation -ExitType Complete
 }
+
+Stop-OcwrOperation -ExitType Complete

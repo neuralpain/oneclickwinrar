@@ -53,12 +53,24 @@ exit /b
     <licensee>_<license-type>_<script-name>_<architecture>_<version>_<tags>.cmd
 
   .EXAMPLE
-    oneclickrar.cmd           --- Default
-    oneclickrar_x32.cmd       --- 32-bit with default settings
-    oneclickrar_700.cmd       --- Install version 7.00 with defaults
-    oneclickrar_x64_700.cmd   --- Install 64-bit version for 7.00
-    My Name_My License_oneclickrar.cmd    --- License with default installation
-    My Name_My License_oneclickrar_x64_700.cmd    --- Full customization
+    oneclickrar.cmd             --- Install latest English 64-bit version with
+                                    default license information
+    oneclickrar_x32.cmd         --- Install latest English 32-bit version with
+                                    default license information
+    oneclickrar_700.cmd         --- Install English 64-bit version 7.00
+                                    with default license information
+    one-clickrar_624.cmd        --- Download English 64-bit version 6.24
+    oneclickrar_x32_701_fr.cmd  --- Install French 32-bit version 7.01
+    one-click-rar_x64_700.cmd   --- Install English 64-bit version 7.00 and keep
+                                    the downloaded installer
+    My Name_My License Type_oneclickrar.cmd
+                                --- Custom license with default installation
+    My Name_oneclick-rar.cmd    --- Overwrite current license with "My Name" as
+                                    the licensee and use default license type
+    My Name_My License Type_oneclick-rar_x64_700_ru.cmd
+                                --- Full customization to install Russian 64-bit
+                                    version 7.00 and overwrite any existing
+                                    license with the custom license information
 #>
 
 $global:ProgressPreference = "SilentlyContinue"
@@ -273,7 +285,7 @@ $script:DOWNLOAD_WINRAR      = $false
 $script:KEEP_DOWNLOAD        = $false
 
 $script:licensee             = $null
-$script:license_type         = $null
+$script:license_type         = "Single User License"
 $script:LICENSE_ONLY         = $false             # SKIP INSTALLATION
 $script:CUSTOM_LICENSE       = $false
 $script:SKIP_LICENSING       = $false             # INSTALL ONLY
@@ -573,7 +585,9 @@ function Confirm-ScriptNamePosition {
   foreach ($data in $Config) {
     $data = $data.Value
 
-    if ($position -notin (0, 2)) {
+    if ($position -notin (0,1,2)) {
+      # 0     --- General use
+      # 1, 2  --- Licensing requetsed
       $position++  # Increment conceptual position
       continue     # Skip this data item
     }
@@ -642,12 +656,11 @@ function Get-DataFromConfig {
   #>
   Param($Config)
 
-  if ($null -eq $Config.Count -or $null -eq $script:SCRIPT_NAME_LOCATION -or $script:SCRIPT_NAME_LOCATION -notin (0,2)) {
+  if ($null -eq $Config.Count -or $null -eq $script:SCRIPT_NAME_LOCATION -or $script:SCRIPT_NAME_LOCATION -notin (0,1,2)) {
     &$Error_UnableToProcess
   }
   if ($script:SCRIPT_NAME_LOCATION -eq 0) {
-    # Download, and overwrite
-    # e.g. oneclick-rar.cmd
+    # Download/install
     # e.g. oneclickrar_x64_700.cmd
     if ($Config.Count -gt 1 -and $Config.Count -le 4) {                         # GET DOWNLOAD-ONLY DATA
       $script:CUSTOM_INSTALLATION = $true
@@ -656,23 +669,47 @@ function Get-DataFromConfig {
       $script:RARVER = $Config[2].Value # 3                                     # Not required for download
       $script:TAGS   = $Config[3].Value # 4                                     # Not required for download
     }
-    elseif ($Config.Count -ne 1) { &$Error_TooManyArgs }
+    elseif (-not ($script:LICENSE_ONLY -or $script:SKIP_LICENSING)) {
+      &$Error_TooManyArgs
+    }
+  }
+  elseif ($script:SCRIPT_NAME_LOCATION -eq 1) {
+    # Download/install, license
+    if ($Config.Count -gt 1 -and $Config.Count -eq 2) {                         # GET LICENSE-ONLY DATA
+      # e.g. John Doe_oneclickrar.cmd
+      $script:CUSTOM_LICENSE = $true
+      $script:licensee       = $Config[0].Value # 1
+      # `$Config[1]` is the script name         # 2
+      # $script:license_type => Default license type
+    }
+    elseif ($Config.Count -ge 3 -and $Config.Count -le 5) {                     # GET DOWNLOAD AND LICENSE DATA
+      # e.g. John Doe_oneclickrar_x64_700_ru.cmd
+      $script:CUSTOM_LICENSE = $true
+      $script:CUSTOM_INSTALLATION = $true
+      $script:licensee       = $Config[0].Value # 1
+      # `$Config[1]` is the script name         # 2
+      # $script:license_type => Default license type
+      $script:ARCH   = $Config[2].Value # 3
+      $script:RARVER = $Config[3].Value # 4                                     # Not required for download
+      $script:TAGS   = $Config[4].Value # 5                                     # Not required for download
+    }
+    else { &$Error_TooManyArgs }
   }
   elseif ($script:SCRIPT_NAME_LOCATION -eq 2) {
-    # License, download, and overwrite
-    # e.g. John Doe_License_oneclickrar.cmd
-    # e.g. John Doe_License_oneclickrar_x64_700.cmd
-    if ($Config.Count -gt 1 -and $Config.Count -eq 3) {                         # GET LICENSE-ONLY DATA
+    # Download/install, license
+    if ($Config.Count -gt 1 -and $Config.Count -eq 3) {                     # GET LICENSE-ONLY DATA
+      # e.g. John Doe_License_oneclickrar.cmd
       $script:CUSTOM_LICENSE = $true
       $script:licensee       = $Config[0].Value # 1
       $script:license_type   = $Config[1].Value # 2
       # `$Config[2]` is the script name         # 3
     }
     elseif ($Config.Count -ge 4 -and $Config.Count -le 6) {                     # GET DOWNLOAD AND LICENSE DATA
-      $script:CUSTOM_LICENSE  = $true
+      # e.g. John Doe_License_oneclickrar_x64_700_ru.cmd
+      $script:CUSTOM_LICENSE = $true
       $script:CUSTOM_INSTALLATION = $true
-      $script:licensee        = $Config[0].Value # 1
-      $script:license_type    = $Config[1].Value # 2
+      $script:licensee       = $Config[0].Value # 1
+      $script:license_type   = $Config[1].Value # 2
       # `$Config[2]` is the script name # 3
       $script:ARCH   = $Config[3].Value # 4
       $script:RARVER = $Config[4].Value # 5                                     # Not required for download
@@ -732,115 +769,109 @@ function Confirm-DownloadConfig {
     .NOTES
       Single reference within `Confirm-ConfigData`.
   #>
-
-  if ($script:CUSTOM_INSTALLATION) {
-    # 1. Verify ARCH data. Copy the config to the correct variables (LIFO)
-    # If ARCH has a value, but is not an architecture value
-    if ($null -ne $script:ARCH -and $script:ARCH -notmatch 'x(64|32)') {
-      # If the ARCH value is not RARVER, then it is TAGS
-      if ($script:ARCH -notmatch '^\d{3,}$') {
-        $script:TAGS = $script:ARCH
-        # Defaults from here
-        Write-Warn "No version provided"
-        Write-Info "Using latest WinRAR version $(Format-VersionNumber $LATEST)"
-        $script:RARVER = $LATEST
-      }
-      # If the ARCH value is RARVER
-      else {
-        $script:TAGS = $script:RARVER
-        $script:RARVER = $script:ARCH
-      }
+  # 1. Verify ARCH data. Copy the config to the correct variables (LIFO)
+  # If ARCH has a value, but is not an architecture value
+  if ($null -ne $script:ARCH -and $script:ARCH -notmatch 'x(64|32)') {
+    # If the ARCH value is not RARVER, then it is TAGS
+    if ($script:ARCH -notmatch '^\d{3,}$') {
+      $script:TAGS = $script:ARCH
       # Defaults from here
-      Write-Warn "No architecture provided"
-      if ($script:RARVER -lt $FIRST_64BIT) {
-        Write-Warn "Version $(Format-VersionNumber $script:RARVER) is $(Format-Text "32-bit only" -Formatting Underline)"
-        Write-Info "Using 32-bit for versions older than $(Format-Text $(Format-VersionNumber $FIRST_64BIT) -Formatting Underline)"
-        $script:ARCH = "x32" # Assume 32-bit
-      }
-      else {
-        Write-Info "Using default 64-bit architecture"
-        $script:ARCH = "x64" # Assume 64-bit
-      }
+      Write-Warn "No version provided"
+      Write-Info "Using latest WinRAR version $(Format-VersionNumber $LATEST)"
+      $script:RARVER = $LATEST
     }
-
-    # 2. Verify RARVER data.
-    # 2.1. Confirm correct version number for 32-bit installer
-    if ($script:ARCH -eq "x32") {
-      if ($null -eq $script:RARVER) {
-        Write-Warn "No version provided"
-        Write-Info "Using latest 32-bit version $(Format-VersionNumber $LATEST_32BIT)"
-        $script:RARVER = $LATEST_32BIT
-      }
-      elseif ($script:RARVER -gt $LATEST_32BIT) {
-        Write-Warn "No 32-bit installer available for WinRAR $(Format-VersionNumber $script:RARVER)"
-        Confirm-QueryResult -ExpectPositive `
-          -Query "Use latest 32-bit version $(Format-VersionNumber $LATEST_32BIT)?" `
-          -ResultPositive {
-            Write-Info "Confirmed use of version $(Format-VersionNumber $LATEST_32BIT)"
-            $script:RARVER = $LATEST_32BIT
-          } `
-          -ResultNegative { &$Error_No32bitSupport }
-      }
+    # If the ARCH value is RARVER
+    else {
+      $script:TAGS = $script:RARVER
+      $script:RARVER = $script:ARCH
     }
-
-    # 2.2. Confirm correct version number for 64-bit installer
-    if ($script:ARCH -eq "x64") {
-      if ($null -eq $script:RARVER) {
-        Write-Warn "No version provided"
-        Write-Info "Using latest 64-bit version $(Format-VersionNumber $LATEST)"
-        $script:RARVER = $LATEST
-      }
-      elseif ($script:RARVER -lt $FIRST_64BIT) {
-        Write-Warn "No 64-bit installer available for WinRAR $(Format-VersionNumber $script:RARVER)"
-        Confirm-QueryResult -ExpectPositive `
-          -Query "Use earliest 64-bit version $(Format-VersionNumber $FIRST_64BIT)?" `
-          -ResultPositive {
-            Write-Info "Confirmed use of version $(Format-VersionNumber $FIRST_64BIT)"
-            $script:RARVER = $FIRST_64BIT
-          } `
-          -ResultNegative {
-            Confirm-QueryResult -ExpectPositive `
-              -Query "Use 32-bit for version $(Format-VersionNumber $script:RARVER)?" `
-              -ResultPositive {
-                Write-Info "Confirmed switch to 32-bit for version $(Format-VersionNumber $script:RARVER)"
-                $script:ARCH = 'x32'
-              } `
-              -ResultNegative { &$Error_InvalidVersionNumber }
-          }
-      }
+    # Defaults from here
+    Write-Warn "No architecture provided"
+    if ($script:RARVER -lt $FIRST_64BIT) {
+      Write-Warn "Version $(Format-VersionNumber $script:RARVER) is $(Format-Text "32-bit only" -Formatting Underline)"
+      Write-Info "Using 32-bit for versions older than $(Format-Text $(Format-VersionNumber $FIRST_64BIT) -Formatting Underline)"
+      $script:ARCH = "x32" # Assume 32-bit
     }
+    else {
+      Write-Info "Using default 64-bit architecture"
+      $script:ARCH = "x64" # Assume 64-bit
+    }
+  }
 
-    # 2.3. Sanity check for RARVER
-    if ($script:RARVER -match '^\d{3,}$' -and $KNOWN_VERSIONS -notcontains $script:RARVER) {
-      if ($script:RARVER -gt $LATEST) {
-        Write-Warn "Version $(Format-VersionNumber $script:RARVER) is newer than the known latest $(Format-VersionNumber $LATEST)"
-      }
-      elseif ($script:RARVER -lt $OLDEST) {
-        Write-Warn "Version $(Format-VersionNumber $OLDEST) is the earliest known available WinRAR version"
-      }
-      else {
-        Write-Warn "Version $(Format-VersionNumber $script:RARVER) is not a known WinRAR version"
-      }
-
-      Confirm-QueryResult -ExpectNegative `
-        -Query "Attempt to retrieve unknown version $(Format-VersionNumber $script:RARVER)?" `
+  # 2. Verify RARVER data.
+  # 2.1. Confirm correct version number for 32-bit installer
+  if ($script:ARCH -eq "x32") {
+    if ($null -eq $script:RARVER) {
+      Write-Warn "No version provided"
+      Write-Info "Using latest 32-bit version $(Format-VersionNumber $LATEST_32BIT)"
+      $script:RARVER = $LATEST_32BIT
+    }
+    elseif ($script:RARVER -gt $LATEST_32BIT) {
+      Write-Warn "No 32-bit installer available for WinRAR $(Format-VersionNumber $script:RARVER)"
+      Confirm-QueryResult -ExpectPositive `
+        -Query "Use latest 32-bit version $(Format-VersionNumber $LATEST_32BIT)?" `
         -ResultPositive {
-          Write-Info "Confirmed retrieval of unknown version $(Format-VersionNumber $script:RARVER)"
-          Write-Warn "Version $(Format-VersionNumber $script:RARVER) may not exist on the server"
+          Write-Info "Confirmed use of version $(Format-VersionNumber $LATEST_32BIT)"
+          $script:RARVER = $LATEST_32BIT
         } `
-        -ResultNegative { &$Error_InvalidVersionNumber }
+        -ResultNegative { &$Error_No32bitSupport }
+    }
+  }
+
+  # 2.2. Confirm correct version number for 64-bit installer
+  if ($script:ARCH -eq "x64") {
+    if ($null -eq $script:RARVER) {
+      Write-Warn "No version provided"
+      Write-Info "Using latest 64-bit version $(Format-VersionNumber $LATEST)"
+      $script:RARVER = $LATEST
+    }
+    elseif ($script:RARVER -lt $FIRST_64BIT) {
+      Write-Warn "No 64-bit installer available for WinRAR $(Format-VersionNumber $script:RARVER)"
+      Confirm-QueryResult -ExpectPositive `
+        -Query "Use earliest 64-bit version $(Format-VersionNumber $FIRST_64BIT)?" `
+        -ResultPositive {
+          Write-Info "Confirmed use of version $(Format-VersionNumber $FIRST_64BIT)"
+          $script:RARVER = $FIRST_64BIT
+        } `
+        -ResultNegative {
+          Confirm-QueryResult -ExpectPositive `
+            -Query "Use 32-bit for version $(Format-VersionNumber $script:RARVER)?" `
+            -ResultPositive {
+              Write-Info "Confirmed switch to 32-bit for version $(Format-VersionNumber $script:RARVER)"
+              $script:ARCH = 'x32'
+            } `
+            -ResultNegative { &$Error_InvalidVersionNumber }
+        }
+    }
+  }
+
+  # 2.3. Sanity check for RARVER
+  if ($script:RARVER -match '^\d{3,}$' -and $KNOWN_VERSIONS -notcontains $script:RARVER) {
+    if ($script:RARVER -gt $LATEST) {
+      Write-Warn "Version $(Format-VersionNumber $script:RARVER) is newer than the known latest $(Format-VersionNumber $LATEST)"
+    }
+    elseif ($script:RARVER -lt $OLDEST) {
+      Write-Warn "Version $(Format-VersionNumber $OLDEST) is the earliest known available WinRAR version"
+    }
+    else {
+      Write-Warn "Version $(Format-VersionNumber $script:RARVER) is not a known WinRAR version"
     }
 
-    # 3. Verify TAGS data.
-    if ($null -eq (Get-LanguageName)) { $script:TAGS = $null } # quick patch
-    if ([string]::IsNullOrEmpty($script:TAGS) -or $script:TAGS -eq 'en') {
-      Write-Info "WinRAR language set to $(Format-Text "English" -Foreground White -Formatting Underline)"
-    } else {
-      Write-Info "WinRAR language set to $(Format-Text $(Get-LanguageName) -Foreground White -Formatting Underline)"
-    }
+    Confirm-QueryResult -ExpectNegative `
+      -Query "Attempt to retrieve unknown version $(Format-VersionNumber $script:RARVER)?" `
+      -ResultPositive {
+        Write-Info "Confirmed retrieval of unknown version $(Format-VersionNumber $script:RARVER)"
+        Write-Warn "Version $(Format-VersionNumber $script:RARVER) may not exist on the server"
+      } `
+      -ResultNegative { &$Error_InvalidVersionNumber }
+  }
+
+  # 3. Verify TAGS data.
+  if ($null -eq (Get-LanguageName)) { $script:TAGS = $null } # quick patch
+  if ([string]::IsNullOrEmpty($script:TAGS) -or $script:TAGS -eq 'en') {
+    Write-Info "WinRAR language set to $(Format-Text "English" -Foreground White -Formatting Underline)"
   } else {
-    # If not CUSTOM_INSTALLATION
-    Set-DefaultArchVersion
+    Write-Info "WinRAR language set to $(Format-Text $(Get-LanguageName) -Foreground White -Formatting Underline)"
   }
 }
 
@@ -859,12 +890,14 @@ function Confirm-ConfigData {
 
   $config = [regex]::matches($CMD_NAME, '[^_]+')
 
-  Confirm-ScriptNamePosition $config
-  Get-DataFromConfig $config
-  Get-SpecialCode
-  Confirm-SpecialSwitch
-  Set-OcwrOperationMode
-  Confirm-DownloadConfig
+  <# Step 1 #> Confirm-ScriptNamePosition $config
+  <# Step 2 #> Get-SpecialCode
+  <# Step 3 #> Confirm-SpecialSwitch
+  <# Step 4 #> Set-OcwrOperationMode
+  <# Step 5 #> Get-DataFromConfig $config
+  if ($script:CUSTOM_INSTALLATION) {
+    <# Opt. #> Confirm-DownloadConfig
+  } else { Set-DefaultArchVersion }
 }
 
 # --- INSTALLATION
@@ -1243,9 +1276,10 @@ if ($script:SKIP_LICENSING) {
               -ToastText  "Freedom throughout the universe!"
 } elseif ($script:LICENSE_ONLY) {
   if ($script:CUSTOM_LICENSE) {
+    Write-Host "`nLicensee:`t$($script:licensee)`nLicense:`t$($script:license_type)`n"
     New-Toast -Url $link_freedom_universe_yt `
               -ToastTitle "WinRAR licensed successfully" `
-              -ToastText  "Licensed to `"$($script:licensee)`"" `
+              -ToastText  "Licensee: $($script:licensee)`nLicense: $($script:license_type)" `
               -ToastText2 "Freedom throughout the universe!"
   } else {
     New-Toast -Url $link_freedom_universe_yt `
@@ -1253,9 +1287,10 @@ if ($script:SKIP_LICENSING) {
               -ToastText  "Freedom throughout the universe!"
   }
 } elseif ($script:CUSTOM_LICENSE) {
+    Write-Host "`nLicensee:`t$($script:licensee)`nLicense:`t$($script:license_type)`n"
     New-Toast -Url $link_freedom_universe_yt `
               -ToastTitle "WinRAR installed and licensed successfully" `
-              -ToastText  "Licensed to `"$($script:licensee)`"" `
+              -ToastText  "Licensee: $($script:licensee)`nLicense: $($script:license_type)" `
               -ToastText2 "Freedom throughout the universe!"
 } else {
     New-Toast -Url $link_freedom_universe_yt `
