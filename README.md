@@ -1,54 +1,76 @@
 > [!TIP]
-> RARLAB® recently released WinRAR 7.11! Use `installrar.cmd` to update to the latest version. 🚀
+> RARLAB® started working on WinRAR 7.12 and is currently available in languages such as English, Arabic, Chinese Traditional, Korean and more.
+>
 > <details>
 > <summary>View changes</summary>
->  
+>
 > ```
 >                WinRAR - What's new in the latest version
 >
 >
->   Version 7.11
+>   Version 7.12 beta 1
 >
->  1. If "Add to archive..." Explorer context menu command is applied to
->     multiple archives in the disk root, for example, d:\arc1.rar
->     and d:\arc2.rar, WinRAR will propose arc1_rar.rar default name
->     for a new archive. Previous version proposed arc1.rar, updating one
->     of selected archives instead of creating a new one.
+>  1. When extracting a file, previous versions of WinRAR, Windows versions
+>     of RAR, UnRAR, portable UnRAR source code and UnRAR.dll can be tricked
+>     into using a path, defined in a specially crafted archive,
+>     instead of user specified path.
 >
->  2. Bugs fixed:
+>     Unix versions of RAR, UnRAR, portable UnRAR source code
+>     and UnRAR library, also as RAR for Android, are not affected.
 >
->     a) WinRAR 7.10 failed to update solid archives containing a folder
->        record placed before a file record. It issued the checksum error
->        message and aborted processing.
+>     We are thankful to whs3-detonator working with Trend Micro Zero Day
+>     Initiative for letting us know about this security issue.
 >
->        As a result of this fix, this version preserves the original position
->        of such folders after updating and doesn't move them to the end
->        of archive as WinRAR 7.10 did;
+>  2. Previously "Generate report" command included archived file names
+>     into HTML report as is, allowing to inject potentially unsafe HTML tags
+>     into the report. To prevent such injection the current version replaces
+>     < and > file name characters in HTML report with < and > strings.
 >
->     b) when extracting a file from CAB archive over an existing file,
->        existing files were overwritten, but not truncated.
->        So if existing file was larger than extracted, existing file data
->        had been left at the end of the extracted file;
+>     We are thankful to Marcin Bobryk (github.com/MarcinB44) for bringing
+>     this security issue to our attention.
 >
->     c) if SFX module from "Advanced SFX options" dialog was stored
->        in the compression profile, it was applied as is, even if archive
->        format was changed after selecting the profile. It could result
->        in SFX module mismatching the archive format;
+>  3. If "Test archived files" and "recovery volumes" archiving options
+>     are used together, recovery volumes are also tested. Previous versions
+>     completed the test before creating recovery volumes, so they hadn't
+>     been verified.
 >
->     d) choosing a value in bytes from drop down list associated
->        with archive dialog "Split to volumes, size" field didn't set
->        units to bytes automatically;
->
->     e) if SFX "TextDone" command was used together with "Silent"
->        and "TempMode" commands, the completion message was sometimes
->        displayed behind other opened windows;
->
->     f) if symlink pointing at an executable was started from WinRAR shell,
->        the executable Mark of the Web data was ignored. We are thankful
->        to Shimamine Taihei of Mitsui Bussan Secure Directions, Inc
->        for reporting this issue.
+>  4. Nanosecond file time precision is preserved for Unix file records
+>     when modifying RAR archive in Windows. Previously it was converted
+>     to Windows 100 nanosecond precision.
 > ```
 >
+> </details>
+>
+> Use one of the configs below to try out the latest beta 1 version. 🚀
+>
+> <details>
+> <summary>View configs</summary>
+>
+> | Language | Config |
+> | --- | --- |
+> | Arabic | `installrar_712_b1ar.cmd` |
+> | Armenian | `installrar_712_b1am.cmd` |
+> | Azerbaijani | `installrar_712_b1az.cmd` |
+> | Chinese Traditional | `installrar_712_b1tc.cmd` |
+> | Croatian | `installrar_712_b1cro.cmd` |
+> | Danish | `installrar_712_b1dk.cmd` |
+> | Dutch | `installrar_712_b1nl.cmd` |
+> | English | `installrar_712_b1.cmd` |
+> | Greek | `installrar_712_b1el.cmd` |
+> | Indonesian | `installrar_712_b1id.cmd` |
+> | Italian | `installrar_712_b1it.cmd` |
+> | Korean | `installrar_712_b1kr.cmd` |
+> | Lithuanian | `installrar_712_b1lt.cmd` |
+> | Mongolian | `installrar_712_b1mn.cmd` |
+> | Portuguese | `installrar_712_b1pt.cmd` |
+> | Portuguese Brazilian | `installrar_712_b1br.cmd` |
+> | Romanian | `installrar_712_b1ro.cmd` |
+> | Russian | `installrar_712_b1ru.cmd` |
+> | Serbian Cyrillic | `installrar_712_b1srbcyr.cmd` |
+> | Swedish | `installrar_712_b1sw.cmd` |
+> | Thai | `installrar_712_b1th.cmd` |
+> | Turkish | `installrar_712_b1tr.cmd` |
+> | Ukrainian | `installrar_712_b1uk.cmd` |
 > </details>
 
 > [!IMPORTANT]
@@ -57,8 +79,8 @@
 > <summary><strong>WinRAR drops support for 32-bit Windows Operating Systems and Windows Vista</strong></summary><br/>
 >
 > As stated by WinRAR in the 6th entry in the `WhatsNew.txt` of version `7.10`, 32-bit operating systems are not supported anymore.
-> 
->  ```
+>
+> ```
 >   6. Windows Vista and 32-bit Windows are not supported anymore.
 >      WinRAR requires Windows 7 x64 or later.
 >
@@ -66,21 +88,18 @@
 >      as a part of 64-bit installation package.
 > ```
 >
-> If you do need to install 32-bit versions of WinRAR, you can use one of the packages from a [previous release](https://github.com/neuralpain/oneclickwinrar/releases/tag/v0.9.0.701) or customize [installrar.cmd](https://github.com/neuralpain/oneclickwinrar#whats-included-click-the-names-to-download) as `installrar_x32_701.cmd` to install the most recent 32-bit version of WinRAR.
+> If you do need to install 32-bit versions of WinRAR, you can customize [installrar.cmd](#whats-included-click-the-names-to-download) as `installrar_x32_701.cmd` to install the most recent 32-bit version of WinRAR.
 > </details>
 
 <p align="center">
   <picture><img src="./assets/images/oneclickwinrar-header.jpg" alt="oneclickwinrar header"></picture>
 </p>
 
-Introducing **oneclickwinrar**—a streamlined set of scripts that installs and licenses WinRAR with a single click (or double). Perfect for quick setups, it eliminates manual steps, ensuring WinRAR is ready to use instantly. Ideal for both IT pros and everyday users.
+Introducing **oneclickwinrar[^1]**—a streamlined set of scripts that installs and licenses WinRAR with a single click (or double)[^2]. Perfect for quick setups, it eliminates manual steps, ensuring WinRAR is ready to use instantly. Ideal for both IT pros and everyday users.
 
 ```
 there was a need for something versatile // so why not?
 ```
-
-> [!NOTE]
-> The name `oneclickwinrar` refers to this project and everything that comes with it. On the other hand, `oneclickrar.cmd` (notice there's no "win" in the name) is a script within the project. Don't mix them up😑.
 
 ### Contents
 
@@ -177,17 +196,15 @@ A stitch in time saves nine. Remove your WinRAR license and return to that 40-da
 > Get the full package from the [releases page][release]. It includes everything you need for customization.
 >
 > Yes, [customization](#customization). Read further down past the "features" and the "how-tos" for the customization section.
-> 
+>
 > For Chinese users on systems without a VPN, download [this package][ocwr_chinese] configured with the Chinese (Simplified) translation of WinRAR for 64-bit operating systems (view previous releases for 32-bit installers).
 
 ## Features
 
 - Install and license any available version of WinRAR for both 32-bit and 64-bit architectures
 - Automatically download and install the latest English WinRAR (64-bit) installer (at time of release)
-- Optionally download a specific version of WinRAR and/or preserve the installer for future installations
-  - `oneclickwinrar` deletes download cache by default
-- Status updates via Windows toast notifications
-  - Click on the notifications when they appear (with or without a visible button) for more more information
+- Optionally download a specific version of WinRAR and/or preserve the installer[^3] for future installations
+- Status updates via Windows toast notifications[^4]
 - Create custom licenses for your personal use
 - Remove WinRAR licenses (for whatever reason)
 - Uninstall WinRAR
@@ -254,7 +271,7 @@ There are two (2) types of customization:
 There are six (6) parameters in the customization process:
 
 1. `licensee` – This is "you" or whatever name you want to use
-2. `license-type` – The description of license that you want to install
+2. `license-type` – The description of license that you want to install. **This is optional.**[^5]
 3. `script-name` – The name of the script file [`oneclickrar`, `licenserar`, `installrar`] that you use to install and/or license WinRAR. The script name is used for toggling switches in the script.
 4. `architecture` – The architecture of the WinRAR executable (x32 or x64). The architecture can be omitted for custom download/install and will default to 64-bit.
 5. `version` – The version of the WinRAR executable without any periods `"."` (eg. 590, 701). **This is optional.**
@@ -279,7 +296,7 @@ There are six (6) parameters in the customization process:
 ## Naming patterns
 
 > [!NOTE]
-> If you don't see a `.cmd` extension in the file name, **do not add it**. This just means that you have `"Show file name extensions"` disabled in Windows Explorer. No, **you do not need to enable it**. Just continue customizing the script without adding the extension.
+> If you do not see a `.cmd` extension in the file name, **do not add it**. This just means that you have `"Show file name extensions"` disabled in Windows Explorer. No, **you do not need to enable it**. Just continue customizing the script without adding the extension.
 
 ### Complete naming pattern (supported by oneclickrar.cmd)
 
@@ -458,3 +475,10 @@ See the /bin/winrar-keygen/LICENSE file for more information.
 [release]: https://github.com/neuralpain/oneclickwinrar/releases/latest
 [unlicense]: https://github.com/neuralpain/oneclickwinrar/releases/latest/download/unlicenserar.cmd
 [ocwr_chinese]: https://github.com/neuralpain/oneclickwinrar/releases/download/v0.11.0.711/oneclickwinrar-0.11.0.711.incl.WinRAR-x64-Chinese.zip
+
+
+[^1]: The name `oneclickwinrar` refers to this project and everything that comes with it. On the other hand, `oneclickrar.cmd` (notice there's no "win" in the name) is a script within the project. Don't mix them up😑.
+[^2]: On new systems without a WinRAR installation. Systems with WinRAR installed will go through some confirmations before the operation is completed.
+[^3]: `oneclickwinrar` deletes download cache by default.
+[^4]: Click on the notifications when they appear (with or without a visible button) for more more information.
+[^5]: When the `license-type` is ommitted, a "Single User License" will be provided by default.
