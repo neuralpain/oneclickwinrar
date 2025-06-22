@@ -88,7 +88,7 @@
 >      as a part of 64-bit installation package.
 > ```
 >
-> If you do need to install 32-bit versions of WinRAR, you can customize [installrar.cmd](#whats-included-click-the-names-to-download) as `installrar_x32_701.cmd` to install the most recent 32-bit version of WinRAR.
+> If you do need to install 32-bit versions of WinRAR, you can [configure installrar.cmd](#configuration) as `installrar_x32_701.cmd` to install the most recent 32-bit version of WinRAR.
 > </details>
 
 <p align="center">
@@ -115,7 +115,7 @@ there was a need for something versatile // so why not?
 - [How to use](#how-to-use)
     - [Basic usage](#basic-usage)
     - [Advanced usage](#advanced-usage)
-- [Customization](#customization)
+- [Configuration](#configuration)
   - [Naming patterns](#naming-patterns)
     - [Complete naming pattern (supported by oneclickrar.cmd)](#complete-naming-pattern-supported-by-oneclickrarcmd)
     - [Licensing-only pattern (supported by licenserar.cmd, oneclickrar.cmd)](#licensing-only-pattern-supported-by-licenserarcmd-oneclickrarcmd)
@@ -162,7 +162,7 @@ there was a need for something versatile // so why not?
 
 Download, install, update and license WinRAR, all in just one single click (or double). Yes, it's that simple.
 
-For one-time use, run the following command in a PowerShell terminal (overwriting is disabled). For more functionality, download and customize the script.
+For one-time use, run the following command in a PowerShell terminal (overwriting is disabled). For more functionality, download and [configure](#configuration) the script.
 
 ```
 irm "https://dub.sh/oneclickrar" | iex
@@ -172,7 +172,7 @@ irm "https://dub.sh/oneclickrar" | iex
 
 Stay safe and bug-free. Keep your WinRAR installation up-to-date.
 
-For one-time use, run the following command in a PowerShell terminal. For more functionality, download and customize the script.
+For one-time use, run the following command in a PowerShell terminal. For more functionality, download and [configure](#configuration) the script.
 
 ```
 irm "https://dub.sh/installrar" | iex
@@ -182,7 +182,7 @@ irm "https://dub.sh/installrar" | iex
 
 Get a license to end that infinite 40-day trial period, or install a WinRAR license that you [purchased from RARLAB®][purchase].
 
-For one-time use, run the following command in a PowerShell terminal (overwriting is disabled). For more functionality, download and customize the script.
+For one-time use, run the following command in a PowerShell terminal (overwriting is disabled). For more functionality, download and [configure](#configuration) the script.
 
 ```
 irm "https://dub.sh/licenserar" | iex
@@ -193,9 +193,9 @@ irm "https://dub.sh/licenserar" | iex
 A stitch in time saves nine. Remove your WinRAR license and return to that 40-day infinite trial period.
 
 > [!TIP]
-> Get the full package from the [releases page][release]. It includes everything you need for customization.
+> Get the full package from the [releases page][release]. It includes everything you need for configuration.
 >
-> Yes, [customization](#customization). Read further down past the "features" and the "how-tos" for the customization section.
+> Yes, [configuration](#configuration). Read further down past the "features" and the "how-tos" for the configuration section.
 >
 > For Chinese users on systems without a VPN, download [this package][ocwr_chinese] configured with the Chinese (Simplified) translation of WinRAR for 64-bit operating systems (view previous releases for 32-bit installers).
 
@@ -232,7 +232,7 @@ A stitch in time saves nine. Remove your WinRAR license and return to that 40-da
 - **Remote Deployment** – Facilitates remote installation and licensing, which is particularly useful for IT administrators managing remote or distributed workforces.
 - **Compliance** – Helps ensure that all installations of WinRAR are properly licensed, which is important for legal and compliance purposes.
 - **Integration** – Can be integrated into larger deployment scripts or system setups, making it a seamless part of the overall software deployment process.
-- **Customization** – Allows for customization by pre-configuring download and license information via editing the script file name.
+- **configuration** – Allows for configuration by pre-configuring download and license information via editing the script file name.
 
 ## Limitations
 
@@ -254,21 +254,21 @@ A stitch in time saves nine. Remove your WinRAR license and return to that 40-da
 
 ### Advanced usage
 
-Follow steps 1-2 in basic usage, then read through the customization section to add custom licenses, downloads and enable different features.
+Follow steps 1-2 in basic usage, then read through the configuration section to add custom licenses, downloads and enable different features.
 
 > [!IMPORTANT]
-> Remember to extract the `bin` folder together with the script. This is necessary for generating your customized license key.
+> Remember to extract the `bin` folder together with the script. This is necessary for generating your custom license key.
 
-# Customization
+# Configuration
 
-The aim of this method of customization is to provide a quick and easy way for anyone to enable extra functionality in the script while preserving portability. Essentially, one would only need to customize the script once and run it anywhere without the need for extra clicks or editing.
+The aim of this method of configuration is to provide a quick and easy way for anyone to enable extra functionality in the script while preserving portability. Essentially, one would only need to configure the script once and run it anywhere without the need for extra clicks or editing.
 
-There are two (2) types of customization:
+There are two (2) types of configuration:
 
-1. **Partial customization** i.e. custom licensing, custom install or custom download
-2. **Complete customization** i.e. both custom licensing and installation
+1. **Partial configuration** i.e. custom licensing, custom install or custom download
+2. **Complete configuration** i.e. both custom licensing and installation
 
-There are six (6) parameters in the customization process:
+There are six (6) parameters in the configuration process:
 
 1. `licensee` – This is "you" or whatever name you want to use
 2. `license-type` – The description of license that you want to install. **This is optional.**[^5]
@@ -296,7 +296,7 @@ There are six (6) parameters in the customization process:
 ## Naming patterns
 
 > [!NOTE]
-> If you do not see a `.cmd` extension in the file name, **do not add it**. This just means that you have `"Show file name extensions"` disabled in Windows Explorer. No, **you do not need to enable it**. Just continue customizing the script without adding the extension.
+> If you do not see a `.cmd` extension in the file name, **do not add it**. This just means that you have `"Show file name extensions"` disabled in Windows Explorer. No, **you do not need to enable it**. Just continue to configure the script without adding the extension.
 
 ### Complete naming pattern (supported by oneclickrar.cmd)
 
@@ -386,7 +386,7 @@ one-clickrar.cmd
 
 ### Installing WinRAR with download-only enabled
 
-When download-only mode is enabled, the script immediately exits upon completion of the download even if there are other customizations set for the script.
+When download-only mode is enabled, the script immediately exits upon completion of the download even if there are other configurations set for the script.
 
 To bypass this and allow for installation while download-only is enabled, you should also switch on overwriting which will override the download-only switch to both save the installer **AND** run the installation.
 
@@ -437,7 +437,7 @@ Yes, `oneclickwinrar` supports uninstalling WinRAR.
 
 <h6>
 
-_A full customization of oneclickrar should look incomprehensible to the average person. If your customization looks incomprehensible, then you're an average person. Ironic, right?_
+_A full configuration of oneclickrar should look incomprehensible to the average person. If your configuration looks incomprehensible, then you're an average person. Ironic, right?_
 
 </h6>
 

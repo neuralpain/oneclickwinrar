@@ -145,10 +145,10 @@ $UNINSTALL = $false
 
 # -- MESSAGES
 
-$link_customization = "https://github.com/neuralpain/oneclickwinrar#customization"
+$link_configuration = "https://github.com/neuralpain/oneclickwinrar#configuration"
 
 $Error_UnknownScript = {
-  New-Toast -LongerDuration -ActionButtonUrl "$link_customization" -ToastTitle "What script is this?" -ToastText  "Script name is invalid. Check the script name for any typos and try again." 
+  New-Toast -LongerDuration -ActionButtonUrl "$link_configuration" -ToastTitle "What script is this?" -ToastText  "Script name is invalid. Check the script name for any typos and try again." 
   Stop-OcwrOperation -ExitType Error -Message "Script name is invalid. Please check for errors."
 }
 

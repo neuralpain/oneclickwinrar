@@ -205,7 +205,7 @@ $KNOWN_VERSIONS  = @(290, 300, 310, 320, 330, 340, 350, 360, 370, 371, 380, 390,
 $LANG_CODE_LIST  = @("ar","al","am","az","by","ba","bg","bur","ca","sc","tc","cro","cz","dk","nl","en","eu","est","fi","fr","gl","d","el","he","hu","id","it","jp","kr","lt","mk","mn","no","prs","pl","pt","br","ro","ru","srbcyr","srblat","sk","slv","es","ln","esco","sw","th","tr","uk","uz","va","vn")
 $LANG_NAME_LIST  = @("Arabic","Albanian","Armenian","Azerbaijani","Belarusian","Bosnian","Bulgarian","Burmese (Myanmar)","Catalan","Chinese Simplified","Chinese Traditional","Croatian","Czech","Danish","Dutch","English","Euskera","Estonian","Finnish","French","Galician","German","Greek","Hebrew","Hungarian","Indonesian","Italian","Japanese","Korean","Lithuanian","Macedonian","Mongolian","Norwegian","Persian","Polish","Portuguese","Portuguese Brazilian","Romanian","Russian","Serbian Cyrillic","Serbian Latin","Slovak","Slovenian","Spanish","Spanish (Latin American)","Spanish Colombian","Swedish","Thai","Turkish","Ukrainian","Uzbek","Valencian","Vietnamese")
 
-$link_customization     = "https://github.com/neuralpain/oneclickwinrar#customization"
+$link_configuration     = "https://github.com/neuralpain/oneclickwinrar#configuration"
 $link_endof32bitsupport = "https://www.win-rar.com/singlenewsview.html?&L=0&tx_ttnews%5Btt_news%5D=266&cHash=44c8cdb0ff6581307702dfe4892a3fb5"
 
 $OLDEST          = 290
@@ -232,7 +232,7 @@ $script:TAGS     = $null              # Other download types, i.e. beta, languag
 # --- MESSAGES
 
 $Error_UnknownScript = {
-  New-Toast -LongerDuration -ActionButtonUrl "$link_customization" -ToastTitle "What script is this?" -ToastText  "Script name is invalid. Check the script name for any typos and try again."
+  New-Toast -LongerDuration -ActionButtonUrl "$link_configuration" -ToastTitle "What script is this?" -ToastText  "Script name is invalid. Check the script name for any typos and try again."
   Stop-OcwrOperation -ExitType Error -Message "Script name is invalid. Please check for errors."
 }
 
@@ -247,7 +247,7 @@ $Error_UnableToConnectToDownload = {
 }
 
 $Error_TooManyArgs = {
-  New-Toast -LongerDuration -ActionButtonUrl $link_customization -ToastTitle "Too many arguments!" -ToastText "It seems like you've made a customization error. Check the customization data and try again."
+  New-Toast -LongerDuration -ActionButtonUrl $link_configuration -ToastTitle "Too many arguments!" -ToastText "It seems like you've made a configuration error. Check the configuration data and try again."
   Stop-OcwrOperation -ExitType Error -Message "Too many arguments. Check your configuration."
 }
 
@@ -754,7 +754,7 @@ Write-Title
 # Begin by retrieving any current installations of WinRAR
 Get-InstalledWinrarLocations
 # Grab the name of the script file and process any
-# customization data set by the user
+# configuration data set by the user
 if ($CMD_NAME -ne $script_name) {
   $script:CUSTOM_INSTALLATION = $true
   Confirm-ConfigData

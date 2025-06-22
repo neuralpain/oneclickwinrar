@@ -205,13 +205,13 @@ $script:OVERWRITE_LICENSE = $false
 
 # --- MESSAGES
 
-$link_customization = "https://github.com/neuralpain/oneclickwinrar#customization"
+$link_configuration = "https://github.com/neuralpain/oneclickwinrar#configuration"
 $link_howtouse      = "https://github.com/neuralpain/oneclickwinrar#how-to-use"
 $link_namepattern   = "https://github.com/neuralpain/oneclickwinrar#naming-patterns"
 $link_overwriting   = "https://github.com/neuralpain/oneclickwinrar#overwriting-licenses"
 
 $Error_UnknownScript = {
-  New-Toast -LongerDuration -ActionButtonUrl $link_customization -ToastTitle "What script is this?" -ToastText  "Script name is invalid. Check the script name for any typos and try again."
+  New-Toast -LongerDuration -ActionButtonUrl $link_configuration -ToastTitle "What script is this?" -ToastText  "Script name is invalid. Check the script name for any typos and try again."
   Stop-OcwrOperation -ExitType Error -Message "Script name is invalid. Please check for errors."
 }
 
@@ -231,7 +231,7 @@ $Error_BinFolderMissing = {
 }
 
 $Error_TooManyArgs = {
-  New-Toast -LongerDuration -ActionButtonUrl $link_customization -ToastTitle "Too many arguments!" -ToastText "It seems like you've made a customization error. Check the customization data and try again."
+  New-Toast -LongerDuration -ActionButtonUrl $link_configuration -ToastTitle "Too many arguments!" -ToastText "It seems like you've made a configuration error. Check the configuration data and try again."
   Stop-OcwrOperation -ExitType Error -Message "Too many arguments. Check your configuration."
 }
 

@@ -68,7 +68,7 @@ exit /b
     My Name_oneclick-rar.cmd    --- Overwrite current license with "My Name" as
                                     the licensee and use default license type
     My Name_My License Type_oneclick-rar_x64_700_ru.cmd
-                                --- Full customization to install Russian 64-bit
+                                --- Full configuration to install Russian 64-bit
                                     version 7.00 and overwrite any existing
                                     license with the custom license information
 #>
@@ -259,7 +259,7 @@ $LANG_NAME_LIST = @("Arabic","Albanian","Armenian","Azerbaijani","Belarusian","B
 $link_freedom_universe_yt    = "https://youtu.be/OD_WIKht0U0?t=450"
 $link_overwriting            = "https://github.com/neuralpain/oneclickwinrar#overwriting-licenses"
 $link_howtouse               = "https://github.com/neuralpain/oneclickwinrar#how-to-use"
-$link_customization          = "https://github.com/neuralpain/oneclickwinrar#customization"
+$link_configuration          = "https://github.com/neuralpain/oneclickwinrar#configuration"
 $link_endof32bitsupport      = "https://www.win-rar.com/singlenewsview.html?&L=0&tx_ttnews%5Btt_news%5D=266&cHash=44c8cdb0ff6581307702dfe4892a3fb5"
 
 $OLDEST                      = 290
@@ -301,7 +301,7 @@ $script:TAGS                 = $null              # Other download types, i.e. b
 # General
 
 $Error_UnknownScript = {
-  New-Toast -LongerDuration -ActionButtonUrl $link_customization -ToastTitle "What script is this?" -ToastText  "Script name is invalid. Check the script name for any typos and try again."
+  New-Toast -LongerDuration -ActionButtonUrl $link_configuration -ToastTitle "What script is this?" -ToastText  "Script name is invalid. Check the script name for any typos and try again."
   Stop-OcwrOperation -ExitType Error -Message "Script name is invalid. Please check for errors."
 }
 
@@ -320,17 +320,17 @@ $Error_NoInternetConnection = {
 }
 
 $Error_TooManyArgs = {
-  New-Toast -LongerDuration -ActionButtonUrl $link_customization -ToastTitle "Too many arguments!" -ToastText "It seems like you've made a customization error. Check the customization data and try again."
+  New-Toast -LongerDuration -ActionButtonUrl $link_configuration -ToastTitle "Too many arguments!" -ToastText "It seems like you've made a configuration error. Check the configuration data and try again."
   Stop-OcwrOperation -ExitType Error -Message "Too many arguments. Check your configuration."
 }
 
 $Error_UnableToProcess = {
-  New-Toast -ActionButtonUrl "$link_customization" -ToastTitle "Unable to process data" -ToastText "WinRAR data is invalid." -ToastText2 "Check your configuration for any errors or typos and try again."
+  New-Toast -ActionButtonUrl "$link_configuration" -ToastTitle "Unable to process data" -ToastText "WinRAR data is invalid." -ToastText2 "Check your configuration for any errors or typos and try again."
   Stop-OcwrOperation -ExitType Error -Message "WinRAR data is invalid."
 }
 
 $Error_UnableToProcessSpecialCode = {
-  New-Toast -ActionButtonUrl "$link_customization" -ToastTitle "Unable to process special code" -ToastText "Check your configuration for any errors or typos and try again."
+  New-Toast -ActionButtonUrl "$link_configuration" -ToastTitle "Unable to process special code" -ToastText "Check your configuration for any errors or typos and try again."
   Stop-OcwrOperation -ExitType Error -Message "Unable to process special code."
 }
 
@@ -555,7 +555,7 @@ function Get-SpecialCode {
           return
         } `
         -ResultNegative {
-          New-Toast -ActionButtonUrl "$link_customization" `
+          New-Toast -ActionButtonUrl "$link_configuration" `
                     -ToastTitle "Custom Code Error" `
                     -ToastText "Code `"$script:custom_code`" is not an option" `
                     -ToastText2 "Check the script name for any typos and try again."
@@ -1249,7 +1249,7 @@ Write-Title
 Get-InstalledWinrarLocations
 
 # Grab the name of the script file and process any
-# customization config data set by the user
+# configuration data set by the user
 if ($CMD_NAME -ne $script_name) {
   Confirm-ConfigData
 } else {
