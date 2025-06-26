@@ -1,5 +1,5 @@
 > [!TIP]
-> RARLAB® started working on WinRAR 7.12 and is currently available in languages such as English, Arabic, Chinese Traditional, Korean and more.
+> RARLAB® recently released WinRAR 7.12! Use [`installrar`](#installrarcmd) to stay up to date with the latest version. 🚀
 >
 > <details>
 > <summary>View changes</summary>
@@ -8,7 +8,7 @@
 >                WinRAR - What's new in the latest version
 >
 >
->   Version 7.12 beta 1
+>   Version 7.12
 >
 >  1. When extracting a file, previous versions of WinRAR, Windows versions
 >     of RAR, UnRAR, portable UnRAR source code and UnRAR.dll can be tricked
@@ -24,7 +24,7 @@
 >  2. Previously "Generate report" command included archived file names
 >     into HTML report as is, allowing to inject potentially unsafe HTML tags
 >     into the report. To prevent such injection the current version replaces
->     < and > file name characters in HTML report with < and > strings.
+>     < and > file name characters in HTML report with &lt; and &gt; strings.
 >
 >     We are thankful to Marcin Bobryk (github.com/MarcinB44) for bringing
 >     this security issue to our attention.
@@ -39,38 +39,6 @@
 >     to Windows 100 nanosecond precision.
 > ```
 >
-> </details>
->
-> Use one of the configs below to try out the latest beta 1 version. 🚀
->
-> <details>
-> <summary>View configs</summary>
->
-> | Language | Config |
-> | --- | --- |
-> | Arabic | `installrar_712_b1ar.cmd` |
-> | Armenian | `installrar_712_b1am.cmd` |
-> | Azerbaijani | `installrar_712_b1az.cmd` |
-> | Chinese Traditional | `installrar_712_b1tc.cmd` |
-> | Croatian | `installrar_712_b1cro.cmd` |
-> | Danish | `installrar_712_b1dk.cmd` |
-> | Dutch | `installrar_712_b1nl.cmd` |
-> | English | `installrar_712_b1.cmd` |
-> | Greek | `installrar_712_b1el.cmd` |
-> | Indonesian | `installrar_712_b1id.cmd` |
-> | Italian | `installrar_712_b1it.cmd` |
-> | Korean | `installrar_712_b1kr.cmd` |
-> | Lithuanian | `installrar_712_b1lt.cmd` |
-> | Mongolian | `installrar_712_b1mn.cmd` |
-> | Portuguese | `installrar_712_b1pt.cmd` |
-> | Portuguese Brazilian | `installrar_712_b1br.cmd` |
-> | Romanian | `installrar_712_b1ro.cmd` |
-> | Russian | `installrar_712_b1ru.cmd` |
-> | Serbian Cyrillic | `installrar_712_b1srbcyr.cmd` |
-> | Swedish | `installrar_712_b1sw.cmd` |
-> | Thai | `installrar_712_b1th.cmd` |
-> | Turkish | `installrar_712_b1tr.cmd` |
-> | Ukrainian | `installrar_712_b1uk.cmd` |
 > </details>
 
 > [!IMPORTANT]
