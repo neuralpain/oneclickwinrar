@@ -238,14 +238,17 @@ $loc96    = "x96"
 $winrar64 = "$loc64\WinRAR.exe"
 $winrar32 = "$loc32\WinRAR.exe"
 
-$rarreg   = $null
+$rarreg = $null
 $rarkey   = "RAR registration data`r`nEveryone`r`nGeneral Public License`r`nUID=119fdd47b4dbe9a41555`r`n6412212250155514920287d3b1cc8d9e41dfd22b78aaace2ba4386`r`n9152c1ac6639addbb73c60800b745269020dd21becbc46390d7cee`r`ncce48183d6d73d5e42e4605ab530f6edf8629596821ca042db83dd`r`n68035141fb21e5da4dcaf7bf57494e5455608abc8a9916ffd8e23d`r`n0a68ab79088aa7d5d5c2a0add4c9b3c27255740277f6edf8629596`r`n821ca04340a7c91e88b14ba087e0bfb04b57824193d842e660c419`r`nb8af4562cb13609a2ca469bf36fb8da2eda6f5e978bf1205660302"
 $rarreg64 = "$loc64\rarreg.key"
 $rarreg32 = "$loc32\rarreg.key"
 
-$keygen   = $null
-$keygen64 = "./bin/winrar-keygen/winrar-keygen-x64.exe"
-$keygen32 = "./bin/winrar-keygen/winrar-keygen-x86.exe"
+$keygen       = $null
+$keygenUrl    = $null
+$keygen64     = "./bin/winrar-keygen/winrar-keygen-x64.exe"
+$keygen32     = "./bin/winrar-keygen/winrar-keygen-x86.exe"
+$keygenUrl32  = "https://github.com/bitcookies/winrar-keygen/releases/latest/download/winrar-keygen-x86.exe"
+$keygenUrl64  = "https://github.com/bitcookies/winrar-keygen/releases/latest/download/winrar-keygen-x64.exe"
 
 $server1_host = "www.rarlab.com"
 $server1      = "https://$server1_host/rar"
@@ -1158,6 +1161,18 @@ function Invoke-OwcrInstallation {
     }
 
     Invoke-Installer $script:WINRAR_EXE (Format-VersionNumberFromExecutable $script:WINRAR_EXE)
+
+    # set the new installation location
+    switch ($script:ARCH) {
+      'x64' {
+        $script:WINRAR_INSTALLED_LOCATION = $loc64
+        break
+      }
+      'x32' {
+        $script:WINRAR_INSTALLED_LOCATION = $loc64
+        break
+      }
+    }
   }
 }
 
@@ -1167,54 +1182,87 @@ function Invoke-OcwrLicensing {
       Licensing instructions to be executed (if not disabled).
   #>
   if (-not $script:SKIP_LICENSING) {
-    switch ($script:ARCH) {
-      'x64' {
-        if (Test-Path $winrar64 -PathType Leaf) {
-          $keygen = $keygen64
+    if (-not $script:LICENSE_ONLY) {
+      switch ($script:ARCH) {
+        'x64' {
+          if (Test-Path $winrar64 -PathType Leaf) {
+            $keygen = $keygen64
+            $rarreg = $rarreg64
+            $keygenUrl = $keygenUrl64
+          }
+          else {
+            Write-Info "WinRAR is not installed"
+            Confirm-QueryResult -ExpectNegative `
+              -Query "Do you want to install WinRAR version $(Format-VersionNumber $script:RARVER)?" `
+              -ResultPositive {
+                $script:LICENSE_ONLY = $false
+                Invoke-OwcrInstallation
+              } `
+              -ResultNegative { &$Error_WinrarNotInstalled }
+          }
+          break
+        }
+        'x32' {
+          if (Test-Path $winrar32 -PathType Leaf) {
+            $keygen = $keygen32
+            $rarreg = $rarreg32
+            $keygenUrl = $keygenUrl32
+          }
+          else {
+            Write-Info "WinRAR is not installed"
+            Confirm-QueryResult -ExpectNegative `
+              -Query "Do you want to install WinRAR version $(Format-VersionNumber $script:RARVER)?" `
+              -ResultPositive {
+                $script:LICENSE_ONLY = $false
+                Invoke-OwcrInstallation
+              } `
+              -ResultNegative { &$Error_WinrarNotInstalled }
+          }
+          break
+        }
+        default {
+          &$Error_UnknownError
+          break
+        }
+      }
+    } else {
+      switch ($script:WINRAR_INSTALLED_LOCATION) {
+        $loc64 {
           $rarreg = $rarreg64
+          $keygen = $keygen64
+          $keygenUrl = $keygenUrl64
+          break
         }
-        else {
-          Write-Info "WinRAR is not installed"
-          Confirm-QueryResult -ExpectNegative `
-            -Query "Do you want to install WinRAR version $(Format-VersionNumber $script:RARVER)?" `
-            -ResultPositive {
-              $script:LICENSE_ONLY = $false
-              Invoke-OwcrInstallation
-            } `
-            -ResultNegative { &$Error_WinrarNotInstalled }
-        }
-        break
-      }
-      'x32' {
-        if (Test-Path $winrar32 -PathType Leaf) {
-          $keygen = $keygen32
+        $loc32 {
           $rarreg = $rarreg32
+          $keygen = $keygen32
+          $keygenUrl = $keygenUrl32
+          break
         }
-        else {
-          Write-Info "WinRAR is not installed"
-          Confirm-QueryResult -ExpectNegative `
-            -Query "Do you want to install WinRAR version $(Format-VersionNumber $script:RARVER)?" `
-            -ResultPositive {
-              $script:LICENSE_ONLY = $false
-              Invoke-OwcrInstallation
-            } `
-            -ResultNegative { &$Error_WinrarNotInstalled }
-        }
-        break
-      }
-      default {
-        &$Error_UnknownError
-        break
       }
     }
 
     # install WinRAR license
     if (-not(Test-Path $rarreg -PathType Leaf) -or $script:OVERWRITE_LICENSE) {
       if ($script:CUSTOM_LICENSE) {
-        if (Test-Path $keygen -PathType Leaf) {
-          &$keygen "$($script:licensee)" "$($script:license_type)" | Out-File -Encoding utf8 $rarreg
+        $addbinfolder = $false
+
+        if (-not(Test-Path $keygen -PathType Leaf)) {
+          $addbinfolder = $true
+          if (Test-Connection "github.com" -Count 2 -Quiet) {
+            $bin = "bin/winrar-keygen"
+            Write-Info "'bin' folder missing. Downloading..."
+            if (-not(Test-Path "./$bin" -PathType Container)) {
+              New-Item -ItemType Directory -Path $bin | Out-Null
+            }
+            Start-BitsTransfer $keygenUrl "$pwd/$bin" -ErrorAction SilentlyContinue
+          }
+          else { &$Error_BinFolderMissing }
         }
-        else { &$Error_BinFolderMissing }
+
+        &$keygen "$($script:licensee)" "$($script:license_type)" | Out-File -Encoding utf8 $rarreg
+
+        if ($addbinfolder) { Remove-Item "./bin" -Recurse -Force }
       }
       else {
         if (Test-Path "rarreg.key" -PathType Leaf) {
