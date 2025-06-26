@@ -38,6 +38,8 @@ exit /b
 
 # --- PS --- #>
 
+[System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor [System.Net.SecurityProtocolType]::Tls12
+
 function Write-Info {
   Param([Parameter(Mandatory=$true)][ValidateNotNullOrEmpty()][string]$Message)
   Write-Host "INFO: $Message" -ForegroundColor DarkCyan
@@ -189,9 +191,12 @@ $rarkey   = "RAR registration data`r`nEveryone`r`nGeneral Public License`r`nUID=
 $rarreg64 = "$loc64\rarreg.key"
 $rarreg32 = "$loc32\rarreg.key"
 
-$keygen   = $null
-$keygen64 = "./bin/winrar-keygen/winrar-keygen-x64.exe"
-$keygen32 = "./bin/winrar-keygen/winrar-keygen-x86.exe"
+$keygen      = $null
+$keygenUrl   = $null
+$keygen64    = "./bin/winrar-keygen/winrar-keygen-x64.exe"
+$keygen32    = "./bin/winrar-keygen/winrar-keygen-x86.exe"
+$keygenUrl32 = "https://github.com/bitcookies/winrar-keygen/releases/latest/download/winrar-keygen-x86.exe"
+$keygenUrl64 = "https://github.com/bitcookies/winrar-keygen/releases/latest/download/winrar-keygen-x64.exe"
 
 # --- SWITCH / CONFIGS ---
 $script:WINRAR_IS_INSTALLED       = $false
@@ -284,26 +289,44 @@ function Invoke-OcwrLicensing {
   #>
 
   if ($script:WINRAR_INSTALLED_LOCATION -eq $loc96) {
-    Select-WinrarInstallation
+    Select-WinrarInstallation # confirm 32/64-bit
   }
 
-  if ($script:WINRAR_INSTALLED_LOCATION -eq $loc64) {
-    $keygen = $keygen64
-    $rarreg = $rarreg64
+  switch ($script:WINRAR_INSTALLED_LOCATION) {
+    $loc64 {
+      $rarreg = $rarreg64
+      $keygen = $keygen64
+      $keygenUrl = $keygenUrl64
+      break
+    }
+    $loc32 {
+      $rarreg = $rarreg32
+      $keygen = $keygen32
+      $keygenUrl = $keygenUrl32
+      break
+    }
   }
 
-  if ($script:WINRAR_INSTALLED_LOCATION -eq $loc32) {
-    $keygen = $keygen32
-    $rarreg = $rarreg32
-  }
-
-  # install WinRAR license
   if (-not(Test-Path $rarreg -PathType Leaf) -or $script:OVERWRITE_LICENSE) {
     if ($script:CUSTOM_LICENSE) {
-      if (Test-Path $keygen -PathType Leaf) {
-        &$keygen "$($script:licensee)" "$($script:license_type)" | Out-File -Encoding utf8 $rarreg
+      $addbinfolder = $false
+
+      if (-not(Test-Path $keygen -PathType Leaf)) {
+        $addbinfolder = $true
+        if (Test-Connection "github.com" -Count 2 -Quiet) {
+          $bin = "bin/winrar-keygen"
+          Write-Info "'bin' folder missing. Downloading..."
+          if (-not(Test-Path "./$bin" -PathType Container)) {
+            New-Item -ItemType Directory -Path $bin | Out-Null
+          }
+          Start-BitsTransfer $keygenUrl "$pwd/$bin" -ErrorAction SilentlyContinue
+        }
+        else { &$Error_BinFolderMissing }
       }
-      else { &$Error_BinFolderMissing }
+
+      &$keygen "$($script:licensee)" "$($script:license_type)" | Out-File -Encoding utf8 $rarreg
+
+      if ($addbinfolder) { Remove-Item "./bin" -Recurse -Force }
     }
     else {
       if (Test-Path "rarreg.key" -PathType Leaf) {
