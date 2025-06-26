@@ -428,7 +428,7 @@ function Set-DefaultArchVersion {
     $script:ARCH = "x64"
   }
   if ($null -eq $script:RARVER) {
-    Write-Info "Using default version $(Format-VersionNumber $LATEST)"
+    Write-Info "Using default version $(Format-Text $(Format-VersionNumber $LATEST) -Foreground White -Formatting Underline)"
     $script:RARVER = $LATEST
   }
   if ($null -eq $script:TAGS) {
@@ -1072,7 +1072,7 @@ function Confirm-CurrentWinrarInstallation {
     Confirm-QueryResult -ExpectNegative `
       -Query "Continue with installation?" `
       -ResultPositive {
-        Write-Info "Confirmed re-installation of WinRAR version $(Format-VersionNumber $script:RARVER)"
+        Write-Info "Confirmed re-installation of WinRAR version $(Format-Text $(Format-VersionNumber $script:RARVER) -Foreground White -Formatting Underline)"
       } `
       -ResultNegative { Stop-OcwrOperation }
   }
