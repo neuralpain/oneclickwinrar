@@ -450,3 +450,15 @@ See the /bin/winrar-keygen/LICENSE file for more information.
 [^3]: `oneclickwinrar` deletes download cache by default.
 [^4]: Click on the notifications when they appear (with or without a visible button) for more more information.
 [^5]: When the `license-type` is ommitted, a "Single User License" will be provided by default.
+
+<!--
+**Disclaimer:**
+
+Please note that **oneclickwinrar** is an independent open-source project. It is **not affiliated with, endorsed by, sponsored by, or in any way associated with RARLAB or the developers of WinRAR**.
+
+**WinRAR®** is a proprietary software product of **RARLAB**. This project, **oneclickwinrar**, is a separate tool designed to automate management of WinRAR installation and licensing.
+
+Any use of WinRAR through **oneclickwinrar** is subject to your existing valid WinRAR license agreement with RARLAB. **oneclickwinrar** does not include or bundle a WinRAR license. Users are responsible for ensuring they have a valid WinRAR license for any features that require it.
+
+All trademarks and registered trademarks, including **WinRAR®**, are the property of their respective owners.
+-->
