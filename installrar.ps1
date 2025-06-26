@@ -10,7 +10,7 @@
     installrar.cmd for use within the terminal.
 
   .NOTES
-    Last updated: 2025/06/17
+    Last updated: 2025/06/26
 #>
 
 $global:ProgressPreference = "SilentlyContinue"
@@ -39,7 +39,7 @@ function Write-Title {
   Write-Host "         \ \ \ \ \ \ \/\ \ /`' _ ``\ \ ,  /\ \  __ \ \ ,  /               "
   Write-Host "          \ \ \_/ \_\ \ \ \/\ \/\ \ \ \\ \\ \ \/\ \ \ \\ \                "
   Write-Host "           \ ``\___x___/\ \_\ \_\ \_\ \_\ \_\ \_\ \_\ \_\ \_\             "
-  Write-Host "            `'\/__//__/  \/_/\/_/\/_/\/_/\/ /\/_/\/_/\/_/\/ /  $(Format-Text "v0.12.0.711" -Foreground Magenta)"
+  Write-Host "            `'\/__//__/  \/_/\/_/\/_/\/_/\/ /\/_/\/_/\/_/\/ /  $(Format-Text "v0.12.0.712" -Foreground Magenta)"
   Write-Host;Write-Host;
 }
 
@@ -63,7 +63,7 @@ $server1         = "https://$server1_host/rar"
 $server2_host    = "www.win-rar.com"
 $server2         = @("https://$server2_host/fileadmin/winrar-versions", "https://$server2_host/fileadmin/winrar-versions/winrar")
 
-$LATEST          = 711
+$LATEST          = 712
 
 # --- SWITCH / CONFIGS ---
 $script:WINRAR_EXE          = $null
