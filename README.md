@@ -81,13 +81,13 @@ there was a need for something versatile // so why not?
   - [Benefits](#benefits)
   - [Limitations](#limitations)
 - [How to use](#how-to-use)
-    - [Basic usage](#basic-usage)
-    - [Advanced usage](#advanced-usage)
-- [Configuration](#configuration)
-  - [Naming patterns](#naming-patterns)
-    - [Complete naming pattern (supported by oneclickrar.cmd)](#complete-naming-pattern-supported-by-oneclickrarcmd)
-    - [Licensing-only pattern (supported by licenserar.cmd, oneclickrar.cmd)](#licensing-only-pattern-supported-by-licenserarcmd-oneclickrarcmd)
-    - [Install-only pattern (supported by installrar.cmd, oneclickrar.cmd)](#install-only-pattern-supported-by-installrarcmd-oneclickrarcmd)
+  - [Basic usage](#basic-usage)
+  - [Advanced usage](#advanced-usage)
+    - [Configuration](#configuration)
+    - [Naming patterns](#naming-patterns)
+      - [Install and license naming pattern (supported by oneclickrar.cmd)](#install-and-license-naming-pattern-supported-by-oneclickrarcmd)
+      - [Licensing-only pattern (supported by licenserar.cmd, oneclickrar.cmd)](#licensing-only-pattern-supported-by-licenserarcmd-oneclickrarcmd)
+      - [Install-only pattern (supported by installrar.cmd, oneclickrar.cmd)](#install-only-pattern-supported-by-installrarcmd-oneclickrarcmd)
 - [Overwriting licenses](#overwriting-licenses)
 - [Download-only mode](#download-only-mode)
     - [Installing WinRAR with download-only enabled](#installing-winrar-with-download-only-enabled)
@@ -136,6 +136,10 @@ For one-time use, run the following command in a PowerShell terminal (overwritin
 irm "https://dub.sh/oneclickrar" | iex
 ```
 
+```
+irm "https://shorter.gg/MCrzwB" | iex   # <--- Mirror Link
+```
+
 ### [installrar.cmd][install]
 
 Stay safe and bug-free. Keep your WinRAR installation up-to-date.
@@ -146,6 +150,10 @@ For one-time use, run the following command in a PowerShell terminal. For more f
 irm "https://dub.sh/installrar" | iex
 ```
 
+```
+irm "https://shorter.gg/Jizeii" | iex   # <--- Mirror Link
+```
+
 ### [licenserar.cmd][license]
 
 Get a license to end that infinite 40-day trial period, or install a WinRAR license that you [purchased from RARLAB®][purchase].
@@ -154,6 +162,10 @@ For one-time use, run the following command in a PowerShell terminal (overwritin
 
 ```
 irm "https://dub.sh/licenserar" | iex
+```
+
+```
+irm "https://shorter.gg/HbZotB" | iex   # <--- Mirror Link
 ```
 
 ### [unlicenserar.cmd][unlicense]
@@ -173,7 +185,7 @@ A stitch in time saves nine. Remove your WinRAR license and return to that 40-da
 - Automatically download and install the latest English WinRAR (64-bit) installer (at time of release)
 - Optionally download a specific version of WinRAR and/or preserve the installer[^3] for future installations
 - Status updates via Windows toast notifications[^4]
-- Create custom licenses for your personal use
+- Create custom licenses for your personal use[^5]
 - Remove WinRAR licenses (for whatever reason)
 - Uninstall WinRAR
 
@@ -193,11 +205,9 @@ A stitch in time saves nine. Remove your WinRAR license and return to that 40-da
 
 ## Benefits
 
-- **Convenience** – Users can quickly and easily install and license WinRAR without navigating through multiple steps or settings and enhances the overall user experience by simplifying the process, making it more user-friendly and less daunting for those who may not be comfortable with manual installations. This is particularly useful for users who may not be tech-savvy.
+- **Convenience** – Users can quickly and easily install and license WinRAR without navigating through multiple steps or settings[^6] and enhances the overall user experience by simplifying the process, making it more user-friendly and less daunting for those who may not be comfortable with manual installations. This is particularly useful for users who may not be tech-savvy.
 - **Time-Saving** – The automation reduces the time required to manually download, install, and adding license information for WinRAR. This is beneficial for both individual users and IT departments managing multiple machines.
-- **Consistency** – Ensures that WinRAR is installed and licensed in a consistent manner across multiple systems. This is particularly important in enterprise environments where uniformity is required.
-- **Scalability** – Makes it easy to deploy WinRAR across a large number of machines, which is useful for businesses and organizations that need to ensure all users have access to the same software.
-- **Remote Deployment** – Facilitates remote installation and licensing, which is particularly useful for IT administrators managing remote or distributed workforces.
+- Standardized Mass Deployment – The automated process guarantees that WinRAR is installed and licensed in a consistent manner across multiple systems. This uniformity is crucial for scalability, making it easy to deploy the software across a large number of machines in enterprise environments where standardization is required.
 - **Compliance** – Helps ensure that all installations of WinRAR are properly licensed, which is important for legal and compliance purposes.
 - **Integration** – Can be integrated into larger deployment scripts or system setups, making it a seamless part of the overall software deployment process.
 - **configuration** – Allows for configuration by pre-configuring download and license information via editing the script file name.
@@ -211,7 +221,7 @@ A stitch in time saves nine. Remove your WinRAR license and return to that 40-da
 
 # How to use
 
-### Basic usage
+## Basic usage
 
 1. Download the latest release of `oneclickwinrar` from the releases page
 2. Optional steps:
@@ -220,26 +230,23 @@ A stitch in time saves nine. Remove your WinRAR license and return to that 40-da
     - Add a WinRAR license to the working directory, if necessary
 2. Run the script
 
-### Advanced usage
+## Advanced usage
 
 Follow steps 1-2 in basic usage, then read through the configuration section to add custom licenses, downloads and enable different features.
 
 > [!IMPORTANT]
 > Remember to extract the `bin` folder together with the script. This is necessary for generating your custom license key.
 
-# Configuration
+### Configuration
 
 The aim of this method of configuration is to provide a quick and easy way for anyone to enable extra functionality in the script while preserving portability. Essentially, one would only need to configure the script once and run it anywhere without the need for extra clicks or editing.
 
-There are two (2) types of configuration:
-
-1. **Partial configuration** i.e. custom licensing, custom install or custom download
-2. **Complete configuration** i.e. both custom licensing and installation
+The scripts can be configured to either add a custom license, install a specific version of WinRAR or a combination of both (with `oneclickwinrar.cmd`).
 
 There are six (6) parameters in the configuration process:
 
 1. `licensee` – This is "you" or whatever name you want to use
-2. `license-type` – The description of license that you want to install. **This is optional.**[^5]
+2. `license-type` – The description of license that you want to install. **This is optional.**[^7]
 3. `script-name` – The name of the script file [`oneclickrar`, `licenserar`, `installrar`] that you use to install and/or license WinRAR. The script name is used for toggling switches in the script.
 4. `architecture` – The architecture of the WinRAR executable (x32 or x64). The architecture can be omitted for custom download/install and will default to 64-bit.
 5. `version` – The version of the WinRAR executable without any periods `"."` (eg. 590, 701). **This is optional.**
@@ -255,43 +262,55 @@ There are six (6) parameters in the configuration process:
 > If there is no beta, you can just add the language tag like this config for the Japanese 64-bit version of WinRAR 7.00.
 >
 > ```
-> oneclickrar_x64_700_jp.cmd
+> installrar_x64_700_jp.cmd
 > ```
 
 > [!WARNING]
 > Do not modify the `script-name` unless you need to [overwrite licenses](#overwriting-licenses), [save download cache](#download-only-mode), or [enable a special function](#special-function-codes-for-oneclickrar).
 
-## Naming patterns
-
+### Naming patterns
+<!-- • ⦾ ‣ ⦿ -->
 > [!NOTE]
 > If you do not see a `.cmd` extension in the file name, **do not add it**. This just means that you have `"Show file name extensions"` disabled in Windows Explorer. No, **you do not need to enable it**. Just continue to configure the script without adding the extension.
 
-### Complete naming pattern (supported by oneclickrar.cmd)
+#### Install and license naming pattern (supported by oneclickrar.cmd)
 
 ```
-<licensee>_<license-type>_<script-name>_<architecture>_<version>_<tags>.cmd
+[licensee]_[license-type]_<script-name>_[architecture]_[version]_[tags].cmd
 
-Example: My Name_My License_oneclickrar_x64_700.cmd
+Example:
+  • oneclickrar_x32.cmd
+  • oneclickrar_700.cmd
+  • oneclickrar_x64_700.cmd
+  • My Name_oneclickrar_ru.cmd
+  • My Name_oneclickrar_x64_700.cmd
+  • My Name_My License_oneclickrar_x32_sc.cmd
 ```
 
-### Licensing-only pattern (supported by licenserar.cmd, oneclickrar.cmd)
+#### Licensing-only pattern (supported by licenserar.cmd, oneclickrar.cmd)
 
 When setting up custom licensing, you must only add information **_BEFORE_** the `script-name`.
 
 ```
-<licensee>_<license-type>_<script-name>.cmd
+[licensee]_[license-type]_<script-name>.cmd
 
-Example: My Company_My Company License_licenserar.cmd
+Example:
+  • My Name_licenserar.cmd
+  • Company Name_Company License Type_licenserar.cmd
 ```
 
-### Install-only pattern (supported by installrar.cmd, oneclickrar.cmd)
+#### Install-only pattern (supported by installrar.cmd, oneclickrar.cmd)
 
 When setting up custom installation, you must only add information **_AFTER_** the `script-name`.
 
 ```
-<script-name>_<architecture>_<version>_<tags>.cmd
+<script-name>_[architecture]_[version]_[tags].cmd
 
-Example: installrar_x64_700_ru.cmd   # Russian language
+Example:
+  • installrar_x32.cmd
+  • installrar_700.cmd
+  • installrar_x64_700.cmd
+  • installrar_x64_700_ru.cmd
 ```
 
 > [!CAUTION]
@@ -316,7 +335,7 @@ Example: installrar_x64_700_ru.cmd   # Russian language
 
 Information pertaining to overwriting licenses is in its own section because it's a bit different (not that much different) and there are some people out there in the world who may, for one reason or another, happen to miss it.
 
-Note: Overwriting is only supported by `oneclickrar.cmd` and `licenserar.cmd`.
+Note: Overwriting licenses is only supported by `oneclickrar.cmd` and `licenserar.cmd`.
 
 To enable overwriting licenses, you must edit the script's file name to have a hyphen `"-"` just before the `"rar"` so that it becomes `"-rar"`. This is a very simple switch. Errors of any nature will bring shame upon the spring-loaded keys of your 1987 IBM Model M 1391401 White Label keyboard😠.
 
@@ -449,7 +468,9 @@ See the /bin/winrar-keygen/LICENSE file for more information.
 [^2]: On new systems without a WinRAR installation. Systems with WinRAR installed will go through some confirmations before the operation is completed.
 [^3]: `oneclickwinrar` deletes download cache by default.
 [^4]: Click on the notifications when they appear (with or without a visible button) for more more information.
-[^5]: When the `license-type` is ommitted, a "Single User License" will be provided by default.
+[^5]: Please [purchase a WinRAR license][purchase] for all corporate and business use.
+[^6]: Only when using the default settings without extra configuration.
+[^7]: When the `license-type` is ommitted, a "Single User License" will be provided by default.
 
 <!--
 **Disclaimer:**
