@@ -265,7 +265,7 @@ $link_configuration          = "https://github.com/neuralpain/oneclickwinrar#con
 $link_endof32bitsupport      = "https://www.win-rar.com/singlenewsview.html?&L=0&tx_ttnews%5Btt_news%5D=266&cHash=44c8cdb0ff6581307702dfe4892a3fb5"
 
 $OLDEST                      = 290
-$LATEST                      = 711
+$LATEST                      = 712
 $FIRST_64BIT                 = 390
 $LATEST_32BIT                = 701
 $LATEST_OLD_WRAR             = 611
