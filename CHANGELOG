@@ -1,8 +1,33 @@
 CHANGELOG
 
+0.12.0.712
+
+  - New: Add interactive user prompts for handling ambiguous situations like
+    re-installing, choosing between 32/64-bit installations, or overwriting
+    licenses.
+  - New: Add automatic downloading of the keygen executable if it is not
+    found locally for custom license generation.
+  - New: Add pre-download verification to check if a requested installer
+    exists on the server before starting the download.
+  - New: Add support for multiple download servers with an automatic retry
+    mechanism to improve download reliability.
+  - New: The script now detects and allows management of systems with both
+    32-bit and 64-bit WinRAR installations.
+  - Fix: Corrected an issue where the downloaded installer file was not
+    always deleted after use.
+  - Fix: Corrected a bug where the internal path to the license key file
+    (`rarreg.key`) was incorrect.
+  - Improve: Substantially refactored the script name parsing logic for
+    better robustness and flexibility.
+  - Improve: The user interface now includes an ASCII art title and
+    color-coded console messages.
+  - Improve: Expanded in-script documentation and added many new usage
+    examples.
+
 0.11.0.711
 
-  - Fix download-only failing whenever a specific version of WinRAR is not provided.
+  - Fix download-only failing whenever a specific version of WinRAR is not
+    provided.
   - Update default version to WinRAR 7.11.
 
 0.10.0.710
