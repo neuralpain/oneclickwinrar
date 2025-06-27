@@ -38,7 +38,6 @@ exit /b
 
 # --- PS --- #>
 
-$global:ProgressPreference = "SilentlyContinue"
 [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor [System.Net.SecurityProtocolType]::Tls12
 
 function Write-Info {

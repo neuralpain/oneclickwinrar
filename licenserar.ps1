@@ -10,7 +10,7 @@
     licenserar.cmd for use within the terminal.
 
   .NOTES
-    Last updated: 2025/06/26
+    Last updated: 2025/06/27
 #>
 
 function Write-Info{Param([Parameter(Mandatory=$true)][ValidateNotNullOrEmpty()][string]$Message);Write-Host "INFO: $Message" -ForegroundColor DarkCyan}

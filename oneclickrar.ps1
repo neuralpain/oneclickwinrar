@@ -10,10 +10,9 @@
     oneclickrar.cmd for use within the terminal.
 
   .NOTES
-    Last updated: 2025/06/26
+    Last updated: 2025/06/27
 #>
 
-$global:ProgressPreference = "SilentlyContinue"
 [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor [System.Net.SecurityProtocolType]::Tls12
 
 function Write-Info{Param([Parameter(Mandatory=$true)][ValidateNotNullOrEmpty()][string]$Message);Write-Host "INFO: $Message" -ForegroundColor DarkCyan}
