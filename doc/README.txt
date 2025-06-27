@@ -11,7 +11,7 @@
             \ \ \ \ \ \ \/\ \ /' _ `\ \ ,  /\ \  __ \ \ ,  /                    
              \ \ \_/ \_\ \ \ \/\ \/\ \ \ \\ \\ \ \/\ \ \ \\ \                   
               \ `\___x___/\ \_\ \_\ \_\ \_\ \_\ \_\ \_\ \_\ \_\                 
-               '\/__//__/  \/_/\/_/\/_/\/_/\/ /\/_/\/_/\/_/\/ /  v0.11.0.711    
+               '\/__//__/  \/_/\/_/\/_/\/_/\/ /\/_/\/_/\/_/\/ /  v0.12.0.712    
 
 
 oneclickwinrar - install and license WinRAR
@@ -77,15 +77,14 @@ CUSTOMIZATION
   portability. Essentially, one would only need to customize the script once
   and run it anywhere without the need for extra clicks or editing.
 
-  There are two types of customization:
-
-    1. Partial customization, which is either custom licensing, or custom install
-    2. Complete customization, which is both custom licensing and install
+  The scripts can be configured to either add a custom license, install a
+  specific version of WinRAR or a combination of both(with `oneclickwinrar.cmd`).
 
   There are six (6) parameters in the customization process:
 
     `licensee`      - This is "you" or whatever name you want to use
-    `license-type`  - The description of license that you want to install
+    `license-type`  - The description of license that you want to install. This
+                      is optional.
     `script-name`   – The name of the script file [`oneclickrar`, `licenserar`,
                       `installrar`] that you use to install and/or license WinRAR.
                       The script name is used for toggling switches in the script.
@@ -94,10 +93,10 @@ CUSTOMIZATION
                       and will default to 64-bit.
     `version`       - The version of the WinRAR executable without any periods
                       `"."` (eg. 590, 701). This is optional.
-    `tags`          - These are additional tags, usually
-                      found at the end of the WinRAR executable name, used to
-                      describe the language of the executable and whether or
-                      not it is a beta release. This is optional.
+    `tags`          - These are additional tags, usually found at the end of
+                      the WinRAR executable name, used to describe the language
+                      of the executable and whether or not it is a beta release.
+                      This is optional.
 
 
   [*] IMPORTANT [*]
@@ -112,7 +111,7 @@ CUSTOMIZATION
     If there is no beta, you can just add the language tag like this config for
     the Japanese 64-bit version of WinRAR 7.00.
 
-      oneclickrar_x64_700_jp.cmd
+      installrar_x64_700_jp.cmd
 
 
 
@@ -138,11 +137,17 @@ NAMING PATTERNS
 
 
 
-[+] complete naming pattern (supported by oneclickrar.cmd)
+[+] install and license naming pattern (supported by oneclickrar.cmd)
 
-    <licensee>_<license-type>_<script-name>_<architecture>_<version>_<tags>.cmd
+    [licensee]_[license-type]_<script-name>_[architecture]_[version]_[tags].cmd
 
-  Example: My Name_My License_oneclickrar_x64_700.cmd
+  Example:
+    • oneclickrar_x32.cmd
+    • oneclickrar_700.cmd
+    • oneclickrar_x64_700.cmd
+    • My Name_oneclickrar_ru.cmd
+    • My Name_oneclickrar_x64_700.cmd
+    • My Name_My License_oneclickrar_x32_sc.cmd
 
 
 [+] licensing-only pattern (supported by licenserar.cmd, oneclickrar.cmd)
@@ -150,9 +155,11 @@ NAMING PATTERNS
   When setting up custom licensing, you must only add information BEFORE the
   `script-name`.
 
-    <licensee>_<license-type>_<script-name>.cmd
+    [licensee]_[license-type]_<script-name>.cmd
 
-  Example: My Company_My Company License_licenserar.cmd
+  Example:
+    • My Name_licenserar.cmd
+    • Company Name_Company License Type_licenserar.cmd
 
 
 [+] install-only pattern (supported by installrar.cmd, oneclickrar.cmd)
@@ -160,9 +167,13 @@ NAMING PATTERNS
   When setting up custom installation, you must only add information AFTER the
   `script-name`.
 
-    <script-name>_<architecture>_<version>_<tags>.cmd
+    <script-name>_[architecture]_[version]_[tags].cmd
 
-  Example: installrar_x64_700_ru.cmd // Russian language
+  Example:
+    • installrar_x32.cmd
+    • installrar_700.cmd
+    • installrar_x64_700.cmd
+    • installrar_x64_700_ru.cmd
 
 
 
@@ -303,7 +314,8 @@ EXTRA STUFF
     Yes, `oneclickwinrar` supports uninstalling WinRAR.
 
     1. Uninstall with `oneclickrar`
-    2. Uninstall with `unlicenserar` by editing the script name to be `un-licenserar.cmd`.
+    2. Uninstall with `unlicenserar` by editing the script name to be
+       `un-licenserar.cmd`.
 
 
 
@@ -336,9 +348,34 @@ See the /bin/winrar-keygen/LICENSE file for more information.
 CHANGELOG
 ---------
 
+0.12.0.712
+
+  - New: Add interactive user prompts for handling ambiguous situations like
+    re-installing, choosing between 32/64-bit installations, or overwriting
+    licenses.
+  - New: Add automatic downloading of the keygen executable if it is not
+    found locally for custom license generation.
+  - New: Add pre-download verification to check if a requested installer
+    exists on the server before starting the download.
+  - New: Add support for multiple download servers with an automatic retry
+    mechanism to improve download reliability.
+  - New: The script now detects and allows management of systems with both
+    32-bit and 64-bit WinRAR installations.
+  - Fix: Corrected an issue where the downloaded installer file was not
+    always deleted after use.
+  - Fix: Corrected a bug where the internal path to the license key file
+    (`rarreg.key`) was incorrect.
+  - Improve: Substantially refactored the script name parsing logic for
+    better robustness and flexibility.
+  - Improve: The user interface now includes an ASCII art title and
+    color-coded console messages.
+  - Improve: Expanded in-script documentation and added many new usage
+    examples.
+
 0.11.0.711
 
-  - Fix download-only failing whenever a specific version of WinRAR is not provided.
+  - Fix download-only failing whenever a specific version of WinRAR is not
+    provided.
   - Update default version to WinRAR 7.11.
 
 0.10.0.710
