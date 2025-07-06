@@ -518,14 +518,8 @@ function Confirm-ConfigData {
   $script:RARVER = $config[2].Value
   $script:TAGS = $config[3].Value
 
-  switch ($custom_name) {
-    $script_name { break }
-    $script_name_overwrite {
-      $script:OVERWRITE_LICENSE = $true
-      break
-    }
-    default { &$Error_UnknownScript }
-  }
+  if ($custom_name -eq $script_name) { break }
+  else { &$Error_UnknownScript }
 
   Confirm-DownloadConfig
 }
@@ -753,21 +747,9 @@ function Invoke-OwcrInstallation {
         Stop-OcwrOperation -ExitType Error -Message "Unable to fetch download"
       }
     }
-    if ($script:DOWNLOAD_ONLY) {
-      New-Toast -ToastTitle "Download Complete" `
-                -ToastText  "WinRAR $($local:version) ($script:ARCH) was successfully downloaded." `
-                -ToastText2 "Run this script again if you ever need to install it."
-      Stop-OcwrOperation -ExitType Complete
-    }
     $script:WINRAR_EXE = (Get-LocalWinrarInstaller) # get the new installer
   } else {
     Write-Info "Found executable versioned at $(Format-Text (Format-VersionNumberFromExecutable $script:WINRAR_EXE) -Foreground White -Formatting Underline)"
-  }
-  if ($script:DOWNLOAD_ONLY) {
-    New-Toast -ToastTitle "Download Aborted" `
-              -ToastText  "An installer for WinRAR $(Format-VersionNumberFromExecutable $script:WINRAR_EXE) ($script:ARCH) already exists." `
-              -ToastText2 "Check the requested download version and try again."
-    Stop-OcwrOperation -ExitType Warning -Message "An installer for WinRAR $(Format-VersionNumberFromExecutable $script:WINRAR_EXE) ($script:ARCH) already exists"
   }
 
   Invoke-Installer $script:WINRAR_EXE (Format-VersionNumberFromExecutable $script:WINRAR_EXE)
