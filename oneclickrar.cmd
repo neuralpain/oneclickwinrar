@@ -258,6 +258,9 @@ $KNOWN_VERSIONS = @(290, 300, 310, 320, 330, 340, 350, 360, 370, 371, 380, 390, 
 $LANG_CODE_LIST = @("ar","al","am","az","by","ba","bg","bur","ca","sc","tc","cro","cz","dk","nl","en","eu","est","fi","fr","gl","d","el","he","hu","id","it","jp","kr","lt","mk","mn","no","prs","pl","pt","br","ro","ru","srbcyr","srblat","sk","slv","es","ln","esco","sw","th","tr","uk","uz","va","vn")
 $LANG_NAME_LIST = @("Arabic","Albanian","Armenian","Azerbaijani","Belarusian","Bosnian","Bulgarian","Burmese (Myanmar)","Catalan","Chinese Simplified","Chinese Traditional","Croatian","Czech","Danish","Dutch","English","Euskera","Estonian","Finnish","French","Galician","German","Greek","Hebrew","Hungarian","Indonesian","Italian","Japanese","Korean","Lithuanian","Macedonian","Mongolian","Norwegian","Persian","Polish","Portuguese","Portuguese Brazilian","Romanian","Russian","Serbian Cyrillic","Serbian Latin","Slovak","Slovenian","Spanish","Spanish (Latin American)","Spanish Colombian","Swedish","Thai","Turkish","Ukrainian","Uzbek","Valencian","Vietnamese")
 
+$default_lang_code = 'en'
+$default_lang_name = 'English'
+
 $link_freedom_universe_yt    = "https://youtu.be/OD_WIKht0U0?t=450"
 $link_overwriting            = "https://github.com/neuralpain/oneclickwinrar#overwriting-licenses"
 $link_howtouse               = "https://github.com/neuralpain/oneclickwinrar#how-to-use"
@@ -431,8 +434,7 @@ function Set-DefaultArchVersion {
     $script:RARVER = $LATEST
   }
   if ($null -eq $script:TAGS) {
-    Write-Info "WinRAR language set to $(Format-Text "English" -Foreground White -Formatting Underline)"
-    $script:RARVER = $LATEST
+    Write-Info "WinRAR language set to $(Format-Text $default_lang_name -Foreground White -Formatting Underline)"
   }
 }
 
@@ -444,24 +446,45 @@ function Get-LanguageName {
       Return the full language name based on the code provided in the
       configuration via TAGS.
 
-    .NOTES
-      No parameter inputs required. TAGS is implied from the global variable.
+    .PARAMETER LangCode
+      Specify a language code to get the name of.
   #>
+  Param(
+    [Parameter(Mandatory=$false)][string]$LangCode,
+    [switch]$Quiet
+  )
 
-  if ([string]::IsNullOrEmpty($script:TAGS)) { return $null }
+  # if ([string]::IsNullOrEmpty($script:TAGS)) { return $null } # leaving this here JIC
+  if ([string]::IsNullOrEmpty($LangCode)) { $LangCode = $script:TAGS }
 
   $extractedLangCode = $null
-  $regexMatches = [regex]::matches($script:TAGS, 'b\d+')
+  $betaCodeMatch = [regex]::matches($LangCode, 'b\d+')
 
-  if ($regexMatches.Count -gt 0) {
-    $extractedLangCode = $script:TAGS.Trim($regexMatches[0].Value)
+  if ($betaCodeMatch.Count -gt 0) {
+    $extractedLangCode = $LangCode.Trim($betaCodeMatch[0].Value)
   } else {
-    $extractedLangCode = $script:TAGS # TAGS is the language code.
+    $extractedLangCode = $LangCode # LangCode has the language code.
+  }
+
+  $defaultTags = {
+    $script:TAGS = if ($betaCodeMatch.Count -gt 0) { $betaCodeMatch[0].Value } else { $null }
+    (Get-LanguageName -LangCode $default_lang_code)
   }
 
   # If the extracted language code is null or empty (e.g., if $script:TAGS was
   # "b1", Trim("b1") results in ""), then it's not a valid code to search for.
-  if ([string]::IsNullOrEmpty($extractedLangCode)) { return $null }
+  if ([string]::IsNullOrEmpty($extractedLangCode)) {
+    # This verification will be handled by Confirm-DownloadConfig
+    # In theory, this block should only be visited once throughout the runtime
+    # of the program
+    return &$defaultTags
+  }
+
+  # idiot prevention
+  if ($extractedLangCode -eq 'en') {
+    $script:TAGS = if ($betaCodeMatch.Count -gt 0) { $betaCodeMatch[0].Value } else { $null }
+    return 'English'
+  }
 
   $position = 0
   $isFound = $false
@@ -481,10 +504,12 @@ function Get-LanguageName {
     } else {
       # "Internal error: Language code found, but index $position is out of
       # bounds for LANG_NAME_LIST."
-      return $null
+      if (-not $Quiet) { Write-Error "Unable to process language requirements. Using default language." }
+      return &$defaultTags
     }
   } else {
-    return $null
+    if (-not $Quiet) { Write-Info "Requested language not found. Using default language." }
+    return &$defaultTags
   }
 }
 
@@ -869,9 +894,9 @@ function Confirm-DownloadConfig {
   }
 
   # 3. Verify TAGS data.
-  if ($null -eq (Get-LanguageName)) { $script:TAGS = $null } # quick patch
-  if ([string]::IsNullOrEmpty($script:TAGS) -or $script:TAGS -eq 'en') {
-    Write-Info "WinRAR language set to $(Format-Text "English" -Foreground White -Formatting Underline)"
+  if ($null -eq (Get-LanguageName -Quiet)) { $script:TAGS = $null } # quick patch
+  if ([string]::IsNullOrEmpty($script:TAGS)) {
+    Write-Info "WinRAR language set to $(Format-Text $default_lang_name -Foreground White -Formatting Underline)"
   } else {
     Write-Info "WinRAR language set to $(Format-Text $(Get-LanguageName) -Foreground White -Formatting Underline)"
   }
