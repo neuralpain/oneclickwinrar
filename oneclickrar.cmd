@@ -1126,6 +1126,43 @@ function Invoke-Installer($x, $v) {
   }
 }
 
+function Invoke-DownloadWinrarExecutable {
+  <#
+    .DESCRIPTION
+      Download a WinRAR installer specified by the user.
+  #>
+  $script:DOWNLOAD_WINRAR = $true
+
+  $Error.Clear()
+  $local:retrycount = 0
+  $local:version = (Format-VersionNumber $script:RARVER)
+
+  Get-WinrarInstaller -HostUri $server1_host -HostUriDir $server1
+
+  foreach ($wdir in $server2) {
+    if ($Error) { # will catch the first error from the attempt with server 1
+      $Error.Clear()
+      $local:retrycount++
+      Write-Host -NoNewLine "`nFailed. Retrying... $local:retrycount`n"
+      Get-WinrarInstaller -HostUri $server2_host -HostUriDir $wdir
+    }
+  }
+
+  if ($Error) {
+    if ($script:CUSTOM_INSTALLATION) {
+      New-Toast -ToastTitle "Unable to fetch download" `
+                -ToastText  "WinRAR $($local:version) ($script:ARCH) may not exist on the server." `
+                -ToastText2 "Check the version number and try again."
+      Stop-OcwrOperation -ExitType Error -Message "Unable to fetch download. Check the version number and try again."
+    } else {
+      New-Toast -ToastTitle "Unable to fetch download" `
+                -ToastText  "Are you still connected to the internet?" `
+                -ToastText2 "Please check your internet connection."
+      Stop-OcwrOperation -ExitType Error -Message "Unable to fetch download"
+    }
+  }
+}
+
 function Invoke-OwcrInstallation {
   <#
     .DESCRIPTION
@@ -1139,49 +1176,25 @@ function Invoke-OwcrInstallation {
 
     # if there are no installers, proceed to download one
     if ($null -eq $script:WINRAR_EXE) {
-      $script:DOWNLOAD_WINRAR = $true
-
-      $Error.Clear()
-      $local:retrycount = 0
-      $local:version = (Format-VersionNumber $script:RARVER)
-
-      Get-WinrarInstaller -HostUri $server1_host -HostUriDir $server1
-      foreach ($wdir in $server2) {
-        if ($Error) {
-          $Error.Clear()
-          $local:retrycount++
-          Write-Host -NoNewLine "`nFailed. Retrying... $local:retrycount`n"
-          Get-WinrarInstaller -HostUri $server2_host -HostUriDir $wdir
-        }
-      }
-      if ($Error) {
-        if ($script:CUSTOM_INSTALLATION) {
-          New-Toast -ToastTitle "Unable to fetch download" `
-                    -ToastText  "WinRAR $($local:version) ($script:ARCH) may not exist on the server." `
-                    -ToastText2 "Check the version number and try again."
-          Stop-OcwrOperation -ExitType Error -Message "Unable to fetch download. Check the version number and try again."
-        } else {
-          New-Toast -ToastTitle "Unable to fetch download" `
-                    -ToastText  "Are you still connected to the internet?" `
-                    -ToastText2 "Please check your internet connection."
-          Stop-OcwrOperation -ExitType Error -Message "Unable to fetch download"
-        }
-      }
-      if ($script:DOWNLOAD_ONLY) {
+      Invoke-DownloadWinrarExecutable
+      if (-not $script:DOWNLOAD_ONLY) { Invoke-OwcrInstallation; break }
+      else {
         New-Toast -ToastTitle "Download Complete" `
                   -ToastText  "WinRAR $($local:version) ($script:ARCH) was successfully downloaded." `
                   -ToastText2 "Run this script again if you ever need to install it."
+        $script:WINRAR_EXE = (Get-LocalWinrarInstaller)
+        Write-Info "Download saved to $(Format-Text "'$(Format-Text "$pwd\$script:WINRAR_EXE" -Formatting Underline)'" -Foreground White)"
         Stop-OcwrOperation -ExitType Complete
       }
-      $script:WINRAR_EXE = (Get-LocalWinrarInstaller) # get the new installer
     } else {
       Write-Info "Found executable versioned at $(Format-Text (Format-VersionNumberFromExecutable $script:WINRAR_EXE) -Foreground White -Formatting Underline)"
-    }
-    if ($script:DOWNLOAD_ONLY) {
-      New-Toast -ToastTitle "Download Aborted" `
-                -ToastText  "An installer for WinRAR $(Format-VersionNumberFromExecutable $script:WINRAR_EXE) ($script:ARCH) already exists." `
-                -ToastText2 "Check the requested download version and try again."
-      Stop-OcwrOperation -ExitType Warning -Message "An installer for WinRAR $(Format-VersionNumberFromExecutable $script:WINRAR_EXE) ($script:ARCH) already exists"
+      if ($script:DOWNLOAD_ONLY) {
+        New-Toast -ToastTitle "Download Aborted" `
+                  -ToastText  "An installer for WinRAR $(Format-VersionNumberFromExecutable $script:WINRAR_EXE) ($script:ARCH) already exists." `
+                  -ToastText2 "Check the requested download version and try again."
+        #TODO - show the language of the installer that already exists
+        Stop-OcwrOperation -ExitType Warning -Message "An installer for WinRAR $(Format-VersionNumberFromExecutable $script:WINRAR_EXE) ($script:ARCH) already exists"
+      }
     }
 
     Invoke-Installer $script:WINRAR_EXE (Format-VersionNumberFromExecutable $script:WINRAR_EXE)
@@ -1331,7 +1344,7 @@ if ($CMD_NAME -ne $script_name) {
 if ($script:LICENSE_ONLY) {
   Select-WinrarInstallation
 }
-elseif ($script:WINRAR_IS_INSTALLED) {
+elseif ($script:WINRAR_IS_INSTALLED -and ((-not $script:DOWNLOAD_ONLY) -or $script:OVERWRITE_LICENSE)) {
   Select-CurrentWinrarInstallation
   Confirm-CurrentWinrarInstallation
 }
