@@ -1192,8 +1192,7 @@ function Invoke-OwcrInstallation {
         New-Toast -ToastTitle "Download Aborted" `
                   -ToastText  "An installer for WinRAR $(Format-VersionNumberFromExecutable $script:WINRAR_EXE) ($script:ARCH) already exists." `
                   -ToastText2 "Check the requested download version and try again."
-        #TODO - show the language of the installer that already exists
-        Stop-OcwrOperation -ExitType Warning -Message "An installer for WinRAR $(Format-VersionNumberFromExecutable $script:WINRAR_EXE) ($script:ARCH) already exists"
+        Stop-OcwrOperation -ExitType Warning -Message "An installer for WinRAR $(Format-VersionNumberFromExecutable $script:WINRAR_EXE) ($script:ARCH) in $(Get-LanguageName) already exists"
       }
     }
 
