@@ -1,5 +1,14 @@
 CHANGELOG
 
+0.12.1.712
+
+  - Will now display the location of the installer after the download has been
+    completed.
+  - Fix: Corrected a false positive for too many arguments was detected when
+    only the "download-only" flag was set.
+  - Improve: Refactored the language parsing for null and english
+  - Other minor bug fixes and code improvements.
+
 0.12.0.712
 
   - New: Add interactive user prompts for handling ambiguous situations like
