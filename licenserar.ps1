@@ -1,5 +1,5 @@
 <#
-  licenserar.ps1, Version 0.4.0
+  licenserar.ps1, Version 0.4.1
   Copyright (c) 2025, neuralpain
 
   .SYNOPSIS
@@ -10,7 +10,7 @@
     licenserar.cmd for use within the terminal.
 
   .NOTES
-    Last updated: 2025/06/27
+    Last updated: 2025/07/13
 #>
 
 function Write-Info{Param([Parameter(Mandatory=$true)][ValidateNotNullOrEmpty()][string]$Message);Write-Host "INFO: $Message" -ForegroundColor DarkCyan}
@@ -36,7 +36,7 @@ function Write-Title {
   Write-Host "         \ \ \ \ \ \ \/\ \ /`' _ ``\ \ ,  /\ \  __ \ \ ,  /               "
   Write-Host "          \ \ \_/ \_\ \ \ \/\ \/\ \ \ \\ \\ \ \/\ \ \ \\ \                "
   Write-Host "           \ ``\___x___/\ \_\ \_\ \_\ \_\ \_\ \_\ \_\ \_\ \_\             "
-  Write-Host "            `'\/__//__/  \/_/\/_/\/_/\/_/\/ /\/_/\/_/\/_/\/ /  $(Format-Text "v0.12.0.712" -Foreground Magenta)"
+  Write-Host "            `'\/__//__/  \/_/\/_/\/_/\/_/\/ /\/_/\/_/\/_/\/ /$(Format-Text ".ps1" -Foreground Blue)"
   Write-Host;Write-Host;
 }
 

@@ -1,5 +1,5 @@
 <#
-  oneclickrar.ps1, Version 0.4.0
+  oneclickrar.ps1, Version 0.4.1
   Copyright (c) 2025, neuralpain
 
   .SYNOPSIS
@@ -10,7 +10,7 @@
     oneclickrar.cmd for use within the terminal.
 
   .NOTES
-    Last updated: 2025/06/27
+    Last updated: 2025/07/13
 #>
 
 [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor [System.Net.SecurityProtocolType]::Tls12
@@ -38,7 +38,7 @@ function Write-Title {
   Write-Host "         \ \ \ \ \ \ \/\ \ /`' _ ``\ \ ,  /\ \  __ \ \ ,  /               "
   Write-Host "          \ \ \_/ \_\ \ \ \/\ \/\ \ \ \\ \\ \ \/\ \ \ \\ \                "
   Write-Host "           \ ``\___x___/\ \_\ \_\ \_\ \_\ \_\ \_\ \_\ \_\ \_\             "
-  Write-Host "            `'\/__//__/  \/_/\/_/\/_/\/_/\/ /\/_/\/_/\/_/\/ /  $(Format-Text "v0.12.0.712" -Foreground Magenta)"
+  Write-Host "            `'\/__//__/  \/_/\/_/\/_/\/_/\/ /\/_/\/_/\/_/\/ /$(Format-Text ".ps1" -Foreground Blue)"
   Write-Host;Write-Host;
 }
 
