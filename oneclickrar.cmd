@@ -696,7 +696,7 @@ function Get-DataFromConfig {
       $script:RARVER = $Config[2].Value # 3                                     # Not required for download
       $script:TAGS   = $Config[3].Value # 4                                     # Not required for download
     }
-    elseif (-not ($script:LICENSE_ONLY -or $script:SKIP_LICENSING)) {
+    elseif (-not($script:LICENSE_ONLY -or $script:SKIP_LICENSING -or $script:DOWNLOAD_ONLY)) {
       &$Error_TooManyArgs
     }
   }
