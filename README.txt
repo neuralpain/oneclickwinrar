@@ -11,7 +11,7 @@
             \ \ \ \ \ \ \/\ \ /' _ `\ \ ,  /\ \  __ \ \ ,  /                    
              \ \ \_/ \_\ \ \ \/\ \/\ \ \ \\ \\ \ \/\ \ \ \\ \                   
               \ `\___x___/\ \_\ \_\ \_\ \_\ \_\ \_\ \_\ \_\ \_\                 
-               '\/__//__/  \/_/\/_/\/_/\/_/\/ /\/_/\/_/\/_/\/ /  v0.12.0.712    
+               '\/__//__/  \/_/\/_/\/_/\/_/\/ /\/_/\/_/\/_/\/ /  v0.12.1.712    
 
 
 oneclickwinrar - install and license WinRAR
@@ -57,30 +57,30 @@ HOW TO USE
   1. Download the latest release from the releases page
   2. Extract the contents of the zip file to a directory of your choice
   3. Add a WinRAR executable to the directory, if necessary
-  4. (Optional) Customize and/or run the script you want to use
+  4. (Optional) configure and/or run the script you want to use
 
 
   [*] IMPORTANT [*]
 
     * Remember to extract the `bin` folder with the script files. This is
       necessary for generating the license key.
-    * You do not need to customize the script before running it. The script
+    * You do not need to configure the script before running it. The script
       will automatically download and install the latest version of WinRAR.
 
 
 
-CUSTOMIZATION
+CONFIGURATION
 -------------
 
-  The aim of this method of customization is to provide a quick and easy way
+  The aim of this method of configuration is to provide a quick and easy way
   for anyone to enable extra functionality in the script while preserving
-  portability. Essentially, one would only need to customize the script once
+  portability. Essentially, one would only need to configure the script once
   and run it anywhere without the need for extra clicks or editing.
 
   The scripts can be configured to either add a custom license, install a
   specific version of WinRAR or a combination of both(with `oneclickwinrar.cmd`).
 
-  There are six (6) parameters in the customization process:
+  There are six (6) parameters in the configuration process:
 
     `licensee`      - This is "you" or whatever name you want to use
     `license-type`  - The description of license that you want to install. This
@@ -194,7 +194,7 @@ NAMING PATTERNS
   * The different data must be separated by an underscore.
   * The `licensee` and `license-type` will be displayed exactly as you type
     them.
-  * `unlicenserar.cmd` is for removing licenses only. It cannot be customized.
+  * `unlicenserar.cmd` is for removing licenses only. It cannot be configured.
 
 
 
@@ -257,7 +257,7 @@ DOWNLOAD-ONLY MODE
   --------------------------------------------
 
     When download-only mode is enabled, the script immediately exits upon
-    completion of the download even if there are other customizations set for
+    completion of the download even if there are other configurations set for
     the script.
 
     To bypass this and allow for installation while download-only is enabled,
@@ -347,6 +347,15 @@ See the /bin/winrar-keygen/LICENSE file for more information.
 
 CHANGELOG
 ---------
+
+0.12.1.712
+
+  - Will now display the location of the installer after the download has been
+    completed.
+  - Fix: Corrected a false positive for too many arguments was detected when
+    only the "download-only" flag was set.
+  - Improve: Refactored the language parsing for null and english
+  - Other minor bug fixes and code improvements.
 
 0.12.0.712
 
