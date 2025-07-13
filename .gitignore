@@ -9,8 +9,9 @@
 release/
 tests/
 
-# include keygen executable
+# special exceptions
 !winrar-keygen*.exe
+!README.txt
 
 # mac stuff
 .DS_Store
