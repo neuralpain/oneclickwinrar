@@ -62,7 +62,7 @@ $server1         = "https://$server1_host/rar"
 $server2_host    = "www.win-rar.com"
 $server2         = @("https://$server2_host/fileadmin/winrar-versions", "https://$server2_host/fileadmin/winrar-versions/winrar")
 
-$LATEST          = 712
+$LATEST          = 713
 
 # --- SWITCH / CONFIGS ---
 $script:WINRAR_EXE          = $null

@@ -68,7 +68,7 @@ $server2      = @("https://$server2_host/fileadmin/winrar-versions", "https://$s
 
 $link_freedom_universe_yt    = "https://youtu.be/OD_WIKht0U0?t=450"
 
-$LATEST                      = 712
+$LATEST                      = 713
 
 # --- SWITCH / CONFIGS ---
 $script:WINRAR_EXE           = $null
