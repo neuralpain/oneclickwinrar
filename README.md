@@ -1,5 +1,5 @@
 > [!TIP]
-> RARLAB® recently released WinRAR 7.12! Use [`installrar`](#installrarcmd) to stay up to date with the latest version. 🚀
+> RARLAB® released WinRAR 7.12! Use [`installrar`](#installrarcmd) to stay up to date. 🚀
 >
 > <details>
 > <summary>View changes</summary>
