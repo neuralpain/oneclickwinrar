@@ -1,5 +1,9 @@
 CHANGELOG
 
+0.12.2.713
+
+  - Update version list to include latest WinRAR 7.13.
+
 0.12.1.712
 
   - Will now display the location of the installer after the download has been
