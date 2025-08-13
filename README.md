@@ -1,5 +1,5 @@
 > [!TIP]
-> RARLAB® released WinRAR 7.12! Use [`installrar`](#installrarcmd) to stay up to date. 🚀
+> RARLAB® released WinRAR 7.13! Use [`installrar`](#installrarcmd) to stay up to date. 🚀
 >
 > <details>
 > <summary>View changes</summary>
@@ -8,9 +8,12 @@
 >                WinRAR - What's new in the latest version
 >
 >
->   Version 7.12
+>  Version 7.13
 >
->  1. When extracting a file, previous versions of WinRAR, Windows versions
+>  1. Another directory traversal vulnerability, differing from that
+>     in WinRAR 7.12, has been fixed.
+>
+>     When extracting a file, previous versions of WinRAR, Windows versions
 >     of RAR, UnRAR, portable UnRAR source code and UnRAR.dll can be tricked
 >     into using a path, defined in a specially crafted archive,
 >     instead of user specified path.
@@ -18,25 +21,16 @@
 >     Unix versions of RAR, UnRAR, portable UnRAR source code
 >     and UnRAR library, also as RAR for Android, are not affected.
 >
->     We are thankful to whs3-detonator working with Trend Micro Zero Day
->     Initiative for letting us know about this security issue.
+>     We are thankful to Anton Cherepanov, Peter Kosinar, and Peter Strycek
+>     from ESET for letting us know about this security issue.
 >
->  2. Previously "Generate report" command included archived file names
->     into HTML report as is, allowing to inject potentially unsafe HTML tags
->     into the report. To prevent such injection the current version replaces
->     < and > file name characters in HTML report with &lt; and &gt; strings.
+>  2. Bugs fixed:
 >
->     We are thankful to Marcin Bobryk (github.com/MarcinB44) for bringing
->     this security issue to our attention.
+>     a) WinRAR 7.12 "Import settings from file" command failed to restore
+>        settings, saved by WinRAR versions preceding 7.12;
 >
->  3. If "Test archived files" and "recovery volumes" archiving options
->     are used together, recovery volumes are also tested. Previous versions
->     completed the test before creating recovery volumes, so they hadn't
->     been verified.
->
->  4. Nanosecond file time precision is preserved for Unix file records
->     when modifying RAR archive in Windows. Previously it was converted
->     to Windows 100 nanosecond precision.
+>     b) WinRAR 7.12 set a larger than specified recovery size for compression
+>        profiles, created by WinRAR 5.21 and older.
 > ```
 >
 > </details>
@@ -97,6 +91,8 @@ there was a need for something versatile // so why not?
 - [License](#license)
 
 ### Development plans
+
+- [ ] Automatically check for any WinRAR versions newer than known latest version.
 
 <details>
 <summary><i>Show completed (8)</i></summary>
