@@ -38,7 +38,7 @@ function Write-Title {
   Write-Host "           \ ``\___x___/\ \_\ \_\ \_\ \_\ \_\ \_\ \_\ \_\ \_\             "
   Write-Host "            `'\/__//__/  \/_/\/_/\/_/\/_/\/ /\/_/\/_/\/_/\/ /$(Format-Text ".ps1" -Foreground Blue)"
   Write-Host;Write-Host;
-}
+}; Write-Title
 
 function Stop-OcwrOperation{Param([Parameter(Mandatory=$false)][string]$ExitType,[Parameter(Mandatory=$false)][string]$Message);switch($ExitType){Terminate{Write-Host "$(if($Message){"$Message`n"})Operation terminated normally."};Error{Write-Host "$(if($Message){"ERROR: $Message`n"})Operation terminated with ERROR." -ForegroundColor Red};Warning{Write-Host "$(if($Message){"WARN: $Message`n"})Operation terminated with WARNING." -ForegroundColor Yellow};Complete{Write-Host "$(if($Message){"$Message`n"})Operation completed successfully." -ForegroundColor Green}default{Write-Host "$(if($Message){"$Message`n"})Operation terminated."}};break}
 function Confirm-QueryResult{[CmdletBinding()]param([Parameter(Position=0, Mandatory=$true)][string]$Query,[switch]$ExpectPositive,[switch]$ExpectNegative,[Parameter(Mandatory=$true)][scriptblock]$ResultPositive,[Parameter(Mandatory=$true)][scriptblock]$ResultNegative);$q=Read-Host "$Query $(if($ExpectPositive){"(Y/n)"}elseif($ExpectNegative){"(y/N)"})";if($ExpectPositive){if(-not([string]::IsNullOrEmpty($q)) -and ($q.Length -eq 1 -and $q -match '(N|n)')){if($ResultNegative){&$ResultNegative}}else{if($ResultPositive){&$ResultPositive}}}elseif($ExpectNegative){if(-not([string]::IsNullOrEmpty($q))-and($q.Length-eq1-and$q-match'(Y|y)')){if($ResultPositive){&$ResultPositive}}else{if($ResultNegative){&$ResultNegative}}}else {Write-Err "Nothing to expect.";Stop-OcwrOperation -ExitType Error}}
@@ -57,6 +57,13 @@ $rarkey   = "RAR registration data`r`nEveryone`r`nGeneral Public License`r`nUID=
 $rarreg64 = "$loc64\rarreg.key"
 $rarreg32 = "$loc32\rarreg.key"
 
+# --- MESSAGES
+
+$Error_LicenseExists = {
+  New-Toast -LongerDuration -ToastTitle "Unable to license WinRAR" -ActionButtonUrl $link_overwriting -ToastText  "Notice: A WinRAR license already exists."
+  Stop-OcwrOperation -ExitType Warning -Message "Unable to license WinRAR due to existing license."
+}
+
 # --- SWITCH / CONFIGS ---
 $script:WINRAR_IS_INSTALLED       = $false
 $script:WINRAR_INSTALLED_LOCATION = $null
@@ -66,13 +73,6 @@ $script:license_type      = $null
 $script:CUSTOM_LICENSE    = $false
 $script:OVERWRITE_LICENSE = $false
 # --- END SWITCH / CONFIGS ---
-
-# --- MESSAGES
-
-$Error_LicenseExists = {
-  New-Toast -LongerDuration -ToastTitle "Unable to license WinRAR" -ActionButtonUrl $link_overwriting -ToastText  "Notice: A WinRAR license already exists."
-  Stop-OcwrOperation -ExitType Warning -Message "Unable to license WinRAR due to existing license."
-}
 
 # --- FUNCTIONS
 
@@ -150,8 +150,6 @@ function Invoke-OcwrLicensing {
 }
 
 # --- BEGIN
-
-Write-Title
 
 Get-InstalledWinrarLocations
 
