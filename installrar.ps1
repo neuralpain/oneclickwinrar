@@ -10,7 +10,7 @@
     installrar.cmd for use within the terminal.
 
   .NOTES
-    Last updated: 2025/07/13
+    Last updated: 2025/08/17
 #>
 
 [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor [System.Net.SecurityProtocolType]::Tls12
@@ -40,10 +40,98 @@ function Write-Title {
   Write-Host "           \ ``\___x___/\ \_\ \_\ \_\ \_\ \_\ \_\ \_\ \_\ \_\             "
   Write-Host "            `'\/__//__/  \/_/\/_/\/_/\/_/\/ /\/_/\/_/\/_/\/ /$(Format-Text ".ps1" -Foreground Blue)"
   Write-Host;Write-Host;
-}
+}; Write-Title
 
 function Stop-OcwrOperation{Param([Parameter(Mandatory=$false)][string]$ExitType,[Parameter(Mandatory=$false)][string]$Message);switch($ExitType){Terminate{Write-Host "$(if($Message){"$Message`n"})Operation terminated normally."};Error{Write-Host "$(if($Message){"ERROR: $Message`n"})Operation terminated with ERROR." -ForegroundColor Red};Warning{Write-Host "$(if($Message){"WARN: $Message`n"})Operation terminated with WARNING." -ForegroundColor Yellow};Complete{Write-Host "$(if($Message){"$Message`n"})Operation completed successfully." -ForegroundColor Green}default{Write-Host "$(if($Message){"$Message`n"})Operation terminated."}};break}
 function Confirm-QueryResult{[CmdletBinding()]param([Parameter(Position=0, Mandatory=$true)][string]$Query,[switch]$ExpectPositive,[switch]$ExpectNegative,[Parameter(Mandatory=$true)][scriptblock]$ResultPositive,[Parameter(Mandatory=$true)][scriptblock]$ResultNegative);$q=Read-Host "$Query $(if($ExpectPositive){"(Y/n)"}elseif($ExpectNegative){"(y/N)"})";if($ExpectPositive){if(-not([string]::IsNullOrEmpty($q)) -and ($q.Length -eq 1 -and $q -match '(N|n)')){if($ResultNegative){&$ResultNegative}}else{if($ResultPositive){&$ResultPositive}}}elseif($ExpectNegative){if(-not([string]::IsNullOrEmpty($q))-and($q.Length-eq1-and$q-match'(Y|y)')){if($ResultPositive){&$ResultPositive}}else{if($ResultNegative){&$ResultNegative}}}else {Write-Err "Nothing to expect.";Stop-OcwrOperation -ExitType Error}}
+
+function Find-AnyNewWinRarVersions {
+  <#
+    .SYNOPSIS
+      Checks a list of URLs to verify if they likely point to valid
+      download.
+
+    .DESCRIPTION
+      This script takes an array of URLs as input. For each URL, it performs an
+      HTTP HEAD request to retrieve the headers. It then analyzes the StatusCode
+      header to determine if the URL is accessible to download files.
+
+    .PARAMETER URLs
+      An array of strings, where each string is a URL to check.
+
+    .EXAMPLE
+      Find-AnyNewWinRarVersions -URLs @(
+          "https://www.rarlab.com/rar/winrar-x64-{version}.exe",
+          "https://www.win-rar.com/fileadmin/winrar-versions/winrar-x64-{version}.exe"
+          "https://www.win-rar.com/fileadmin/winrar-versions/winrar/winrar-x64-{version}.exe"
+        )
+  #>
+  Param([Parameter(Mandatory = $true)][string[]]$URLs)
+
+  foreach ($url in $URLs) {
+    try {
+      $statusCode = $(Invoke-WebRequest -Uri $url -Method Head -UseBasicParsing -TimeoutSec 5 -ErrorAction Stop).StatusCode
+      if ($statusCode -eq 200) {
+        # if at least one of the URLs connect, then it's good.
+        return $true # --- sentinel
+      }
+    }
+    catch [System.Net.WebException] {
+      # Will return 404 if the downloads are not available.
+    }
+    catch {
+      # Generally, we don't care about the errors here. This function is only for
+      # testing availability. If it can't connect in any way, it's invalid.
+    }
+  }
+}
+
+function Get-WinRarUpdates {
+
+  Param([string[]]$KV)
+
+  $patch = [int]($KV[0] % 10)
+  $minor = [int](($KV[0] % 100) / 10)
+  $major = [int](($KV[0] % 1000) / 100)
+
+  $newVersions = @()
+
+  Write-Info "Checking for WinRAR updates..."
+
+  for ($j = $minor; $j -le $minor+1; $j++) {
+    if ($j -gt $minor) { $patch = 0 }
+    for ($k = $patch; $k -lt 10; $k++) {
+      $testVersion = $major*100 + $j*10 + $k
+      if ((Find-AnyNewWinRarVersions -URLs @("$server1/winrar-x64-$($testVersion).exe","$($server2[0])/winrar-x64-$($testVersion).exe","$($server2[1])/winrar-x64-$($testVersion).exe"))) {
+        $newVersions += $testVersion
+      }
+    }
+  }
+
+  if ($null -ne $newVersions) {
+    $newVersions = $($newVersions | Sort-Object -Descending)
+    $newVersion = $newVersions[0]
+    if ($newVersion -gt $KV[0]) {
+      Write-Info "New version found. Updating dedault version to $(Format-Text $newVersion -Foreground White)"
+      return $newVersions
+    } else {
+      Write-Info "No WinRAR updates found."
+      return $null
+    }
+  }
+}
+
+# --- MESSAGES
+
+$Error_NoInternetConnection = {
+  New-Toast -ToastTitle "No internet" -ToastText "Please check your internet connection."
+  Stop-OcwrOperation -ExitType Error -Message "Internet connection lost or unavailable."
+}
+
+$Error_UnableToConnectToDownload = {
+  New-Toast -ToastTitle "Unable to make a connection" -ToastText "Please check your internet or firewall rules."
+  Stop-OcwrOperation -ExitType Error -Message "Unable to make a connection."
+}
 
 # --- VARIABLES
 
@@ -62,7 +150,17 @@ $server1         = "https://$server1_host/rar"
 $server2_host    = "www.win-rar.com"
 $server2         = @("https://$server2_host/fileadmin/winrar-versions", "https://$server2_host/fileadmin/winrar-versions/winrar")
 
-$LATEST          = 713
+$KNOWN_VERSIONS  = @(713, 712, 711, 710, 701, 700, 624, 623, 622, 621, 620, 611, 610, 602, 601, 600, 591, 590, 580, 571, 570, 561, 560, 550, 540, 531, 530, 521, 520, 511, 510, 501, 500, 420, 411, 410, 401, 400, 393, 390, 380, 371, 370, 360, 350, 340, 330, 320, 310, 300, 290)
+
+if (Test-Connection $server1_host -Count 2 -Quiet) {
+  $_update = Get-WinRarUpdates $KNOWN_VERSIONS
+  if ($null -ne $_update) {
+    $KNOWN_VERSIONS += $_update
+    $KNOWN_VERSIONS = $($KNOWN_VERSIONS | Sort-Object -Descending)
+  }
+} else { &$Error_NoInternetConnection }
+
+$LATEST = $KNOWN_VERSIONS[0]
 
 # --- SWITCH / CONFIGS ---
 $script:WINRAR_EXE          = $null
@@ -76,18 +174,6 @@ $script:ARCH     = $null
 $script:RARVER   = $null
 $script:TAGS     = $null
 # --- END SWITCH / CONFIGS ---
-
-# --- MESSAGES
-
-$Error_NoInternetConnection = {
-  New-Toast -ToastTitle "No internet" -ToastText "Please check your internet connection."
-  Stop-OcwrOperation -ExitType Error -Message "Internet connection lost or unavailable."
-}
-
-$Error_UnableToConnectToDownload = {
-  New-Toast -ToastTitle "Unable to make a connection" -ToastText "Please check your internet or firewall rules."
-  Stop-OcwrOperation -ExitType Error -Message "Unable to make a connection."
-}
 
 # --- FUNCTIONS
 
@@ -330,7 +416,6 @@ function Invoke-OwcrInstallation {
 
 # --- BEGIN
 
-Write-Title
 Get-InstalledWinrarLocations
 Set-DefaultArchVersion
 
