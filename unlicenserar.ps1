@@ -1,5 +1,5 @@
 <#
-  licenserar.ps1, Version 0.4.1
+  unlicenserar.ps1
   Copyright (c) 2025, neuralpain
 
   .SYNOPSIS
