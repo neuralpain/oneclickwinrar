@@ -53,8 +53,7 @@ function Write-Err {
   Write-Host "ERROR: $Message" -ForegroundColor Red
 }
 
-# --- UTILITY
-
+#region Utility
 # Format-Text.ps1 <https://gist.github.com/neuralpain/7d0917553a55db4eff482b2eb3fcb9a3>
 function Format-Text{
   [CmdletBinding()]param([Parameter(Position=0, Mandatory=$false, HelpMessage="The text to be written", ValueFromPipeline=$true)][String]$Text,[Parameter(Mandatory=$false, HelpMessage="The bit depth of the text to be written")][ValidateSet(8, 24)][Int]$BitDepth,[Parameter(Mandatory=$false, HelpMessage="The foreground color of the text to be written")][ValidateCount(1, 3)][String[]]$Foreground,[Parameter(Mandatory=$false, HelpMessage="The background color of the text to be written")][ValidateCount(1, 3)][String[]]$Background,[Parameter(Mandatory=$false, HelpMessage="The text formatting options to be applied to the text")][String[]]$Formatting);$Esc=[char]27;$Reset="${Esc}[0m"
@@ -124,9 +123,9 @@ function Stop-OcwrOperation {
 
   Pause; exit
 }
+#endregion
 
-# --- VARIABLES
-
+#region Variables
 $script_name           = "unlicenserar"
 $script_name_uninstall = "un-licenserar"
 
@@ -142,9 +141,9 @@ $script:WINRAR_INSTALLED_LOCATION = $null
 
 $UNINSTALL = $false
 # --- END SWITCH / CONFIGS ---
+#endregion
 
-# -- MESSAGES
-
+#region Messages
 $link_configuration = "https://github.com/neuralpain/oneclickwinrar#configuration"
 
 $Error_UnknownScript = {
@@ -176,9 +175,9 @@ $Error_WinrarNotInstalled = {
   New-Toast -ToastTitle "WinRAR is not installed" -ToastText "Check your installation and try again."
   Stop-OcwrOperation -ExitType Error -Message "WinRAR is not installed."
 }
+#endregion
 
-# --- FUNCTIONS
-
+#region Location and Defaults
 function Get-InstalledWinrarLocations {
   <#
     .DESCRIPTION
@@ -218,9 +217,9 @@ function Select-WinrarInstallation {
   }
   Write-Info "Selected WinRAR installation: $(Format-Text $($script:WINRAR_INSTALLED_LOCATION) -Foreground White -Formatting Underline)"
 }
+#endregion
 
-# --- BEGIN
-
+#region Begin Execution
 Write-Title
 
 # Verify config, if any
@@ -257,3 +256,4 @@ if (Test-Path "$rarloc\rarreg.key" -PathType Leaf) {
   Remove-Item "$rarloc\rarreg.key" -Force | Out-Null
   &$UnlicenseSuccess
 } else { &$Error_UnlicenseFailed }
+#endregion

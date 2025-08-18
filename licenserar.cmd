@@ -55,8 +55,7 @@ function Write-Err {
   Write-Host "ERROR: $Message" -ForegroundColor Red
 }
 
-# --- UTILITY
-
+#region Utility
 # Format-Text.ps1 <https://gist.github.com/neuralpain/7d0917553a55db4eff482b2eb3fcb9a3>
 function Format-Text{
   [CmdletBinding()]param([Parameter(Position=0, Mandatory=$false, HelpMessage="The text to be written", ValueFromPipeline=$true)][String]$Text,[Parameter(Mandatory=$false, HelpMessage="The bit depth of the text to be written")][ValidateSet(8, 24)][Int]$BitDepth,[Parameter(Mandatory=$false, HelpMessage="The foreground color of the text to be written")][ValidateCount(1, 3)][String[]]$Foreground,[Parameter(Mandatory=$false, HelpMessage="The background color of the text to be written")][ValidateCount(1, 3)][String[]]$Background,[Parameter(Mandatory=$false, HelpMessage="The text formatting options to be applied to the text")][String[]]$Formatting);$Esc=[char]27;$Reset="${Esc}[0m"
@@ -173,9 +172,9 @@ function Confirm-QueryResult {
     Stop-OcwrOperation -ExitType Error
   }
 }
+#endregion
 
-# --- VARIABLES
-
+#region Variables
 $script_name           = "licenserar"
 $script_name_overwrite = "license-rar"
 
@@ -208,8 +207,9 @@ $script:CUSTOM_LICENSE    = $false
 $script:OVERWRITE_LICENSE = $false
 # --- END SWITCH / CONFIGS ---
 
-# --- MESSAGES
+#endregion
 
+#region Messages
 $link_configuration = "https://github.com/neuralpain/oneclickwinrar#configuration"
 $link_howtouse      = "https://github.com/neuralpain/oneclickwinrar#how-to-use"
 $link_namepattern   = "https://github.com/neuralpain/oneclickwinrar#naming-patterns"
@@ -239,9 +239,9 @@ $Error_TooManyArgs = {
   New-Toast -LongerDuration -ActionButtonUrl $link_configuration -ToastTitle "Too many arguments!" -ToastText "It seems like you've made a configuration error. Check the configuration data and try again."
   Stop-OcwrOperation -ExitType Error -Message "Too many arguments. Check your configuration."
 }
+#endregion
 
-# --- FUNCTIONS
-
+#region Location and Defaults
 function Get-InstalledWinrarLocations {
   <#
     .DESCRIPTION
@@ -281,7 +281,9 @@ function Select-WinrarInstallation {
   }
   Write-Info "Selected WinRAR installation: $(Format-Text $($script:WINRAR_INSTALLED_LOCATION) -Foreground White -Formatting Underline)"
 }
+#endregion
 
+#region Licensing
 function Invoke-OcwrLicensing {
   <#
     .DESCRIPTION
@@ -348,9 +350,9 @@ function Invoke-OcwrLicensing {
       -ResultNegative { &$Error_LicenseExists }
   }
 }
+#endregion
 
-# --- BEGIN
-
+#region Begin Execution
 Write-Title
 
 Get-InstalledWinrarLocations
@@ -418,3 +420,4 @@ else {
 }
 
 Stop-OcwrOperation -ExitType Complete
+#endregion

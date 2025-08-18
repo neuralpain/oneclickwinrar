@@ -92,8 +92,7 @@ function Write-Err {
   Write-Host "ERROR: $Message" -ForegroundColor Red
 }
 
-# --- UTILITY
-
+#region Utility
 # Format-Text.ps1 <https://gist.github.com/neuralpain/7d0917553a55db4eff482b2eb3fcb9a3>
 function Format-Text{
   [CmdletBinding()]param([Parameter(Position=0, Mandatory=$false, HelpMessage="The text to be written", ValueFromPipeline=$true)][String]$Text,[Parameter(Mandatory=$false, HelpMessage="The bit depth of the text to be written")][ValidateSet(8, 24)][Int]$BitDepth,[Parameter(Mandatory=$false, HelpMessage="The foreground color of the text to be written")][ValidateCount(1, 3)][String[]]$Foreground,[Parameter(Mandatory=$false, HelpMessage="The background color of the text to be written")][ValidateCount(1, 3)][String[]]$Background,[Parameter(Mandatory=$false, HelpMessage="The text formatting options to be applied to the text")][String[]]$Formatting);$Esc=[char]27;$Reset="${Esc}[0m"
@@ -211,20 +210,19 @@ function Confirm-QueryResult {
     Stop-OcwrOperation -ExitType Error
   }
 }
+#endregion
 
-# --- VARIABLES
-
+#region Variables
 $script_name                         = "oneclickrar"
 $script_name_overwrite               = "oneclick-rar"
 $script_name_download_only           = "one-clickrar"
 $script_name_download_only_overwrite = "one-click-rar"
 
-# catch any version for any language
 $winrar_name         = "winrar"
 $winrar_name_pattern = "^winrar-x"
 $winrar_file_pattern = "winrar-x\d{2}-\d{3}\w*\.exe"
 
-# catch the old version of WinRAR for any language
+# old WinRAR name pattern
 $wrar_name           = "wrar"
 $wrar_name_pattern   = "^wrar"
 $wrar_file_pattern   = "wrar\d{3}\w*\.exe"
@@ -300,11 +298,9 @@ $script:ARCH                 = $null              # Download architecture
 $script:RARVER               = $null              # WinRAR version
 $script:TAGS                 = $null              # Other download types, i.e. beta, language
 # --- END SWITCH / CONFIGS ---
+#endregion
 
-# --- MESSAGES
-
-# General
-
+#region General Messages
 $Error_UnknownScript = {
   New-Toast -LongerDuration -ActionButtonUrl $link_configuration -ToastTitle "What script is this?" -ToastText  "Script name is invalid. Check the script name for any typos and try again."
   Stop-OcwrOperation -ExitType Error -Message "Script name is invalid. Please check for errors."
@@ -338,9 +334,9 @@ $Error_UnableToProcessSpecialCode = {
   New-Toast -ActionButtonUrl "$link_configuration" -ToastTitle "Unable to process special code" -ToastText "Check your configuration for any errors or typos and try again."
   Stop-OcwrOperation -ExitType Error -Message "Unable to process special code."
 }
+#endregion
 
-# Licensing
-
+#region Licensing Messages
 $Error_LicenseExists = {
   New-Toast -LongerDuration -ToastTitle "Unable to license WinRAR" -ActionButtonUrl $link_overwriting -ToastText  "Notice: A WinRAR license already exists." -ToastText2 "View the documentation on how to use the override switch to install a new license."
   Stop-OcwrOperation -ExitType Warning -Message "Unable to license WinRAR due to existing license."
@@ -355,9 +351,9 @@ $Error_BinFolderMissing = {
   New-Toast -ActionButtonUrl $link_howtouse -ToastTitle "Missing `"bin`" folder" -ToastText  "Unable to generate a license. Ensure that the `"bin`" file is available in the same directory as the script."
   Stop-OcwrOperation -ExitType Warning -Message "Missing `"bin`" folder"
 }
+#endregion
 
-# Installation
-
+#region Install Messages
 $Error_No32bitSupport = {
   New-Toast -LongerDuration -ActionButtonUrl "$link_endof32bitsupport"  -ActionButtonText "Read More" -ToastTitle "Unable to process data" -ToastText "WinRAR no longer supports 32-bit on newer versions." -ToastText2 "Check your configuration for any errors or typos and try again."
   Stop-OcwrOperation -ExitType Error -Message "No 32-bit support for this version of WinRAR."
@@ -372,9 +368,9 @@ $Error_UnableToConnectToDownload = {
   New-Toast -ToastTitle "Unable to make a connection" -ToastText "Please check your internet or firewall rules."
   Stop-OcwrOperation -ExitType Error -Message "Unable to make a connection."
 }
+#endregion
 
-# Uninstall
-
+#region Uninstall Messages
 $UninstallSuccess = {
   New-Toast -ToastTitle "WinRAR uninstalled successfully" -ToastText "Run oneclickrar.cmd to reinstall."
   Stop-OcwrOperation -ExitType Complete
@@ -394,9 +390,9 @@ $Error_UnlicenseFailed = {
   New-Toast -ToastTitle "Unable to un-license WinRAR" -ToastText "A WinRAR license was not found on your device."
   Stop-OcwrOperation -ExitType Error -Message "No license found."
 }
+#endregion
 
-# --- FUNCTIONS
-
+#region Location and Defaults
 function Get-InstalledWinrarLocations {
   <#
     .DESCRIPTION
@@ -437,9 +433,9 @@ function Set-DefaultArchVersion {
     Write-Info "WinRAR language set to $(Format-Text $default_lang_name -Foreground White -Formatting Underline)"
   }
 }
+#endregion
 
-# --- DATA PROCESSING
-
+#region Data Processing
 function Get-LanguageName {
   <#
     .DESCRIPTION
@@ -926,9 +922,9 @@ function Confirm-ConfigData {
     <# Opt. #> Confirm-DownloadConfig
   } else { Set-DefaultArchVersion }
 }
+#endregion
 
-# --- INSTALLATION
-
+#region Installation
 function Format-VersionNumber {
   <#
     .DESCRIPTION
@@ -1211,7 +1207,9 @@ function Invoke-OwcrInstallation {
     }
   }
 }
+#endregion
 
+#region Licensing
 function Invoke-OcwrLicensing {
   <#
     .DESCRIPTION
@@ -1324,9 +1322,9 @@ function Invoke-OcwrLicensing {
     }
   }
 }
+#endregion
 
-# --- BEGIN
-
+#region Begin Execution
 Write-Title
 
 # Begin by retrieving any current installations of WinRAR
@@ -1383,6 +1381,7 @@ if ($script:SKIP_LICENSING) {
 }
 
 Stop-OcwrOperation -ExitType Complete
+#endregion
 
 <### has bugs. maybe continue work on this in version 0.13.0 or later
 $exit_Url = $link_freedom_universe_yt
