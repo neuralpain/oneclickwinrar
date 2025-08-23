@@ -10,7 +10,7 @@
     installrar.cmd for use within the terminal.
 
   .NOTES
-    Last updated: 2025/08/22
+    Last updated: 2025/08/23
 #>
 
 [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor [System.Net.SecurityProtocolType]::Tls12
@@ -228,6 +228,7 @@ function Get-WinrarLatestVersion {
 }
 
 $KNOWN_VERSIONS = @(713, 712, 711, 710, 701, 700, 624, 623, 622, 621, 620, 611, 610, 602, 601, 600, 591, 590, 580, 571, 570, 561, 560, 550, 540, 531, 530, 521, 520, 511, 510, 501, 500, 420, 411, 410, 401, 400, 393, 390, 380, 371, 370, 360, 350, 340, 330, 320, 310, 300, 290)
+$LATEST = $KNOWN_VERSIONS[0]
 
 if (Test-Connection $server1_host -Count 2 -Quiet) {
   $local:lv = (Get-WinrarLatestVersion)
@@ -241,7 +242,11 @@ if (Test-Connection $server1_host -Count 2 -Quiet) {
     }
 
     $LATEST = $KNOWN_VERSIONS[0]
-  } else { $LATEST = $local:lv }
+  } else {
+    if ($local:lv -eq $LATEST) {
+      Write-Info "Default version is the latest version."
+    } else { $LATEST = $local:lv }
+  }
 } else { &$Error_NoInternetConnection }
 #endregion
 
