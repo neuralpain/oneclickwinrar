@@ -8,6 +8,7 @@
 @echo off
 mode 78,40
 title licenserar (v0.12.2.713)
+
 :: PwshBatch.cmd <https://gist.github.com/neuralpain/4ca8a6c9aca4f0a1af2440f474e92d05>
 setlocal EnableExtensions DisableDelayedExpansion
 set ARGS=%*
@@ -40,6 +41,46 @@ exit /b
 
 [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor [System.Net.SecurityProtocolType]::Tls12
 
+#region Variables
+$script_name           = "licenserar"
+$script_name_overwrite = "license-rar"
+
+$loc32    = "${env:ProgramFiles(x86)}\WinRAR"
+$loc64    = "$env:ProgramFiles\WinRAR"
+$loc96    = "x96"
+
+$winrar64 = "$loc64\WinRAR.exe"
+$winrar32 = "$loc32\WinRAR.exe"
+
+$rarreg   = $null
+$rarkey   = "RAR registration data`r`nEveryone`r`nGeneral Public License`r`nUID=119fdd47b4dbe9a41555`r`n6412212250155514920287d3b1cc8d9e41dfd22b78aaace2ba4386`r`n9152c1ac6639addbb73c60800b745269020dd21becbc46390d7cee`r`ncce48183d6d73d5e42e4605ab530f6edf8629596821ca042db83dd`r`n68035141fb21e5da4dcaf7bf57494e5455608abc8a9916ffd8e23d`r`n0a68ab79088aa7d5d5c2a0add4c9b3c27255740277f6edf8629596`r`n821ca04340a7c91e88b14ba087e0bfb04b57824193d842e660c419`r`nb8af4562cb13609a2ca469bf36fb8da2eda6f5e978bf1205660302"
+$rarreg64 = "$loc64\rarreg.key"
+$rarreg32 = "$loc32\rarreg.key"
+
+$keygen      = $null
+$keygenUrl   = $null
+$keygen64    = "./bin/winrar-keygen/winrar-keygen-x64.exe"
+$keygen32    = "./bin/winrar-keygen/winrar-keygen-x86.exe"
+$keygenUrl32 = "https://github.com/bitcookies/winrar-keygen/releases/latest/download/winrar-keygen-x86.exe"
+$keygenUrl64 = "https://github.com/bitcookies/winrar-keygen/releases/latest/download/winrar-keygen-x64.exe"
+
+$link_configuration = "https://github.com/neuralpain/oneclickwinrar#configuration"
+$link_howtouse      = "https://github.com/neuralpain/oneclickwinrar#how-to-use"
+$link_namepattern   = "https://github.com/neuralpain/oneclickwinrar#naming-patterns"
+$link_overwriting   = "https://github.com/neuralpain/oneclickwinrar#overwriting-licenses"
+#endregion
+
+#region Switch Configs
+$script:WINRAR_IS_INSTALLED       = $false
+$script:WINRAR_INSTALLED_LOCATION = $null
+
+$script:licensee          = $null
+$script:license_type      = $null
+$script:CUSTOM_LICENSE    = $false
+$script:OVERWRITE_LICENSE = $false
+#endregion
+
+#region Utility
 function Write-Info {
   Param([Parameter(Mandatory=$true)][ValidateNotNullOrEmpty()][string]$Message)
   Write-Host "INFO: $Message" -ForegroundColor DarkCyan
@@ -55,7 +96,6 @@ function Write-Err {
   Write-Host "ERROR: $Message" -ForegroundColor Red
 }
 
-#region Utility
 # Format-Text.ps1 <https://gist.github.com/neuralpain/7d0917553a55db4eff482b2eb3fcb9a3>
 function Format-Text{
   [CmdletBinding()]param([Parameter(Position=0, Mandatory=$false, HelpMessage="The text to be written", ValueFromPipeline=$true)][String]$Text,[Parameter(Mandatory=$false, HelpMessage="The bit depth of the text to be written")][ValidateSet(8, 24)][Int]$BitDepth,[Parameter(Mandatory=$false, HelpMessage="The foreground color of the text to be written")][ValidateCount(1, 3)][String[]]$Foreground,[Parameter(Mandatory=$false, HelpMessage="The background color of the text to be written")][ValidateCount(1, 3)][String[]]$Background,[Parameter(Mandatory=$false, HelpMessage="The text formatting options to be applied to the text")][String[]]$Formatting);$Esc=[char]27;$Reset="${Esc}[0m"
@@ -174,47 +214,7 @@ function Confirm-QueryResult {
 }
 #endregion
 
-#region Variables
-$script_name           = "licenserar"
-$script_name_overwrite = "license-rar"
-
-$loc32    = "${env:ProgramFiles(x86)}\WinRAR"
-$loc64    = "$env:ProgramFiles\WinRAR"
-$loc96    = "x96"
-
-$winrar64 = "$loc64\WinRAR.exe"
-$winrar32 = "$loc32\WinRAR.exe"
-
-$rarreg   = $null
-$rarkey   = "RAR registration data`r`nEveryone`r`nGeneral Public License`r`nUID=119fdd47b4dbe9a41555`r`n6412212250155514920287d3b1cc8d9e41dfd22b78aaace2ba4386`r`n9152c1ac6639addbb73c60800b745269020dd21becbc46390d7cee`r`ncce48183d6d73d5e42e4605ab530f6edf8629596821ca042db83dd`r`n68035141fb21e5da4dcaf7bf57494e5455608abc8a9916ffd8e23d`r`n0a68ab79088aa7d5d5c2a0add4c9b3c27255740277f6edf8629596`r`n821ca04340a7c91e88b14ba087e0bfb04b57824193d842e660c419`r`nb8af4562cb13609a2ca469bf36fb8da2eda6f5e978bf1205660302"
-$rarreg64 = "$loc64\rarreg.key"
-$rarreg32 = "$loc32\rarreg.key"
-
-$keygen      = $null
-$keygenUrl   = $null
-$keygen64    = "./bin/winrar-keygen/winrar-keygen-x64.exe"
-$keygen32    = "./bin/winrar-keygen/winrar-keygen-x86.exe"
-$keygenUrl32 = "https://github.com/bitcookies/winrar-keygen/releases/latest/download/winrar-keygen-x86.exe"
-$keygenUrl64 = "https://github.com/bitcookies/winrar-keygen/releases/latest/download/winrar-keygen-x64.exe"
-
-# --- SWITCH / CONFIGS ---
-$script:WINRAR_IS_INSTALLED       = $false
-$script:WINRAR_INSTALLED_LOCATION = $null
-
-$script:licensee          = $null
-$script:license_type      = $null
-$script:CUSTOM_LICENSE    = $false
-$script:OVERWRITE_LICENSE = $false
-# --- END SWITCH / CONFIGS ---
-
-#endregion
-
 #region Messages
-$link_configuration = "https://github.com/neuralpain/oneclickwinrar#configuration"
-$link_howtouse      = "https://github.com/neuralpain/oneclickwinrar#how-to-use"
-$link_namepattern   = "https://github.com/neuralpain/oneclickwinrar#naming-patterns"
-$link_overwriting   = "https://github.com/neuralpain/oneclickwinrar#overwriting-licenses"
-
 $Error_UnknownScript = {
   New-Toast -LongerDuration -ActionButtonUrl $link_configuration -ToastTitle "What script is this?" -ToastText  "Script name is invalid. Check the script name for any typos and try again."
   Stop-OcwrOperation -ExitType Error -Message "Script name is invalid. Please check for errors."

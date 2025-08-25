@@ -77,6 +77,95 @@ exit /b
 # ([System.Security.Principal.WindowsPrincipal][System.Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([System.Security.Principal.WindowsBuiltInRole]::Administrator)
 [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor [System.Net.SecurityProtocolType]::Tls12
 
+#region Variables
+$script_name                         = "oneclickrar"
+$script_name_overwrite               = "oneclick-rar"
+$script_name_download_only           = "one-clickrar"
+$script_name_download_only_overwrite = "one-click-rar"
+
+$winrar_name         = "winrar"
+$winrar_name_pattern = "^winrar-x"
+$winrar_file_pattern = "winrar-x\d{2}-\d{3}\w*\.exe"
+
+# old WinRAR name pattern
+$wrar_name           = "wrar"
+$wrar_name_pattern   = "^wrar"
+$wrar_file_pattern   = "wrar\d{3}\w*\.exe"
+
+$rarloc   = $null
+$loc32    = "${env:ProgramFiles(x86)}\WinRAR"
+$loc64    = "$env:ProgramFiles\WinRAR"
+$loc96    = "x96"
+
+$winrar64 = "$loc64\WinRAR.exe"
+$winrar32 = "$loc32\WinRAR.exe"
+
+$rarreg = $null
+$rarkey   = "RAR registration data`r`nEveryone`r`nGeneral Public License`r`nUID=119fdd47b4dbe9a41555`r`n6412212250155514920287d3b1cc8d9e41dfd22b78aaace2ba4386`r`n9152c1ac6639addbb73c60800b745269020dd21becbc46390d7cee`r`ncce48183d6d73d5e42e4605ab530f6edf8629596821ca042db83dd`r`n68035141fb21e5da4dcaf7bf57494e5455608abc8a9916ffd8e23d`r`n0a68ab79088aa7d5d5c2a0add4c9b3c27255740277f6edf8629596`r`n821ca04340a7c91e88b14ba087e0bfb04b57824193d842e660c419`r`nb8af4562cb13609a2ca469bf36fb8da2eda6f5e978bf1205660302"
+$rarreg64 = "$loc64\rarreg.key"
+$rarreg32 = "$loc32\rarreg.key"
+
+$keygen       = $null
+$keygenUrl    = $null
+$keygen64     = "./bin/winrar-keygen/winrar-keygen-x64.exe"
+$keygen32     = "./bin/winrar-keygen/winrar-keygen-x86.exe"
+$keygenUrl32  = "https://github.com/bitcookies/winrar-keygen/releases/latest/download/winrar-keygen-x86.exe"
+$keygenUrl64  = "https://github.com/bitcookies/winrar-keygen/releases/latest/download/winrar-keygen-x64.exe"
+
+$server1_host = "www.rarlab.com"
+$server1      = "https://$server1_host/rar"
+$server2_host = "www.win-rar.com"
+$server2      = @("https://$server2_host/fileadmin/winrar-versions", "https://$server2_host/fileadmin/winrar-versions/winrar")
+
+$KNOWN_VERSIONS = @(713, 712, 711, 710, 701, 700, 624, 623, 622, 621, 620, 611, 610, 602, 601, 600, 591, 590, 580, 571, 570, 561, 560, 550, 540, 531, 530, 521, 520, 511, 510, 501, 500, 420, 411, 410, 401, 400, 393, 390, 380, 371, 370, 360, 350, 340, 330, 320, 310, 300, 290)
+$LANG_CODE_LIST = @("ar","al","am","az","by","ba","bg","bur","ca","sc","tc","cro","cz","dk","nl","en","eu","est","fi","fr","gl","d","el","he","hu","id","it","jp","kr","lt","mk","mn","no","prs","pl","pt","br","ro","ru","srbcyr","srblat","sk","slv","es","ln","esco","sw","th","tr","uk","uz","va","vn")
+$LANG_NAME_LIST = @("Arabic","Albanian","Armenian","Azerbaijani","Belarusian","Bosnian","Bulgarian","Burmese (Myanmar)","Catalan","Chinese Simplified","Chinese Traditional","Croatian","Czech","Danish","Dutch","English","Euskera","Estonian","Finnish","French","Galician","German","Greek","Hebrew","Hungarian","Indonesian","Italian","Japanese","Korean","Lithuanian","Macedonian","Mongolian","Norwegian","Persian","Polish","Portuguese","Portuguese Brazilian","Romanian","Russian","Serbian Cyrillic","Serbian Latin","Slovak","Slovenian","Spanish","Spanish (Latin American)","Spanish Colombian","Swedish","Thai","Turkish","Ukrainian","Uzbek","Valencian","Vietnamese")
+
+$default_lang_code = 'en'
+$default_lang_name = 'English'
+
+$link_freedom_universe_yt    = "https://youtu.be/OD_WIKht0U0?t=450"
+$link_overwriting            = "https://github.com/neuralpain/oneclickwinrar#overwriting-licenses"
+$link_howtouse               = "https://github.com/neuralpain/oneclickwinrar#how-to-use"
+$link_configuration          = "https://github.com/neuralpain/oneclickwinrar#configuration"
+$link_endof32bitsupport      = "https://www.win-rar.com/singlenewsview.html?&L=0&tx_ttnews%5Btt_news%5D=266&cHash=44c8cdb0ff6581307702dfe4892a3fb5"
+
+$OLDEST                      = 290
+$LATEST                      = $KNOWN_VERSIONS[0]
+$FIRST_64BIT                 = 390
+$LATEST_32BIT                = 701
+$LATEST_OLD_WRAR             = 611
+#endregion
+
+#region Switch Configs
+$script:custom_name          = $null
+$script:custom_code          = $null
+$script:SCRIPT_NAME_LOCATION = $null
+
+$script:WINRAR_EXE           = $null
+$script:FETCH_WINRAR         = $false             # Download standard WinRAR
+$script:FETCH_WRAR           = $false             # Download old 32-bit WinRAR naming scheme
+$script:WINRAR_IS_INSTALLED  = $false
+$script:WINRAR_INSTALLED_LOCATION = $null
+
+$script:CUSTOM_INSTALLATION  = $false
+$script:DOWNLOAD_ONLY        = $false
+$script:DOWNLOAD_WINRAR      = $false
+$script:KEEP_DOWNLOAD        = $false
+
+$script:licensee             = $null
+$script:license_type         = "Single User License"
+$script:LICENSE_ONLY         = $false             # SKIP INSTALLATION
+$script:CUSTOM_LICENSE       = $false
+$script:SKIP_LICENSING       = $false             # INSTALL ONLY
+$script:OVERWRITE_LICENSE    = $false
+
+$script:ARCH                 = $null              # Download architecture
+$script:RARVER               = $null              # WinRAR version
+$script:TAGS                 = $null              # Other download types, i.e. beta, language
+#endregion
+
+#region Utility
 function Write-Info {
   Param([Parameter(Mandatory=$true)][ValidateNotNullOrEmpty()][string]$Message)
   Write-Host "INFO: $Message" -ForegroundColor DarkCyan
@@ -92,7 +181,6 @@ function Write-Err {
   Write-Host "ERROR: $Message" -ForegroundColor Red
 }
 
-#region Utility
 # Format-Text.ps1 <https://gist.github.com/neuralpain/7d0917553a55db4eff482b2eb3fcb9a3>
 function Format-Text{
   [CmdletBinding()]param([Parameter(Position=0, Mandatory=$false, HelpMessage="The text to be written", ValueFromPipeline=$true)][String]$Text,[Parameter(Mandatory=$false, HelpMessage="The bit depth of the text to be written")][ValidateSet(8, 24)][Int]$BitDepth,[Parameter(Mandatory=$false, HelpMessage="The foreground color of the text to be written")][ValidateCount(1, 3)][String[]]$Foreground,[Parameter(Mandatory=$false, HelpMessage="The background color of the text to be written")][ValidateCount(1, 3)][String[]]$Background,[Parameter(Mandatory=$false, HelpMessage="The text formatting options to be applied to the text")][String[]]$Formatting);$Esc=[char]27;$Reset="${Esc}[0m"
@@ -110,7 +198,6 @@ function New-Toast {
   $XmlDocument = New-Object Windows.Data.Xml.Dom.XmlDocument; $XmlDocument.LoadXml($RawXml.OuterXml)
   if ($Url) { $XmlDocument.DocumentElement.SetAttribute("activationType", "protocol"); $XmlDocument.DocumentElement.SetAttribute("launch", $Url) }
   if ($Attribution) { $attrElement = $XmlDocument.CreateElement("text"); $attrElement.SetAttribute("placement", "attribution"); $attrElement.InnerText = $Attribution; $bindingElement = $XmlDocument.SelectSingleNode('//toast/visual/binding'); $bindingElement.AppendChild($attrElement) | Out-Null }
-  #TODO - Allow action button to execute script commands
   if ($ActionButtonUrl) { $actionsElement = $XmlDocument.CreateElement("actions"); $actionElement = $XmlDocument.CreateElement("action"); $actionElement.SetAttribute("content", $ActionButtonText); $actionElement.SetAttribute("activationType", "protocol"); $actionElement.SetAttribute("arguments", $ActionButtonUrl); $actionsElement.AppendChild($actionElement) | Out-Null; $XmlDocument.DocumentElement.AppendChild($actionsElement) | Out-Null }
   if ($KeepAlive) { $XmlDocument.DocumentElement.SetAttribute("scenario", "incomingCall") } elseif ($LongerDuration) { $XmlDocument.DocumentElement.SetAttribute("duration", "long") }
   $Toast = [Windows.UI.Notifications.ToastNotification]::new($XmlDocument); $Toast.Tag = "PowerShell"; $Toast.Group = "PowerShell"
@@ -210,94 +297,6 @@ function Confirm-QueryResult {
     Stop-OcwrOperation -ExitType Error
   }
 }
-#endregion
-
-#region Variables
-$script_name                         = "oneclickrar"
-$script_name_overwrite               = "oneclick-rar"
-$script_name_download_only           = "one-clickrar"
-$script_name_download_only_overwrite = "one-click-rar"
-
-$winrar_name         = "winrar"
-$winrar_name_pattern = "^winrar-x"
-$winrar_file_pattern = "winrar-x\d{2}-\d{3}\w*\.exe"
-
-# old WinRAR name pattern
-$wrar_name           = "wrar"
-$wrar_name_pattern   = "^wrar"
-$wrar_file_pattern   = "wrar\d{3}\w*\.exe"
-
-$rarloc   = $null
-$loc32    = "${env:ProgramFiles(x86)}\WinRAR"
-$loc64    = "$env:ProgramFiles\WinRAR"
-$loc96    = "x96"
-
-$winrar64 = "$loc64\WinRAR.exe"
-$winrar32 = "$loc32\WinRAR.exe"
-
-$rarreg = $null
-$rarkey   = "RAR registration data`r`nEveryone`r`nGeneral Public License`r`nUID=119fdd47b4dbe9a41555`r`n6412212250155514920287d3b1cc8d9e41dfd22b78aaace2ba4386`r`n9152c1ac6639addbb73c60800b745269020dd21becbc46390d7cee`r`ncce48183d6d73d5e42e4605ab530f6edf8629596821ca042db83dd`r`n68035141fb21e5da4dcaf7bf57494e5455608abc8a9916ffd8e23d`r`n0a68ab79088aa7d5d5c2a0add4c9b3c27255740277f6edf8629596`r`n821ca04340a7c91e88b14ba087e0bfb04b57824193d842e660c419`r`nb8af4562cb13609a2ca469bf36fb8da2eda6f5e978bf1205660302"
-$rarreg64 = "$loc64\rarreg.key"
-$rarreg32 = "$loc32\rarreg.key"
-
-$keygen       = $null
-$keygenUrl    = $null
-$keygen64     = "./bin/winrar-keygen/winrar-keygen-x64.exe"
-$keygen32     = "./bin/winrar-keygen/winrar-keygen-x86.exe"
-$keygenUrl32  = "https://github.com/bitcookies/winrar-keygen/releases/latest/download/winrar-keygen-x86.exe"
-$keygenUrl64  = "https://github.com/bitcookies/winrar-keygen/releases/latest/download/winrar-keygen-x64.exe"
-
-$server1_host = "www.rarlab.com"
-$server1      = "https://$server1_host/rar"
-$server2_host = "www.win-rar.com"
-$server2      = @("https://$server2_host/fileadmin/winrar-versions", "https://$server2_host/fileadmin/winrar-versions/winrar")
-
-$KNOWN_VERSIONS = @(713, 712, 711, 710, 701, 700, 624, 623, 622, 621, 620, 611, 610, 602, 601, 600, 591, 590, 580, 571, 570, 561, 560, 550, 540, 531, 530, 521, 520, 511, 510, 501, 500, 420, 411, 410, 401, 400, 393, 390, 380, 371, 370, 360, 350, 340, 330, 320, 310, 300, 290)
-$LANG_CODE_LIST = @("ar","al","am","az","by","ba","bg","bur","ca","sc","tc","cro","cz","dk","nl","en","eu","est","fi","fr","gl","d","el","he","hu","id","it","jp","kr","lt","mk","mn","no","prs","pl","pt","br","ro","ru","srbcyr","srblat","sk","slv","es","ln","esco","sw","th","tr","uk","uz","va","vn")
-$LANG_NAME_LIST = @("Arabic","Albanian","Armenian","Azerbaijani","Belarusian","Bosnian","Bulgarian","Burmese (Myanmar)","Catalan","Chinese Simplified","Chinese Traditional","Croatian","Czech","Danish","Dutch","English","Euskera","Estonian","Finnish","French","Galician","German","Greek","Hebrew","Hungarian","Indonesian","Italian","Japanese","Korean","Lithuanian","Macedonian","Mongolian","Norwegian","Persian","Polish","Portuguese","Portuguese Brazilian","Romanian","Russian","Serbian Cyrillic","Serbian Latin","Slovak","Slovenian","Spanish","Spanish (Latin American)","Spanish Colombian","Swedish","Thai","Turkish","Ukrainian","Uzbek","Valencian","Vietnamese")
-
-$default_lang_code = 'en'
-$default_lang_name = 'English'
-
-$link_freedom_universe_yt    = "https://youtu.be/OD_WIKht0U0?t=450"
-$link_overwriting            = "https://github.com/neuralpain/oneclickwinrar#overwriting-licenses"
-$link_howtouse               = "https://github.com/neuralpain/oneclickwinrar#how-to-use"
-$link_configuration          = "https://github.com/neuralpain/oneclickwinrar#configuration"
-$link_endof32bitsupport      = "https://www.win-rar.com/singlenewsview.html?&L=0&tx_ttnews%5Btt_news%5D=266&cHash=44c8cdb0ff6581307702dfe4892a3fb5"
-
-$OLDEST                      = 290
-$LATEST                      = $KNOWN_VERSIONS[0]
-$FIRST_64BIT                 = 390
-$LATEST_32BIT                = 701
-$LATEST_OLD_WRAR             = 611
-
-# --- SWITCH / CONFIGS ---
-$script:custom_name          = $null
-$script:custom_code          = $null
-$script:SCRIPT_NAME_LOCATION = $null
-
-$script:WINRAR_EXE           = $null
-$script:FETCH_WINRAR         = $false             # Download standard WinRAR
-$script:FETCH_WRAR           = $false             # Download old 32-bit WinRAR naming scheme
-$script:WINRAR_IS_INSTALLED  = $false
-$script:WINRAR_INSTALLED_LOCATION = $null
-
-$script:CUSTOM_INSTALLATION  = $false
-$script:DOWNLOAD_ONLY        = $false
-$script:DOWNLOAD_WINRAR      = $false
-$script:KEEP_DOWNLOAD        = $false
-
-$script:licensee             = $null
-$script:license_type         = "Single User License"
-$script:LICENSE_ONLY         = $false             # SKIP INSTALLATION
-$script:CUSTOM_LICENSE       = $false
-$script:SKIP_LICENSING       = $false             # INSTALL ONLY
-$script:OVERWRITE_LICENSE    = $false
-
-$script:ARCH                 = $null              # Download architecture
-$script:RARVER               = $null              # WinRAR version
-$script:TAGS                 = $null              # Other download types, i.e. beta, language
-# --- END SWITCH / CONFIGS ---
 #endregion
 
 #region General Messages

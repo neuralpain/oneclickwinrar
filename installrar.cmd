@@ -8,6 +8,7 @@
 @echo off
 mode 78,40
 title installrar (v0.12.2.713)
+
 :: PwshBatch.cmd <https://gist.github.com/neuralpain/4ca8a6c9aca4f0a1af2440f474e92d05>
 setlocal EnableExtensions DisableDelayedExpansion
 set ARGS=%*
@@ -40,6 +41,63 @@ exit /b
 
 [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor [System.Net.SecurityProtocolType]::Tls12
 
+#region Variables
+$script_name = "installrar"
+
+$winrar_name         = "winrar"
+$winrar_name_pattern = "^winrar-x"
+$winrar_file_pattern = "winrar-x\d{2}-\d{3}\w*\.exe"
+
+# old WinRAR name pattern
+$wrar_name           = "wrar"
+$wrar_name_pattern   = "^wrar"
+$wrar_file_pattern   = "wrar\d{3}\w*\.exe"
+
+$loc32    = "${env:ProgramFiles(x86)}\WinRAR"
+$loc64    = "$env:ProgramFiles\WinRAR"
+$loc96    = "x96"
+
+$winrar64 = "$loc64\WinRAR.exe"
+$winrar32 = "$loc32\WinRAR.exe"
+
+$server1_host    = "www.rarlab.com"
+$server1         = "https://$server1_host/rar"
+$server2_host    = "www.win-rar.com"
+$server2         = @("https://$server2_host/fileadmin/winrar-versions", "https://$server2_host/fileadmin/winrar-versions/winrar")
+
+$KNOWN_VERSIONS  = @(713, 712, 711, 710, 701, 700, 624, 623, 622, 621, 620, 611, 610, 602, 601, 600, 591, 590, 580, 571, 570, 561, 560, 550, 540, 531, 530, 521, 520, 511, 510, 501, 500, 420, 411, 410, 401, 400, 393, 390, 380, 371, 370, 360, 350, 340, 330, 320, 310, 300, 290)
+$LANG_CODE_LIST  = @("ar","al","am","az","by","ba","bg","bur","ca","sc","tc","cro","cz","dk","nl","en","eu","est","fi","fr","gl","d","el","he","hu","id","it","jp","kr","lt","mk","mn","no","prs","pl","pt","br","ro","ru","srbcyr","srblat","sk","slv","es","ln","esco","sw","th","tr","uk","uz","va","vn")
+$LANG_NAME_LIST  = @("Arabic","Albanian","Armenian","Azerbaijani","Belarusian","Bosnian","Bulgarian","Burmese (Myanmar)","Catalan","Chinese Simplified","Chinese Traditional","Croatian","Czech","Danish","Dutch","English","Euskera","Estonian","Finnish","French","Galician","German","Greek","Hebrew","Hungarian","Indonesian","Italian","Japanese","Korean","Lithuanian","Macedonian","Mongolian","Norwegian","Persian","Polish","Portuguese","Portuguese Brazilian","Romanian","Russian","Serbian Cyrillic","Serbian Latin","Slovak","Slovenian","Spanish","Spanish (Latin American)","Spanish Colombian","Swedish","Thai","Turkish","Ukrainian","Uzbek","Valencian","Vietnamese")
+
+$default_lang_code = 'en'
+$default_lang_name = 'English'
+
+$link_configuration     = "https://github.com/neuralpain/oneclickwinrar#configuration"
+$link_endof32bitsupport = "https://www.win-rar.com/singlenewsview.html?&L=0&tx_ttnews%5Btt_news%5D=266&cHash=44c8cdb0ff6581307702dfe4892a3fb5"
+
+$OLDEST          = 290
+$LATEST          = $KNOWN_VERSIONS[0]
+$FIRST_64BIT     = 390
+$LATEST_32BIT    = 701
+$LATEST_OLD_WRAR = 611
+#endregion
+
+#region Switch Configs
+$script:WINRAR_EXE   = $null
+$script:FETCH_WINRAR = $false                     # Download standard WinRAR
+$script:FETCH_WRAR   = $false                     # Download old 32-bit WinRAR naming scheme
+$script:WINRAR_IS_INSTALLED = $false
+$script:WINRAR_INSTALLED_LOCATION = $null
+
+$script:CUSTOM_INSTALLATION = $false
+$script:DOWNLOAD_WINRAR     = $false
+
+$script:ARCH   = $null                            # Download architecture
+$script:RARVER = $null                            # WinRAR version
+$script:TAGS   = $null                            # Other download types, i.e. beta, language
+#endregion
+
+#region Utility
 function Write-Info {
   Param([Parameter(Mandatory=$true)][ValidateNotNullOrEmpty()][string]$Message)
   Write-Host "INFO: $Message" -ForegroundColor DarkCyan
@@ -55,7 +113,6 @@ function Write-Err {
   Write-Host "ERROR: $Message" -ForegroundColor Red
 }
 
-#region Utility
 # Format-Text.ps1 <https://gist.github.com/neuralpain/7d0917553a55db4eff482b2eb3fcb9a3>
 function Format-Text{
   [CmdletBinding()]param([Parameter(Position=0, Mandatory=$false, HelpMessage="The text to be written", ValueFromPipeline=$true)][String]$Text,[Parameter(Mandatory=$false, HelpMessage="The bit depth of the text to be written")][ValidateSet(8, 24)][Int]$BitDepth,[Parameter(Mandatory=$false, HelpMessage="The foreground color of the text to be written")][ValidateCount(1, 3)][String[]]$Foreground,[Parameter(Mandatory=$false, HelpMessage="The background color of the text to be written")][ValidateCount(1, 3)][String[]]$Background,[Parameter(Mandatory=$false, HelpMessage="The text formatting options to be applied to the text")][String[]]$Formatting);$Esc=[char]27;$Reset="${Esc}[0m"
@@ -172,61 +229,6 @@ function Confirm-QueryResult {
     Stop-OcwrOperation -ExitType Error
   }
 }
-#endregion
-
-#region Variables
-$script_name = "installrar"
-
-$winrar_name         = "winrar"
-$winrar_name_pattern = "^winrar-x"
-$winrar_file_pattern = "winrar-x\d{2}-\d{3}\w*\.exe"
-
-# old WinRAR name pattern$wrar_name           = "wrar"
-$wrar_name_pattern   = "^wrar"
-$wrar_file_pattern   = "wrar\d{3}\w*\.exe"
-
-$loc32    = "${env:ProgramFiles(x86)}\WinRAR"
-$loc64    = "$env:ProgramFiles\WinRAR"
-$loc96    = "x96"
-
-$winrar64 = "$loc64\WinRAR.exe"
-$winrar32 = "$loc32\WinRAR.exe"
-
-$server1_host    = "www.rarlab.com"
-$server1         = "https://$server1_host/rar"
-$server2_host    = "www.win-rar.com"
-$server2         = @("https://$server2_host/fileadmin/winrar-versions", "https://$server2_host/fileadmin/winrar-versions/winrar")
-
-$KNOWN_VERSIONS  = @(713, 712, 711, 710, 701, 700, 624, 623, 622, 621, 620, 611, 610, 602, 601, 600, 591, 590, 580, 571, 570, 561, 560, 550, 540, 531, 530, 521, 520, 511, 510, 501, 500, 420, 411, 410, 401, 400, 393, 390, 380, 371, 370, 360, 350, 340, 330, 320, 310, 300, 290)
-$LANG_CODE_LIST  = @("ar","al","am","az","by","ba","bg","bur","ca","sc","tc","cro","cz","dk","nl","en","eu","est","fi","fr","gl","d","el","he","hu","id","it","jp","kr","lt","mk","mn","no","prs","pl","pt","br","ro","ru","srbcyr","srblat","sk","slv","es","ln","esco","sw","th","tr","uk","uz","va","vn")
-$LANG_NAME_LIST  = @("Arabic","Albanian","Armenian","Azerbaijani","Belarusian","Bosnian","Bulgarian","Burmese (Myanmar)","Catalan","Chinese Simplified","Chinese Traditional","Croatian","Czech","Danish","Dutch","English","Euskera","Estonian","Finnish","French","Galician","German","Greek","Hebrew","Hungarian","Indonesian","Italian","Japanese","Korean","Lithuanian","Macedonian","Mongolian","Norwegian","Persian","Polish","Portuguese","Portuguese Brazilian","Romanian","Russian","Serbian Cyrillic","Serbian Latin","Slovak","Slovenian","Spanish","Spanish (Latin American)","Spanish Colombian","Swedish","Thai","Turkish","Ukrainian","Uzbek","Valencian","Vietnamese")
-
-$default_lang_code = 'en'
-$default_lang_name = 'English'
-
-$link_configuration     = "https://github.com/neuralpain/oneclickwinrar#configuration"
-$link_endof32bitsupport = "https://www.win-rar.com/singlenewsview.html?&L=0&tx_ttnews%5Btt_news%5D=266&cHash=44c8cdb0ff6581307702dfe4892a3fb5"
-
-$OLDEST          = 290
-$LATEST          = $KNOWN_VERSIONS[0]
-$FIRST_64BIT     = 390
-$LATEST_32BIT    = 701
-$LATEST_OLD_WRAR = 611
-
-# --- SWITCH / CONFIGS ---
-$script:WINRAR_EXE          = $null
-$script:FETCH_WINRAR        = $false             # Download standard WinRAR
-$script:FETCH_WRAR          = $false             # Download old 32-bit WinRAR naming scheme
-$script:WINRAR_IS_INSTALLED = $false
-$script:WINRAR_INSTALLED_LOCATION = $null
-
-$script:CUSTOM_INSTALLATION = $false
-$script:DOWNLOAD_WINRAR     = $false
-
-$script:ARCH     = $null              # Download architecture
-$script:RARVER   = $null              # WinRAR version
-$script:TAGS     = $null              # Other download types, i.e. beta, language
-# --- END SWITCH / CONFIGS ---
 #endregion
 
 #region Messages
