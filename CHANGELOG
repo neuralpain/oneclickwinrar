@@ -1,5 +1,13 @@
 CHANGELOG
 
+0.13.0.713
+
+  - OCWR can retrieve the latest version of WinRAR through either
+      (a) scraping the "What's New" page on the webiste; or
+      (b) probing the server with URLs for the subsequent iterative minor
+          version updates up to the next major udpdate.
+  - Other minor code improvements.
+
 0.12.2.713
 
   - Update version list to include latest WinRAR 7.13.
