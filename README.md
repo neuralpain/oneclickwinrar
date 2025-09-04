@@ -65,7 +65,7 @@ there was a need for something versatile // so why not?
 
 ### Contents
 
-- [What's included? (Click the names to download)](#whats-included-click-the-names-to-download)
+- [What's included?](#whats-included)
     - [oneclickrar.cmd _(recommended for most users)_](#oneclickrarcmd-recommended-for-most-users)
     - [installrar.cmd](#installrarcmd)
     - [licenserar.cmd](#licenserarcmd)
@@ -92,10 +92,8 @@ there was a need for something versatile // so why not?
 
 ### Development plans
 
-- [ ] Automatically check for any WinRAR versions newer than known latest version.
-
 <details>
-<summary><i>Show completed (8)</i></summary>
+<summary><i>Show completed (9)</i></summary>
 
 - [x] License overwriting
 - [x] Support for older 32-bit installers with `wrar` name
@@ -105,6 +103,7 @@ there was a need for something versatile // so why not?
 - [x] Allow `oneclickrar` and `unlicenserar` to uninstall WinRAR
 - [x] Allow `oneclickrar` to skip installation
 - [x] Allow `oneclickrar` to skip licensing
+- [x] Automatically check for any WinRAR versions newer than known latest version.
 
 </details>
 
@@ -120,53 +119,60 @@ there was a need for something versatile // so why not?
 
 - [ ] Create a list of all available versions of WinRAR and the years of release
 
-# What's included? (Click the names to download)
+# What's included?
+
+> [!NOTE]
+> For one-time use, copy and paste the related one-line commands into a **PowerShell** terminal, respond to the necessary prompts and wait for the process to complete.
+>
+> For more functionality, click the highlighted names to download the script and [configure](#configuration) it.
 
 ### [oneclickrar.cmd][oneclick] _(recommended for most users)_
 
 Download, install, update and license WinRAR, all in just one single click (or double). Yes, it's that simple.
-
-For one-time use, run the following command in a PowerShell terminal (overwriting is disabled). For more functionality, download and [configure](#configuration) the script.
 
 ```
 irm "https://dub.sh/oneclickrar" | iex
 ```
 
 ```
-irm "https://shorter.gg/MCrzwB" | iex   # <--- Mirror Link
+irm "https://shorter.gg/oneclickrar" | iex   # <--- Mirror Link
 ```
 
 ### [installrar.cmd][install]
 
 Stay safe and bug-free. Keep your WinRAR installation up-to-date.
 
-For one-time use, run the following command in a PowerShell terminal. For more functionality, download and [configure](#configuration) the script.
-
 ```
 irm "https://dub.sh/installrar" | iex
 ```
 
 ```
-irm "https://shorter.gg/Jizeii" | iex   # <--- Mirror Link
+irm "https://shorter.gg/installrar" | iex   # <--- Mirror Link
 ```
 
 ### [licenserar.cmd][license]
 
 Get a license to end that infinite 40-day trial period, or install a WinRAR license that you [purchased from RARLAB®][purchase].
 
-For one-time use, run the following command in a PowerShell terminal (overwriting is disabled). For more functionality, download and [configure](#configuration) the script.
-
 ```
 irm "https://dub.sh/licenserar" | iex
 ```
 
 ```
-irm "https://shorter.gg/HbZotB" | iex   # <--- Mirror Link
+irm "https://shorter.gg/licenserar" | iex   # <--- Mirror Link
 ```
 
 ### [unlicenserar.cmd][unlicense]
 
 A stitch in time saves nine. Remove your WinRAR license and return to that 40-day infinite trial period.
+
+```
+irm "https://dub.sh/unlicenserar" | iex
+```
+
+```
+irm "https://shorter.gg/unlicenserar" | iex   # <--- Mirror Link
+```
 
 > [!TIP]
 > Get the full package from the [releases page][release]. It includes everything you need for configuration.
@@ -178,7 +184,7 @@ A stitch in time saves nine. Remove your WinRAR license and return to that 40-da
 ## Features
 
 - Install and license any available version of WinRAR for both 32-bit and 64-bit architectures
-- Automatically download and install the latest English WinRAR (64-bit) installer (at time of release)
+- Automatically download and install the latest English WinRAR (64-bit) installer
 - Optionally download a specific version of WinRAR and/or preserve the installer[^3] for future installations
 - Status updates via Windows toast notifications[^4]
 - Create custom licenses for your personal use[^5]
@@ -187,14 +193,16 @@ A stitch in time saves nine. Remove your WinRAR license and return to that 40-da
 
 ### Script comparison table
 
-|               | oneclickrar | installrar | licenserar | unlicenserar |
-| ------------- | :---------: | :--------: | :--------: | :----------: |
-| installation  |      ✓      |     ✓      |     ✗      |      ✗       |
-| licensing     |      ✓      |     ✗      |     ✓      |      ✗       |
-| overwriting   |      ✓      |     ✗      |     ✓      |      ✗       |
-| download-only |      ✓      |     ✗      |     ✗      |      ✗       |
-| un-licensing  |      ✓      |     ✗      |     ✗      |      ✓       |
-| uninstall     |      ✓      |     ✗      |     ✗      |      ✓       |
+|                   | oneclickrar | installrar | licenserar | unlicenserar |
+| ----------------- | :---------: | :--------: | :--------: | :----------: |
+| installation      |      ✓      |     ✓      |     ✗      |      ✗       |
+| licensing         |      ✓      |     ✗      |     ✓      |      ✗       |
+| check for updates |      ✓      |     ✓      |     ✗      |      ✗       |
+| overwriting       |      ✓      |     ✗      |     ✓      |      ✗       |
+| download-only     |      ✓      |     ✗      |     ✗      |      ✗       |
+| un-licensing      |      ✓      |     ✗      |     ✗      |      ✓       |
+| uninstall         |      ✓      |     ✗      |     ✗      |      ✓       |
+| make you happy    |      ✓      |     ✓      |     ✓      |      ✓       |
 
 > [!NOTE]
 > `oneclickwinrar` will not overwrite existing licenses unless explicitly instructed to do so.
@@ -218,6 +226,8 @@ A stitch in time saves nine. Remove your WinRAR license and return to that 40-da
 # How to use
 
 ## Basic usage
+
+> These instructions are for the `.cmd` scripts.
 
 1. Download the latest release of `oneclickwinrar` from the releases page
 2. Optional steps:
@@ -395,6 +405,7 @@ Abigail Wilson_Pistachio License_one-click-rar_x64_624_fr.cmd
 - Code `1`: Un-license WinRAR
 - Code `2`: Skip licensing and just install WinRAR
 - Code `3`: Skip installation and just license WinRAR
+- Code `4`: Search for WinRAR updates before installation
 
 ```
 # an example showing how to rename with the code
@@ -427,6 +438,22 @@ _A full configuration of oneclickrar should look incomprehensible to the average
 # License
 
 ```
+                                 ___                __
+                                /\_ \    __        /\ \
+      ___     ___      __    ___\//\ \  /\_\    ___\ \ \/'\
+     / __`\ /' _ `\  /'__`\ /'___\\ \ \ \/\ \  /'___\ \ , <
+    /\ \L\ \/\ \/\ \/\  __//\ \__/ \_\ \_\ \ \/\ \__/\ \ \\`\
+    \ \____/\ \_\ \_\ \____\ \____\/\____\\ \_\ \____\\ \_\ \_\
+     \/___/  \/_/\/_/\/____/\/____/\/____/ \/_/\/____/ \/_/\/_/
+          __      __              ____    ______  ____
+         /\ \  __/\ \  __        /\  _`\ /\  _  \/\  _`\
+         \ \ \/\ \ \ \/\_\    ___\ \ \L\ \ \ \L\ \ \ \L\ \
+          \ \ \ \ \ \ \/\ \ /' _ `\ \ ,  /\ \  __ \ \ ,  /
+           \ \ \_/ \_\ \ \ \/\ \/\ \ \ \\ \\ \ \/\ \ \ \\ \
+            \ `\___x___/\ \_\ \_\ \_\ \_\ \_\ \_\ \_\ \_\ \_\
+             '\/__//__/  \/_/\/_/\/_/\/_/\/ /\/_/\/_/\/_/\/ /
+
+
 `oneclickwinrar` is licensed under the BSD 2-Clause license.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"

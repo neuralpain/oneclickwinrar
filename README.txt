@@ -11,7 +11,7 @@
             \ \ \ \ \ \ \/\ \ /' _ `\ \ ,  /\ \  __ \ \ ,  /                    
              \ \ \_/ \_\ \ \ \/\ \/\ \ \ \\ \\ \ \/\ \ \ \\ \                   
               \ `\___x___/\ \_\ \_\ \_\ \_\ \_\ \_\ \_\ \_\ \_\                 
-               '\/__//__/  \/_/\/_/\/_/\/_/\/ /\/_/\/_/\/_/\/ /  v0.12.2.713    
+               '\/__//__/  \/_/\/_/\/_/\/_/\/ /\/_/\/_/\/_/\/ /  v0.13.0.713    
 
 
 oneclickwinrar - install and license WinRAR
@@ -34,10 +34,12 @@ Support me on Ko-fi: https://ko-fi.com/neuralpain
 FEATURES
 --------
 
-  - Install and license any version of WinRAR
+  - Install and license any available version of WinRAR for both 32-bit and
+    64-bit architectures
   - Automatically downloads and installs the latest English WinRAR (64-bit)
     installer
-  - Supports downloading specific versions of WinRAR
+  - Supports downloading specific versions of WinRAR and preserving the
+    installers for future use
   - Status updates via Windows toast notifications
   - Create custom licenses for your personal use
   - Remove WinRAR licenses (for whatever reason)
@@ -54,10 +56,10 @@ FEATURES
 HOW TO USE
 ----------
 
-  1. Download the latest release from the releases page
-  2. Extract the contents of the zip file to a directory of your choice
-  3. Add a WinRAR executable to the directory, if necessary
-  4. (Optional) configure and/or run the script you want to use
+  1. Extract the contents of the zip file to a directory of your choice
+  2. Add a WinRAR executable to the directory, if necessary
+  3. (Optional) Configure the script with specific data
+  4. Run the script
 
 
   [*] IMPORTANT [*]
@@ -186,15 +188,12 @@ NAMING PATTERNS
 
 [*] IMPORTANT [*]
 
-  * `installrar.cmd` is for installation only. It does not support custom
-    licenses.
-  * `licenserar.cmd` is for licensing only. It does not support custom
-    install.
-  * Spaces are allowed in the `licensee` and `license-type` names.
+  * `installrar.cmd` is for installation only. It does not support licensing.
+  * `licenserar.cmd` is for licensing only. It does not support installation.
+  * Spaces are allowed within the `<licensee>` and `<license-type>` names.
   * The different data must be separated by an underscore.
-  * The `licensee` and `license-type` will be displayed exactly as you type
+  * The `<licensee>` and `<license-type>` will be displayed exactly as you type
     them.
-  * `unlicenserar.cmd` is for removing licenses only. It cannot be configured.
 
 
 
@@ -202,7 +201,7 @@ NAMING PATTERNS
 
   You can use as many underscores as you want. The example below is valid.
 
-    My Name____My License__oneclickrar________x64_700.cmd
+    My Name____My License__oneclickrar________x64_700_ru.cmd
 
 
 
@@ -347,6 +346,14 @@ See the /bin/winrar-keygen/LICENSE file for more information.
 
 CHANGELOG
 ---------
+
+0.13.0.713
+
+  - OCWR can retrieve the latest version of WinRAR through either
+      (a) scraping the "What's New" page on the webiste; or
+      (b) probing the server with URLs for the subsequent iterative minor
+          version updates up to the next major udpdate.
+  - Other minor code improvements.
 
 0.12.2.713
 
