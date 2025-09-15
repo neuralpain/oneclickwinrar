@@ -11,7 +11,7 @@
             \ \ \ \ \ \ \/\ \ /' _ `\ \ ,  /\ \  __ \ \ ,  /                    
              \ \ \_/ \_\ \ \ \/\ \/\ \ \ \\ \\ \ \/\ \ \ \\ \                   
               \ `\___x___/\ \_\ \_\ \_\ \_\ \_\ \_\ \_\ \_\ \_\                 
-               '\/__//__/  \/_/\/_/\/_/\/_/\/ /\/_/\/_/\/_/\/ /  v0.13.0.713    
+               '\/__//__/  \/_/\/_/\/_/\/_/\/ /\/_/\/_/\/_/\/ /  v0.13.1.713    
 
 
 oneclickwinrar - install and license WinRAR
@@ -346,6 +346,10 @@ See the /bin/winrar-keygen/LICENSE file for more information.
 
 CHANGELOG
 ---------
+
+0.13.1.713
+
+  - Fix bug causing installrar.cmd to have issues processing custom data.
 
 0.13.0.713
 
