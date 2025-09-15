@@ -65,7 +65,7 @@ $server1         = "https://$server1_host/rar"
 $server2_host    = "www.win-rar.com"
 $server2         = @("https://$server2_host/fileadmin/winrar-versions", "https://$server2_host/fileadmin/winrar-versions/winrar")
 
-$KNOWN_VERSIONS  = @(713, 712, 711, 710, 701, 700, 624, 623, 622, 621, 620, 611, 610, 602, 601, 600, 591, 590, 580, 571, 570, 561, 560, 550, 540, 531, 530, 521, 520, 511, 510, 501, 500, 420, 411, 410, 401, 400, 393, 390, 380, 371, 370, 360, 350, 340, 330, 320, 310, 300, 290)
+$script:KNOWN_VERSIONS  = @(713, 712, 711, 710, 701, 700, 624, 623, 622, 621, 620, 611, 610, 602, 601, 600, 591, 590, 580, 571, 570, 561, 560, 550, 540, 531, 530, 521, 520, 511, 510, 501, 500, 420, 411, 410, 401, 400, 393, 390, 380, 371, 370, 360, 350, 340, 330, 320, 310, 300, 290)
 $LANG_CODE_LIST  = @("ar","al","am","az","by","ba","bg","bur","ca","sc","tc","cro","cz","dk","nl","en","eu","est","fi","fr","gl","d","el","he","hu","id","it","jp","kr","lt","mk","mn","no","prs","pl","pt","br","ro","ru","srbcyr","srblat","sk","slv","es","ln","esco","sw","th","tr","uk","uz","va","vn")
 $LANG_NAME_LIST  = @("Arabic","Albanian","Armenian","Azerbaijani","Belarusian","Bosnian","Bulgarian","Burmese (Myanmar)","Catalan","Chinese Simplified","Chinese Traditional","Croatian","Czech","Danish","Dutch","English","Euskera","Estonian","Finnish","French","Galician","German","Greek","Hebrew","Hungarian","Indonesian","Italian","Japanese","Korean","Lithuanian","Macedonian","Mongolian","Norwegian","Persian","Polish","Portuguese","Portuguese Brazilian","Romanian","Russian","Serbian Cyrillic","Serbian Latin","Slovak","Slovenian","Spanish","Spanish (Latin American)","Spanish Colombian","Swedish","Thai","Turkish","Ukrainian","Uzbek","Valencian","Vietnamese")
 
@@ -76,7 +76,7 @@ $link_configuration     = "https://github.com/neuralpain/oneclickwinrar#configur
 $link_endof32bitsupport = "https://www.win-rar.com/singlenewsview.html?&L=0&tx_ttnews%5Btt_news%5D=266&cHash=44c8cdb0ff6581307702dfe4892a3fb5"
 
 $OLDEST          = 290
-$LATEST          = $KNOWN_VERSIONS[0]
+$script:LATEST   = $script:KNOWN_VERSIONS[0]
 $FIRST_64BIT     = 390
 $LATEST_32BIT    = 701
 $LATEST_OLD_WRAR = 611
@@ -98,44 +98,13 @@ $script:TAGS   = $null                            # Other download types, i.e. b
 #endregion
 
 #region Utility
-function Write-Info {
-  Param([Parameter(Mandatory=$true)][ValidateNotNullOrEmpty()][string]$Message)
-  Write-Host "INFO: $Message" -ForegroundColor DarkCyan
-}
-
-function Write-Warn {
-  Param([Parameter(Mandatory=$true)][ValidateNotNullOrEmpty()][string]$Message)
-  Write-Host "WARN: $Message" -ForegroundColor Yellow
-}
-
-function Write-Err {
-  Param([Parameter(Mandatory=$true)][ValidateNotNullOrEmpty()][string]$Message)
-  Write-Host "ERROR: $Message" -ForegroundColor Red
-}
-
+function Write-Info{Param([Parameter(Mandatory=$true)][ValidateNotNullOrEmpty()][string]$Message);Write-Host "INFO: $Message" -ForegroundColor DarkCyan}
+function Write-Warn{Param([Parameter(Mandatory=$true)][ValidateNotNullOrEmpty()][string]$Message);Write-Host "WARN: $Message" -ForegroundColor Yellow}
+function Write-Err{Param([Parameter(Mandatory=$true)][ValidateNotNullOrEmpty()][string]$Message);Write-Host "ERROR: $Message" -ForegroundColor Red}
 # Format-Text.ps1 <https://gist.github.com/neuralpain/7d0917553a55db4eff482b2eb3fcb9a3>
-function Format-Text{
-  [CmdletBinding()]param([Parameter(Position=0, Mandatory=$false, HelpMessage="The text to be written", ValueFromPipeline=$true)][String]$Text,[Parameter(Mandatory=$false, HelpMessage="The bit depth of the text to be written")][ValidateSet(8, 24)][Int]$BitDepth,[Parameter(Mandatory=$false, HelpMessage="The foreground color of the text to be written")][ValidateCount(1, 3)][String[]]$Foreground,[Parameter(Mandatory=$false, HelpMessage="The background color of the text to be written")][ValidateCount(1, 3)][String[]]$Background,[Parameter(Mandatory=$false, HelpMessage="The text formatting options to be applied to the text")][String[]]$Formatting);$Esc=[char]27;$Reset="${Esc}[0m"
-  switch($BitDepth){8{if($null -eq $Foreground -or $Foreground -lt 0){$Foreground=0}if($null -eq $Background -or $Background -lt 0){$Background=0}if($Foreground -gt 255){$Foreground=255}if($Background -gt 255){$Background=255}$Foreground="${Esc}[38;5;${Foreground}m";$Background="${Esc}[48;5;${Background}m";break}24{foreach($color in $Foreground){;if($null -eq $color -or $color -lt 0){$color=0}if($color -gt 255){$color=255}$_foreground+=";${color}"}foreach($color in $Background){;if($null -eq $color -or $color -lt 0){$color=0}if($color -gt 255){$color=255}$_background+=";${color}"}$Foreground="${Esc}[38;2${_foreground}m";$Background="${Esc}[48;2${_background}m";break;}default{switch($Foreground){'Black'{$Foreground="${Esc}[30m"}'DarkRed'{$Foreground="${Esc}[31m"}'DarkGreen'{$Foreground="${Esc}[32m"}'DarkYellow'{$Foreground="${Esc}[33m"}'DarkBlue'{$Foreground="${Esc}[34m"}'DarkMagenta'{$Foreground="${Esc}[35m"}'DarkCyan'{$Foreground="${Esc}[36m"}'Gray'{$Foreground="${Esc}[37m"}'DarkGray'{$Foreground="${Esc}[90m"}'Red'{$Foreground="${Esc}[91m"}'Green'{$Foreground="${Esc}[92m"}'Yellow'{$Foreground="${Esc}[93m"}'Blue'{$Foreground="${Esc}[94m"}'Magenta'{$Foreground="${Esc}[95m"}'Cyan'{$Foreground="${Esc}[96m"}'White'{$Foreground="${Esc}[97m" }default{$Foreground=""}}switch($Background){'Black'{$Background="${Esc}[40m"}'DarkRed'{$Background="${Esc}[41m"}'DarkGreen'{$Background="${Esc}[42m"}'DarkYellow'{$Background="${Esc}[43m"}'DarkBlue'{$Background="${Esc}[44m"}'DarkMagenta'{$Background="${Esc}[45m"}'DarkCyan'{$Background="${Esc}[46m"}'Gray'{$Background="${Esc}[47m"}'DarkGray'{$Background="${Esc}[100m"}'Red'{Background="${Esc}[101m"}'Green'{$Background="${Esc}[102m"}'Yellow'{$Background="${Esc}[103m"}'Blue'{$Background="${Esc}[104m"}'Magenta'{$Background="${Esc}[105m"}'Cyan'{$Background="${Esc}[106m"}'White'{$Background="${Esc}[107m"}default{$Background=""}}break}}
-  if($Formatting.Length -eq 0){$Format=""}else{$i=0;$Format="${Esc}[";foreach($type in $Formatting){switch($type){'Bold'{$Format+="1"}'Dim'{$Format+="2"}'Underline'{$Format+="4"}'Blink'{$Format+="5"}'Reverse'{$Format+="7"}'Hidden'{$Format+="8"}default{$Format+=""}}$i++;if($i -lt ($Formatting.Length)){$Format+=";"}else{$Format+="m";break}}}
-  $OutString="${Foreground}${Background}${Format}${Text}${Reset}";Write-Output $OutString;
-}
-
+function Format-Text{[CmdletBinding()]Param([Parameter(Position=0,Mandatory=$false,ValueFromPipeline=$true)][String]$Text,[Parameter(Mandatory=$false)][ValidateSet(8,24)][Int]$BitDepth,[Parameter(Mandatory=$false)][ValidateCount(1,3)][String[]]$Foreground,[Parameter(Mandatory=$false)][ValidateCount(1,3)][String[]]$Background,[Parameter(Mandatory=$false)][String[]]$Formatting);$Esc=[char]27;$Reset="${Esc}[0m";switch($BitDepth){8{if($null -eq $Foreground -or $Foreground -lt 0){$Foreground=0}if($null -eq $Background -or $Background -lt 0){$Background=0}if($Foreground -gt 255){$Foreground=255}if($Background -gt 255){$Background=255}$Foreground="${Esc}[38;5;${Foreground}m";$Background="${Esc}[48;5;${Background}m";break}24{foreach($color in $Foreground){if($null -eq $color -or $color -lt 0){$color=0}if($color -gt 255){$color=255}$_foreground+=";${color}"}foreach($color in $Background){if($null -eq $color -or $color -lt 0){$color=0}if($color -gt 255){$color=255}$_background+=";${color}"}$Foreground="${Esc}[38;2${_foreground}m";$Background="${Esc}[48;2${_background}m";break;}default{switch($Foreground){'Black'{$Foreground="${Esc}[30m"}'DarkRed'{$Foreground="${Esc}[31m"}'DarkGreen'{$Foreground="${Esc}[32m"}'DarkYellow'{$Foreground="${Esc}[33m"}'DarkBlue'{$Foreground="${Esc}[34m"}'DarkMagenta'{$Foreground="${Esc}[35m"}'DarkCyan'{$Foreground="${Esc}[36m"}'Gray'{$Foreground="${Esc}[37m"}'DarkGray'{$Foreground="${Esc}[90m"}'Red'{$Foreground="${Esc}[91m"}'Green'{$Foreground="${Esc}[92m"}'Yellow'{$Foreground="${Esc}[93m"}'Blue'{$Foreground="${Esc}[94m"}'Magenta'{$Foreground="${Esc}[95m"}'Cyan'{$Foreground="${Esc}[96m"}'White'{$Foreground="${Esc}[97m" }default{$Foreground=""}}switch($Background){'Black'{$Background="${Esc}[40m"}'DarkRed'{$Background="${Esc}[41m"}'DarkGreen'{$Background="${Esc}[42m"}'DarkYellow'{$Background="${Esc}[43m"}'DarkBlue'{$Background="${Esc}[44m"}'DarkMagenta'{$Background="${Esc}[45m"}'DarkCyan'{$Background="${Esc}[46m"}'Gray'{$Background="${Esc}[47m"}'DarkGray'{$Background="${Esc}[100m"}'Red'{Background="${Esc}[101m"}'Green'{$Background="${Esc}[102m"}'Yellow'{$Background="${Esc}[103m"}'Blue'{$Background="${Esc}[104m"}'Magenta'{$Background="${Esc}[105m"}'Cyan'{$Background="${Esc}[106m"}'White'{$Background="${Esc}[107m"}default{$Background=""}}break}};if($Formatting.Length -eq 0){$Format=""}else{$i=0;$Format="${Esc}[";foreach($type in $Formatting){switch($type){'Bold'{$Format+="1"}'Dim'{$Format+="2"}'Underline'{$Format+="4"}'Blink'{$Format+="5"}'Reverse'{$Format+="7"}'Hidden'{$Format+="8"}default{$Format+=""}}$i++;if($i -lt ($Formatting.Length)){$Format+=";"}else{$Format+="m";break}}};$OutString="${Foreground}${Background}${Format}${Text}${Reset}";Write-Output $OutString;}
 # New-ToastNotification.ps1 <https://gist.github.com/neuralpain/283a2de1e7078c95e0c97a4fb6cc0e08>
-function New-Toast {
-  [CmdletBinding()] Param([String]$AppId = "oneclickwinrar", [String]$Url, [String]$ToastTitle, [String]$ToastText, [String]$ToastText2, [string]$Attribution, [String]$ActionButtonUrl, [String]$ActionButtonText = "Open documentation", [switch]$KeepAlive, [switch]$LongerDuration)
-  [Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime] | Out-Null
-  $Template = [Windows.UI.Notifications.ToastNotificationManager]::GetTemplateContent([Windows.UI.Notifications.ToastTemplateType]::ToastText04)
-  $RawXml = [xml] $Template.GetXml(); ($RawXml.toast.visual.binding.text | Where-Object { $_.id -eq "1" }).AppendChild($RawXml.CreateTextNode($ToastTitle)) | Out-Null; ($RawXml.toast.visual.binding.text | Where-Object { $_.id -eq "2" }).AppendChild($RawXml.CreateTextNode($ToastText)) | Out-Null; ($RawXml.toast.visual.binding.text | Where-Object { $_.id -eq "3" }).AppendChild($RawXml.CreateTextNode($ToastText2)) | Out-Null
-  $XmlDocument = New-Object Windows.Data.Xml.Dom.XmlDocument; $XmlDocument.LoadXml($RawXml.OuterXml)
-  if ($Url) { $XmlDocument.DocumentElement.SetAttribute("activationType", "protocol"); $XmlDocument.DocumentElement.SetAttribute("launch", $Url) }
-  if ($Attribution) { $attrElement = $XmlDocument.CreateElement("text"); $attrElement.SetAttribute("placement", "attribution"); $attrElement.InnerText = $Attribution; $bindingElement = $XmlDocument.SelectSingleNode('//toast/visual/binding'); $bindingElement.AppendChild($attrElement) | Out-Null }
-  if ($ActionButtonUrl) { $actionsElement = $XmlDocument.CreateElement("actions"); $actionElement = $XmlDocument.CreateElement("action"); $actionElement.SetAttribute("content", $ActionButtonText); $actionElement.SetAttribute("activationType", "protocol"); $actionElement.SetAttribute("arguments", $ActionButtonUrl); $actionsElement.AppendChild($actionElement) | Out-Null; $XmlDocument.DocumentElement.AppendChild($actionsElement) | Out-Null }
-  if ($KeepAlive) { $XmlDocument.DocumentElement.SetAttribute("scenario", "incomingCall") } elseif ($LongerDuration) { $XmlDocument.DocumentElement.SetAttribute("duration", "long") }
-  $Toast = [Windows.UI.Notifications.ToastNotification]::new($XmlDocument); $Toast.Tag = "PowerShell"; $Toast.Group = "PowerShell"
-  if (-not($KeepAlive -or $LongerDuration)) { $Toast.ExpirationTime = [DateTimeOffset]::Now.AddMinutes(1) }
-  $Notifier = [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier($AppId); $Notifier.Show($Toast)
-}
+function New-Toast{[CmdletBinding()]Param([String]$AppId="oneclickwinrar",[String]$Url,[String]$ToastTitle,[String]$ToastText,[String]$ToastText2,[string]$Attribution,[String]$ActionButtonUrl,[String]$ActionButtonText="Open documentation",[switch]$KeepAlive,[switch]$LongerDuration);[Windows.UI.Notifications.ToastNotificationManager,Windows.UI.Notifications,ContentType=WindowsRuntime]|Out-Null;$Template=[Windows.UI.Notifications.ToastNotificationManager]::GetTemplateContent([Windows.UI.Notifications.ToastTemplateType]::ToastText04);$RawXml=[xml] $Template.GetXml();($RawXml.toast.visual.binding.text|Where-Object{$_.id -eq "1"}).AppendChild($RawXml.CreateTextNode($ToastTitle))|Out-Null;($RawXml.toast.visual.binding.text|Where-Object{$_.id -eq "2"}).AppendChild($RawXml.CreateTextNode($ToastText))|Out-Null;($RawXml.toast.visual.binding.text|Where-Object{$_.id -eq "3"}).AppendChild($RawXml.CreateTextNode($ToastText2))|Out-Null;$XmlDocument=New-Object Windows.Data.Xml.Dom.XmlDocument;$XmlDocument.LoadXml($RawXml.OuterXml);if($Url){$XmlDocument.DocumentElement.SetAttribute("activationType","protocol");$XmlDocument.DocumentElement.SetAttribute("launch",$Url)}if($Attribution){$attrElement=$XmlDocument.CreateElement("text");$attrElement.SetAttribute("placement","attribution");$attrElement.InnerText=$Attribution;$bindingElement=$XmlDocument.SelectSingleNode('//toast/visual/binding');$bindingElement.AppendChild($attrElement)|Out-Null}if($ActionButtonUrl){$actionsElement=$XmlDocument.CreateElement("actions");$actionElement=$XmlDocument.CreateElement("action");$actionElement.SetAttribute("content",$ActionButtonText);$actionElement.SetAttribute("activationType","protocol");$actionElement.SetAttribute("arguments",$ActionButtonUrl);$actionsElement.AppendChild($actionElement)|Out-Null;$XmlDocument.DocumentElement.AppendChild($actionsElement)|Out-Null}if($KeepAlive){$XmlDocument.DocumentElement.SetAttribute("scenario","incomingCall")}elseif($LongerDuration){$XmlDocument.DocumentElement.SetAttribute("duration","long")};$Toast=[Windows.UI.Notifications.ToastNotification]::new($XmlDocument);$Toast.Tag="PowerShell";$Toast.Group="PowerShell";if(-not($KeepAlive -or $LongerDuration)){$Toast.ExpirationTime=[DateTimeOffset]::Now.AddMinutes(1)};$Notifier=[Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier($AppId);$Notifier.Show($Toast)}
 
 function Write-Title {
   Write-Host;
@@ -229,6 +198,38 @@ function Confirm-QueryResult {
     Stop-OcwrOperation -ExitType Error
   }
 }
+
+function Format-VersionNumber {
+  <#
+    .DESCRIPTION
+      Format version numbers as x.xx
+
+    .EXAMPLE
+      Format-VersionNumber -Version 710
+  #>
+  Param($VersionNumber)
+  if ($null -eq $VersionNumber) { return $null }
+  return "{0:N2}" -f ($VersionNumber / 100)
+}
+
+function Format-VersionNumberFromExecutable {
+  <#
+    .DESCRIPTION
+      Retrieve the WinRAR version form the executable name and format it.
+
+    .EXAMPLE
+      Format-VersionNumberFromExecutable -Executable winrar-x64-712.exe
+  #>
+  Param(
+    [Parameter(Mandatory=$true, Position=0)]
+    $Executable
+  )
+
+  $version = if ($Executable -match "(?<version>\d{3})") { $matches['version'] }
+             else { return $null }
+  $version = Format-VersionNumber $version
+  return $version
+}
 #endregion
 
 #region Messages
@@ -297,18 +298,18 @@ function Set-DefaultArchVersion {
     $script:ARCH = "x64"
   }
   if ($null -eq $script:RARVER) {
-    Write-Info "Using default version $($LATEST)"
-    $script:RARVER = $LATEST
+    Write-Info "Using default version $($script:LATEST)"
+    $script:RARVER = $script:LATEST
   }
   if ($null -eq $script:TAGS) {
     Write-Info "WinRAR language set to $(Format-Text "English" -Foreground White -Formatting Underline)"
-    $script:RARVER = $LATEST
+    $script:RARVER = $script:LATEST
   }
 }
 #endregion
 
 #region WinRAR Updates
-function Find-AnyNewWinRarVersions {
+function Test-WinrarVersionAvailability {
   <#
     .SYNOPSIS
       Checks a list of URLs to verify if they likely point to valid
@@ -323,7 +324,7 @@ function Find-AnyNewWinRarVersions {
       An array of strings, where each string is a URL to check.
 
     .EXAMPLE
-      Find-AnyNewWinRarVersions -URLs @(
+      Test-WinrarVersionAvailability -URLs @(
           "https://www.rarlab.com/rar/winrar-x64-{version}.exe",
           "https://www.win-rar.com/fileadmin/winrar-versions/winrar-x64-{version}.exe"
           "https://www.win-rar.com/fileadmin/winrar-versions/winrar/winrar-x64-{version}.exe"
@@ -353,7 +354,7 @@ function Find-AnyNewWinRarVersions {
   }
 }
 
-function Get-WinRarUpdates {
+function Find-WinrarUpdates {
   <#
     .SYNOPSIS
       Checks for new versions of WinRAR available for download.
@@ -389,7 +390,7 @@ function Get-WinRarUpdates {
     if ($j -gt $minor) { $patch = 0 }
     for ($k = $patch; $k -lt 10; $k++) {
       $testVersion = $major*100 + $j*10 + $k
-      if ((Find-AnyNewWinRarVersions -URLs @("$server1/winrar-x64-$($testVersion).exe","$($server2[0])/winrar-x64-$($testVersion).exe","$($server2[1])/winrar-x64-$($testVersion).exe"))) {
+      if ((Test-WinrarVersionAvailability -URLs @("$server1/winrar-x64-$($testVersion).exe","$($server2[0])/winrar-x64-$($testVersion).exe","$($server2[1])/winrar-x64-$($testVersion).exe"))) {
         $newVersions += $testVersion
       }
     }
@@ -461,24 +462,37 @@ function Get-WinrarLatestVersion {
   }
 }
 
-if (Test-Connection $server1_host -Count 2 -Quiet) {
-  $local:lv = (Get-WinrarLatestVersion)
+function Add-ToKnownVersionsList {
+  Param([string]$Version)
+  $script:KNOWN_VERSIONS += $Version
+  $script:KNOWN_VERSIONS = $script:KNOWN_VERSIONS | Sort-Object -Descending
+}
 
-  if ($local:lv -eq 0) {
-    $local:update = Get-WinRarUpdates -kvList $KNOWN_VERSIONS
+function Update-KnownVersionsList {
+  $local:vl = Find-WinrarUpdates -kvList $script:KNOWN_VERSIONS
+  if ($null -ne $local:vl) {
+    Add-ToKnownVersionsList -Version $local:vl
+  }
+}
 
-    if ($null -ne $local:update) {
-      $KNOWN_VERSIONS += $local:update
-      $KNOWN_VERSIONS = $KNOWN_VERSIONS | Sort-Object -Descending
+function Update-WinrarLatestVersion {
+  if (Test-Connection $server1_host -Count 2 -Quiet) {
+    $local:v = (Get-WinrarLatestVersion)
+
+    if ($local:v -eq 0) {
+      Update-KnownVersionsList
+    } else {
+      if ($local:v -eq $script:LATEST) {
+        Write-Info "Default version is the latest version."
+      } else {
+        Add-ToKnownVersionsList -Version $local:v
+        Write-Info "Updated default version to latest version."
+      }
     }
 
-    $LATEST = $KNOWN_VERSIONS[0]
-  } else {
-    if ($local:lv -eq $LATEST) {
-      Write-Info "Default version is the latest version."
-    } else { $LATEST = $local:lv }
-  }
-} else { &$Error_NoInternetConnection }
+    $script:LATEST = $script:KNOWN_VERSIONS[0]
+  } else { &$Error_NoInternetConnection }
+}
 #endregion
 
 #region Data Processing
@@ -573,8 +587,8 @@ function Confirm-DownloadConfig {
       $script:TAGS = $script:ARCH
       # Defaults from here
       Write-Warn "No version provided"
-      Write-Info "Using latest WinRAR version $(Format-VersionNumber $LATEST)"
-      $script:RARVER = $LATEST
+      Write-Info "Using latest WinRAR version $(Format-VersionNumber $script:LATEST)"
+      $script:RARVER = $script:LATEST
     }
     # If the ARCH value is RARVER
     else {
@@ -618,8 +632,8 @@ function Confirm-DownloadConfig {
   if ($script:ARCH -eq "x64") {
     if ($null -eq $script:RARVER) {
       Write-Warn "No version provided"
-      Write-Info "Using latest 64-bit version $(Format-VersionNumber $LATEST)"
-      $script:RARVER = $LATEST
+      Write-Info "Using latest 64-bit version $(Format-VersionNumber $script:LATEST)"
+      $script:RARVER = $script:LATEST
     }
     elseif ($script:RARVER -lt $FIRST_64BIT) {
       Write-Warn "No 64-bit installer available for WinRAR $(Format-VersionNumber $script:RARVER)"
@@ -643,8 +657,8 @@ function Confirm-DownloadConfig {
 
   # 2.3. Sanity check for RARVER
   if ($script:RARVER -match '^\d{3,}$' -and $script:KNOWN_VERSIONS -notcontains $script:RARVER) {
-    if ($script:RARVER -gt $LATEST) {
-      Write-Warn "Version $(Format-VersionNumber $script:RARVER) is newer than the known latest $(Format-VersionNumber $LATEST)"
+    if ($script:RARVER -gt $script:LATEST) {
+      Write-Warn "Version $(Format-VersionNumber $script:RARVER) is newer than the known latest $(Format-VersionNumber $script:LATEST)"
     }
     elseif ($script:RARVER -lt $OLDEST) {
       Write-Warn "Version $(Format-VersionNumber $OLDEST) is the earliest known available WinRAR version"
@@ -686,39 +700,15 @@ function Confirm-ConfigData {
   $script:RARVER = $config[2].Value
   $script:TAGS = $config[3].Value
 
+  if (($null -or 'x64') -eq $script:ARCH) {
+    Update-WinrarLatestVersion
+  }
+
   Confirm-DownloadConfig
 }
 #endregion
 
 #region Installation
-function Format-VersionNumber {
-  <#
-    .DESCRIPTION
-      Format version numbers as x.xx
-  #>
-  Param($VersionNumber)
-  if ($null -eq $VersionNumber) { return $null }
-  return "{0:N2}" -f ($VersionNumber / 100)
-}
-
-function Format-VersionNumberFromExecutable {
-  <#
-    .DESCRIPTION
-      Retrieve the WinRAR version form the executable name and format it.
-  #>
-  Param(
-    [Parameter(Mandatory=$true, Position=0)]
-    $Executable,
-    [Switch]$IntToDouble
-  )
-
-  $version = if ($IntToDouble) { $Executable }
-             elseif ($Executable -match "(?<version>\d{3})") { $matches['version'] }
-             else { return $null }
-  $version = Format-VersionNumber $version
-  return $version
-}
-
 function Get-LocalWinrarInstaller {
   <#
     .DESCRIPTION
@@ -930,8 +920,10 @@ Get-InstalledWinrarLocations
 if ($CMD_NAME -ne $script_name) {
   $script:CUSTOM_INSTALLATION = $true
   Confirm-ConfigData
+} else {
+  Update-WinrarLatestVersion
+  Set-DefaultArchVersion
 }
-else { Set-DefaultArchVersion }
 
 if ($script:WINRAR_IS_INSTALLED) {
   Select-CurrentWinrarInstallation
