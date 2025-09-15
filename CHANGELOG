@@ -1,5 +1,9 @@
 CHANGELOG
 
+0.13.1.713
+
+  - Fix bug causing installrar.cmd to have issues processing custom data.
+
 0.13.0.713
 
   - OCWR can retrieve the latest version of WinRAR through either
