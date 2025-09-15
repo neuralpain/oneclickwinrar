@@ -7,7 +7,7 @@
 
 @echo off
 mode 78,40
-title licenserar (v0.13.0.713)
+title licenserar
 
 :: PwshBatch.cmd <https://gist.github.com/neuralpain/4ca8a6c9aca4f0a1af2440f474e92d05>
 setlocal EnableExtensions DisableDelayedExpansion
