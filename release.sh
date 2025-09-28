@@ -13,10 +13,10 @@ name="oneclickwinrar"
 
 # [ FILES LIST ]
 files_list=(
-  "licenserar.cmd"
-  "oneclickrar.cmd"
-  "installrar.cmd"
-  "unlicenserar.cmd"
+  "build/licenserar.cmd"
+  "build/oneclickrar.cmd"
+  "build/installrar.cmd"
+  "build/unlicenserar.cmd"
 )
 
 complete_release=$name-$version.zip

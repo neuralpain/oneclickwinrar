@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Copyright (c) 2025, neuralpain
+# https://github.com/neuralpain/oneclickwinrar
+
 set -e
 
 OCWR_VERSION=$(<VERSION)
