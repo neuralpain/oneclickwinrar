@@ -180,5 +180,8 @@ function Update-WinrarLatestVersion {
     }
 
     $script:LATEST = $script:KNOWN_VERSIONS[0]
-  } else { &$Error_NoInternetConnection }
+  } else {
+    Write-Info "No internet connection found."
+    Write-Info "Skipping update checks..."
+  }
 }

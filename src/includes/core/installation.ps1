@@ -190,7 +190,7 @@ function Invoke-DownloadWinrarExecutable {
 function Invoke-OwcrInstallation {
   <#
     .DESCRIPTION
-      Installation instructions to be executed (if not disabled).
+      Installation instructions to be executed.
   #>
 
   # This ensures that the script does not unnecessarily
@@ -211,7 +211,7 @@ function Invoke-OwcrInstallation {
       Stop-OcwrOperation -ExitType Complete
     }
   } else {
-    Write-Info "Found executable versioned at $(Format-Text (Format-VersionNumberFromExecutable $script:WINRAR_EXE) -Foreground White -Formatting Underline)"
+    Write-Info "Found executable with version $(Format-Text (Format-VersionNumberFromExecutable $script:WINRAR_EXE) -Foreground White -Formatting Underline)"
     if ($script:DOWNLOAD_ONLY) {
       New-Toast -ToastTitle "Download Aborted" `
                 -ToastText  "An installer for WinRAR $(Format-VersionNumberFromExecutable $script:WINRAR_EXE) ($script:ARCH) already exists." `
