@@ -201,7 +201,9 @@ function Invoke-OwcrInstallation {
   # if there are no installers, proceed to download one
   if ($null -eq $script:WINRAR_EXE) {
     Invoke-DownloadWinrarExecutable
-    if (-not $script:DOWNLOAD_ONLY) { Invoke-OwcrInstallation; break }
+    if (-not $script:DOWNLOAD_ONLY) {
+      Invoke-OwcrInstallation; break
+    }
     else {
       New-Toast -ToastTitle "Download Complete" `
                 -ToastText  "WinRAR $($local:version) ($script:ARCH) was successfully downloaded." `
@@ -222,5 +224,5 @@ function Invoke-OwcrInstallation {
 
   Invoke-Installer $script:WINRAR_EXE (Format-VersionNumberFromExecutable $script:WINRAR_EXE)
 
-  #####INSTALLATION_SET_LOCATION#####
+#####INSTALLATION_SET_LOCATION#####
 }
