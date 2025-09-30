@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# release.sh, Version 0.1.0
+# release.sh
 # Copyright (c) 2025, neuralpain
 # https://github.com/neuralpain/oneclickwinrar
 # A bundler for oneclickwinrar
