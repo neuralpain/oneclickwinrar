@@ -1,5 +1,9 @@
 CHANGELOG
 
+0.14.0.713
+
+  - Mostly code refactoring.
+
 0.13.1.713
 
   - Fix bug causing installrar.cmd to have issues processing custom data.
