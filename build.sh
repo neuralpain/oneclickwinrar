@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# build.sh
 # Copyright (c) 2025, neuralpain
 # https://github.com/neuralpain/oneclickwinrar
 
