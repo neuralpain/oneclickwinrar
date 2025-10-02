@@ -1,9 +1,8 @@
 #!/bin/bash
 
-# release.sh, Version 0.1.0
 # Copyright (c) 2025, neuralpain
 # https://github.com/neuralpain/oneclickwinrar
-# A bundler for oneclickwinrar
+# A bundler for oneclickwinrar releases
 
 # [ INFO ]
 # edit the version in ./VERSION
@@ -13,10 +12,10 @@ name="oneclickwinrar"
 
 # [ FILES LIST ]
 files_list=(
-  "licenserar.cmd"
-  "oneclickrar.cmd"
-  "installrar.cmd"
-  "unlicenserar.cmd"
+  "build/licenserar.cmd"
+  "build/oneclickrar.cmd"
+  "build/installrar.cmd"
+  "build/unlicenserar.cmd"
 )
 
 complete_release=$name-$version.zip
