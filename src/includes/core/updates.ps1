@@ -147,7 +147,8 @@ function Get-WinrarLatestVersion {
     return $latestVersion
   }
   catch {
-    Write-Error "An error occurred during the web request: $($_.Exception.Message)"
+    Write-Err "$($_.Exception.Message)"
+    return 2 # skip updates
   }
 }
 
@@ -168,12 +169,17 @@ function Update-WinrarLatestVersion {
   if (Test-Connection $server1_host -Count 2 -Quiet) {
     $local:v = (Get-WinrarLatestVersion)
 
-    if ($local:v -eq 0) {
-      Update-KnownVersionsList
-    } else {
-      if ($local:v -eq $script:LATEST) {
+    switch ($local:v) {
+      0 {
+        Update-KnownVersionsList
+      }
+      2 {
+        Write-Info "Skipping update checks..."
+      }
+      $script:LATEST {
         Write-Info "Default version is the latest version."
-      } else {
+      }
+      Default {
         Add-ToKnownVersionsList -Version $local:v
         Write-Info "Updated default version to latest version."
       }
