@@ -23,6 +23,8 @@ $UNINSTALL = $false
 #####TITLE_HEADER#####
 #endregion
 
+$link_configuration = "https://github.com/neuralpain/oneclickwinrar#configuration"
+
 #region Messages
 #####MESSAGES#####
 #endregion

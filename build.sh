@@ -86,6 +86,18 @@ apply_patches() {
       placeholder='#####INSTALLATION_SET_LOCATION#####'
       patch_file="$SRC_DIR/includes/patches/oneclickrar_installation_set_location.ps1"
       if [ -f "$patch_file" ]; then sed -i -e "/$placeholder/r $patch_file" -e "/$placeholder/d" "$file_to_patch"; fi
+
+      placeholder='#####MESSAGES_INSTALLRAR#####'
+      patch_file="$SRC_DIR/includes/messages/messages_installrar.ps1"
+      if [ -f "$patch_file" ]; then sed -i -e "/$placeholder/r $patch_file" -e "/$placeholder/d" "$file_to_patch"; fi
+
+      placeholder='#####MESSAGES_LICENSERAR#####'
+      patch_file="$SRC_DIR/includes/messages/messages_licenserar.ps1"
+      if [ -f "$patch_file" ]; then sed -i -e "/$placeholder/r $patch_file" -e "/$placeholder/d" "$file_to_patch"; fi
+
+      placeholder='#####MESSAGES_UNLICENSERAR#####'
+      patch_file="$SRC_DIR/includes/messages/messages_unlicenserar.ps1"
+      if [ -f "$patch_file" ]; then sed -i -e "/$placeholder/r $patch_file" -e "/$placeholder/d" "$file_to_patch"; fi
       ;; # END
 
     "installrar")
@@ -103,7 +115,11 @@ apply_patches() {
       patch_file="$SRC_DIR/includes/patches/licenserar_license_error.ps1"
       if [ -f "$patch_file" ]; then sed -i -e "/$placeholder/r $patch_file" -e "/$placeholder/d" "$file_to_patch"; fi
       ;; # END
-   esac
+  esac
+
+  echo " -> Applying message patches..."
+
+  inject_modules "#####SHARED_MESSAGES#####" "$temp_ps_file" "$SRC_DIR/includes/messages/messages_shared.ps1"
 }
 
 build_script() {
