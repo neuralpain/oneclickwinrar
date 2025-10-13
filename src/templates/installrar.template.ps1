@@ -39,6 +39,16 @@ $script:LATEST = $script:KNOWN_VERSIONS[0]
 $FIRST_64BIT = 390
 $LATEST_32BIT = 701
 $LATEST_OLD_WRAR = 611
+
+enum ConnectionStatus {
+  Connected;
+  NoInternet;
+  DownloadAborted;
+  Disconnected;
+  CannotResolveHost;
+}
+
+$script:OCWR_ERROR = $null
 #endregion
 
 #region Switch Configs

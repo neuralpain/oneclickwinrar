@@ -56,7 +56,7 @@ function Get-WinrarInstaller {
   if (Test-Connection "$HostUri" -Count 2 -Quiet) {
     # Verify that connection to the host is good for downloading
     try { Invoke-WebRequest -Uri $HostUri | Out-Null }
-    catch { &$Error_UnableToConnectToDownload }
+    catch { $script:OCWR_ERROR = [ConnectionStatus]::DownloadAborted }
 
     Write-Host "Verifying download... "
 
@@ -81,7 +81,7 @@ function Get-WinrarInstaller {
     else {
       Write-Error -Message "Download unavailable." -ErrorId "404" -Category NotSpecified 2>$null
     }
-  } else { &$Error_NoInternetConnection }
+  } else { $script:OCWR_ERROR = [ConnectionStatus]::Disconnected }  # throw an error; fill the error variable
 }
 
 function Select-CurrentWinrarInstallation {
@@ -164,25 +164,39 @@ function Invoke-DownloadWinrarExecutable {
   Get-WinrarInstaller -HostUri $server1_host -HostUriDir $server1
 
   foreach ($wdir in $server2) {
-    if ($Error) { # will catch the first error from the attempt with server 1
+    if ($Error -or $script:OCWR_ERROR) { # will catch the first error from the attempt with server 1
       $Error.Clear()
+      $script:OCWR_ERROR = $null # clear this regardless of the situation of the error
       $local:retrycount++
-      Write-Host -NoNewLine "`nFailed. Retrying... $local:retrycount`n"
+      Write-Host "Failed. Retrying... $local:retrycount"
       Get-WinrarInstaller -HostUri $server2_host -HostUriDir $wdir
     }
   }
 
-  if ($Error) {
-    if ($script:CUSTOM_INSTALLATION) {
-      New-Toast -ToastTitle "Unable to fetch download" `
-                -ToastText  "WinRAR $($local:version) ($script:ARCH) may not exist on the server." `
-                -ToastText2 "Check the version number and try again."
-      Stop-OcwrOperation -ExitType Error -Message "Unable to fetch download. Check the version number and try again."
-    } else {
-      New-Toast -ToastTitle "Unable to fetch download" `
-                -ToastText  "Are you still connected to the internet?" `
-                -ToastText2 "Please check your internet connection."
-      Stop-OcwrOperation -ExitType Error -Message "Unable to fetch download"
+  switch ($script:OCWR_ERROR) {
+    [ConnectionStatus]::DownloadAborted {
+      &$Error_UnableToConnectToDownload
+    }
+    [ConnectionStatus]::NoInternet {
+      &$Error_NoInternetConnection
+    }
+    [ConnectionStatus]::Disconnected {
+      &$Error_NoInternetConnection
+    }
+    Default {
+      if ($Error) {
+        if ($script:CUSTOM_INSTALLATION) {
+          New-Toast -ToastTitle "Unable to fetch download" `
+                    -ToastText  "WinRAR $($local:version) ($script:ARCH) may not exist on the server." `
+                    -ToastText2 "Check the version number and try again."
+          Stop-OcwrOperation -ExitType Error -Message "Unable to fetch download. Check the version number and try again."
+        } else {
+          New-Toast -ToastTitle "Unable to fetch download" `
+                    -ToastText  "Are you still connected to the internet?" `
+                    -ToastText2 "Please check your internet connection."
+          Stop-OcwrOperation -ExitType Error -Message "Unable to fetch download"
+        }
+      }
     }
   }
 }
