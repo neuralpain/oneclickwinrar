@@ -83,6 +83,10 @@ apply_patches() {
       patch_file="$SRC_DIR/includes/patches/winrar_version_list.ps1"
       if [ -f "$patch_file" ]; then sed -i -e "/$placeholder/r $patch_file" -e "/$placeholder/d" "$file_to_patch"; fi
 
+      placeholder='#####KNOWN_LANGUAGE_LIST#####'
+      patch_file="$SRC_DIR/includes/patches/winrar_language_list.ps1"
+      if [ -f "$patch_file" ]; then sed -i -e "/$placeholder/r $patch_file" -e "/$placeholder/d" "$file_to_patch"; fi
+
       placeholder='#####INSTALLATION_SET_LOCATION#####'
       patch_file="$SRC_DIR/includes/patches/oneclickrar_installation_set_location.ps1"
       if [ -f "$patch_file" ]; then sed -i -e "/$placeholder/r $patch_file" -e "/$placeholder/d" "$file_to_patch"; fi
@@ -91,6 +95,10 @@ apply_patches() {
     "installrar")
       placeholder='#####KNOWN_VERSION_LIST#####'
       patch_file="$SRC_DIR/includes/patches/winrar_version_list.ps1"
+      if [ -f "$patch_file" ]; then sed -i -e "/$placeholder/r $patch_file" -e "/$placeholder/d" "$file_to_patch"; fi
+
+      placeholder='#####KNOWN_LANGUAGE_LIST#####'
+      patch_file="$SRC_DIR/includes/patches/winrar_language_list.ps1"
       if [ -f "$patch_file" ]; then sed -i -e "/$placeholder/r $patch_file" -e "/$placeholder/d" "$file_to_patch"; fi
       ;; # END
 
