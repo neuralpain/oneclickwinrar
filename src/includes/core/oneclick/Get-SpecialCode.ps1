@@ -28,36 +28,19 @@ function Get-SpecialCode {
   $script:custom_code = ([regex]::matches($script:custom_name, '\d+'))[0].Value
   if ($null -eq $script:custom_code) { return }
 
-  $rarloc = $script:WINRAR_INSTALLED_LOCATION
+  $local:rarloc = $script:WINRAR_INSTALLED_LOCATION
 
   switch ($script:custom_code) {
     0 {
       $script:SPECIAL_CODE_ACTIVE = $true
       if ($script:WINRAR_IS_INSTALLED) {
-        if ($rarloc -eq $loc96) {
-          Write-Warn "Both 32-bit and 64-bit versions of WinRAR exist on the system. $(Format-Text "Select one to remove." -Foreground Red -Formatting Underline)"
-          do {
-            $query = Read-Host "Enter `"1`" for 32-bit and `"2`" for 64-bit"
-            if ($query -eq 1) { $rarloc = $loc32; break }
-            elseif ($query -eq 2) { $rarloc = $loc32; break }
-          } while ($true)
-        }
-        if (Test-Path "$rarloc\Uninstall.exe" -PathType Leaf) {
-          Write-Host "Uninstalling WinRAR ($(if($rarloc -eq $loc64){'x64'}else{'x32'}))... "
-          Start-Process "$rarloc\Uninstall.exe" "/s" -Wait
-          &$UninstallSuccess
-        } else { &$Error_UninstallerMissing }
+        #####UNINSTALLATION#####
       } else { &$Error_WinrarNotInstalled }
       break
     }
     1 {
       $script:SPECIAL_CODE_ACTIVE = $true
-      Write-Host -NoNewLine "Un-licensing WinRAR... "
-      if (Test-Path "$rarloc\rarreg.key" -PathType Leaf) {
-        Remove-Item "$rarloc\rarreg.key" -Force | Out-Null
-        New-Toast -ToastTitle "WinRAR unlicensed successfully" -ToastText "Enjoy your 40-day infinite trial period!"
-        &$UnlicenseSuccess
-      } else { &$Error_UnlicenseFailed }
+      #####UNLICENSING#####
       break
     }
     2 {
