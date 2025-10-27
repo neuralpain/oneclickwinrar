@@ -18,14 +18,18 @@ function Get-DataFromConfig {
   if ($script:SCRIPT_NAME_LOCATION -eq 0) {
     # Download/install
     # e.g. oneclickrar_x64_700.cmd
-    if ($Config.Count -gt 1 -and $Config.Count -le 4) {                         # GET DOWNLOAD-ONLY DATA
+    if ($Config.Count -eq 1) {
+      # do nothing; only capture the condition
+    }
+    elseif ($Config.Count -gt 1 -and $Config.Count -le 4) {                     # GET DOWNLOAD-ONLY DATA
       $script:CUSTOM_INSTALLATION = $true
       # `$Config[0]` is the script name # 1
       $script:ARCH   = $Config[1].Value # 2
       $script:RARVER = $Config[2].Value # 3                                     # Not required for download
       $script:TAGS   = $Config[3].Value # 4                                     # Not required for download
     }
-    elseif (-not $script:SPECIAL_CODE_ACTIVE) {
+    # elseif (-not $script:SPECIAL_CODE_ACTIVE) {
+    else {
       &$Error_TooManyArgs
     }
   }

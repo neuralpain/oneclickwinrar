@@ -1,7 +1,4 @@
-$Error_UnknownScript = {
-  New-Toast -LongerDuration -ActionButtonUrl "$link_configuration" -ToastTitle "What script is this?" -ToastText  "Script name is invalid. Check the script name for any typos and try again."
-  Stop-OcwrOperation -ExitType Error -Message "Script name is invalid. Please check for errors."
-}
+#####SHARED_MESSAGES#####
 
 $Error_NoInternetConnection = {
   New-Toast -ToastTitle "No internet" -ToastText "Please check your internet connection."
@@ -11,11 +8,6 @@ $Error_NoInternetConnection = {
 $Error_UnableToConnectToDownload = {
   New-Toast -ToastTitle "Unable to make a connection" -ToastText "Please check your internet or firewall rules."
   Stop-OcwrOperation -ExitType Error -Message "Unable to make a connection."
-}
-
-$Error_TooManyArgs = {
-  New-Toast -LongerDuration -ActionButtonUrl $link_configuration -ToastTitle "Too many arguments!" -ToastText "It seems like you've made a configuration error. Check the configuration data and try again."
-  Stop-OcwrOperation -ExitType Error -Message "Too many arguments. Check your configuration."
 }
 
 $Error_No32bitSupport = {

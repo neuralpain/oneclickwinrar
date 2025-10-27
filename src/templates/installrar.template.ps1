@@ -36,6 +36,8 @@ $script:LATEST = $script:KNOWN_VERSIONS[0]
 $FIRST_64BIT = 390
 $LATEST_32BIT = 701
 $LATEST_OLD_WRAR = 611
+
+#####STATUS_CODES#####
 #endregion
 
 #region Switch Configs
