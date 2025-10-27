@@ -23,8 +23,11 @@ function Get-SpecialCode {
   #>
 
   if ($script:custom_name -match 'click' -and -not [string]::IsNullOrEmpty([regex]::matches($script:custom_name, '\d+')[0].Value)) {
+    # Example invalid name: oneclick2rar.cmd
+    # TODO: check for a number at any position in the name; not only outside 'click'
     &$Error_UnableToProcessSpecialCode
   }
+
   $script:custom_code = ([regex]::matches($script:custom_name, '\d+'))[0].Value
   if ($null -eq $script:custom_code) { return }
 
