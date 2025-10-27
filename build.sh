@@ -60,60 +60,41 @@ inject_modules() {
   rm "$combined_modules_file"
 }
 
+patch() {
+  local file_to_patch="$1"
+  local placeholder="$2"
+  local patch_file="$3"
+
+  if [ -f "$patch_file" ]; then sed -i -e "/$placeholder/r $patch_file" -e "/$placeholder/d" "$file_to_patch"; fi
+}
+
 # These patches are for very specific differences in functions between scripts
 apply_patches() {
   local target_name="$1"
   local file_to_patch="$2"
-  local placeholder=
-  local patch_file=
 
   echo " -> Applying specific patches for $target_name..."
 
   case "$target_name" in
     "oneclickrar")
-      placeholder='#####LICENSE_PRECHECK#####'
-      patch_file="$SRC_DIR/includes/patches/oneclickrar_license_precheck.ps1"
-      if [ -f "$patch_file" ]; then sed -i -e "/$placeholder/r $patch_file" -e "/$placeholder/d" "$file_to_patch"; fi
-
-      placeholder='#####EXISTING_LICENSE_ERROR#####'
-      patch_file="$SRC_DIR/includes/patches/oneclickrar_license_error.ps1"
-      if [ -f "$patch_file" ]; then sed -i -e "/$placeholder/r $patch_file" -e "/$placeholder/d" "$file_to_patch"; fi
-
-      placeholder='#####KNOWN_VERSION_LIST#####'
-      patch_file="$SRC_DIR/includes/patches/winrar_version_list.ps1"
-      if [ -f "$patch_file" ]; then sed -i -e "/$placeholder/r $patch_file" -e "/$placeholder/d" "$file_to_patch"; fi
-
-      placeholder='#####INSTALLATION_SET_LOCATION#####'
-      patch_file="$SRC_DIR/includes/patches/oneclickrar_installation_set_location.ps1"
-      if [ -f "$patch_file" ]; then sed -i -e "/$placeholder/r $patch_file" -e "/$placeholder/d" "$file_to_patch"; fi
-
-      placeholder='#####MESSAGES_INSTALLRAR#####'
-      patch_file="$SRC_DIR/includes/messages/messages_installrar.ps1"
-      if [ -f "$patch_file" ]; then sed -i -e "/$placeholder/r $patch_file" -e "/$placeholder/d" "$file_to_patch"; fi
-
-      placeholder='#####MESSAGES_LICENSERAR#####'
-      patch_file="$SRC_DIR/includes/messages/messages_licenserar.ps1"
-      if [ -f "$patch_file" ]; then sed -i -e "/$placeholder/r $patch_file" -e "/$placeholder/d" "$file_to_patch"; fi
-
-      placeholder='#####MESSAGES_UNLICENSERAR#####'
-      patch_file="$SRC_DIR/includes/messages/messages_unlicenserar.ps1"
-      if [ -f "$patch_file" ]; then sed -i -e "/$placeholder/r $patch_file" -e "/$placeholder/d" "$file_to_patch"; fi
+      patch "$file_to_patch" '#####LICENSE_PRECHECK#####' "$SRC_DIR/includes/patches/oneclickrar_license_precheck.ps1"
+      patch "$file_to_patch" '#####EXISTING_LICENSE_ERROR#####' "$SRC_DIR/includes/patches/oneclickrar_license_error.ps1"
+      patch "$file_to_patch" '#####KNOWN_VERSION_LIST#####' "$SRC_DIR/includes/patches/winrar_version_list.ps1"
+      patch "$file_to_patch" '#####STATUS_CODES#####' "$SRC_DIR/includes/patches/status_codes.ps1"
+      patch "$file_to_patch" '#####INSTALLATION_SET_LOCATION#####' "$SRC_DIR/includes/patches/oneclickrar_installation_set_location.ps1"
+      patch "$file_to_patch" '#####MESSAGES_INSTALLRAR#####' "$SRC_DIR/includes/messages/messages_installrar.ps1"
+      patch "$file_to_patch" '#####MESSAGES_LICENSERAR#####' "$SRC_DIR/includes/messages/messages_licenserar.ps1"
+      patch "$file_to_patch" '#####MESSAGES_UNLICENSERAR#####' "$SRC_DIR/includes/messages/messages_unlicenserar.ps1"
       ;; # END
 
     "installrar")
-      placeholder='#####KNOWN_VERSION_LIST#####'
-      patch_file="$SRC_DIR/includes/patches/winrar_version_list.ps1"
-      if [ -f "$patch_file" ]; then sed -i -e "/$placeholder/r $patch_file" -e "/$placeholder/d" "$file_to_patch"; fi
+      patch "$file_to_patch" '#####KNOWN_VERSION_LIST#####' "$SRC_DIR/includes/patches/winrar_version_list.ps1"
+      patch "$file_to_patch" '#####STATUS_CODES#####' "$SRC_DIR/includes/patches/status_codes.ps1"
       ;; # END
 
     "licenserar")
-      placeholder='#####LICENSE_PRECHECK#####'
-      patch_file="$SRC_DIR/includes/patches/licenserar_license_precheck.ps1"
-      if [ -f "$patch_file" ]; then sed -i -e "/$placeholder/r $patch_file" -e "/$placeholder/d" "$file_to_patch"; fi
-
-      placeholder='#####EXISTING_LICENSE_ERROR#####'
-      patch_file="$SRC_DIR/includes/patches/licenserar_license_error.ps1"
-      if [ -f "$patch_file" ]; then sed -i -e "/$placeholder/r $patch_file" -e "/$placeholder/d" "$file_to_patch"; fi
+      patch "$file_to_patch" '#####LICENSE_PRECHECK#####' "$SRC_DIR/includes/patches/licenserar_license_precheck.ps1"
+      patch "$file_to_patch" '#####EXISTING_LICENSE_ERROR#####' "$SRC_DIR/includes/patches/licenserar_license_error.ps1"
       ;; # END
   esac
 
