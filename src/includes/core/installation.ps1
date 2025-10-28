@@ -115,8 +115,11 @@ function Confirm-CurrentWinrarInstallation {
   <#
     .DESCRIPTION
       Verify and confirm the current WinRAR installation to be worked on.
+
+    .NOTES
+      `-iver` switch returns the version number of the current (Win)RAR
+      installation.
   #>
-  # `-iver` switch returns the version number of the current (Win)RAR installation
   $civ = $(&$script:WINRAR_INSTALLED_LOCATION\rar.exe "-iver") # current installed version
   if ("$civ" -match $(Format-VersionNumber $script:RARVER)) {
     Write-Info "This version of WinRAR is already installed: $(Format-Text $(Format-VersionNumber $script:RARVER) -Foreground White -Formatting Underline)"
@@ -210,9 +213,8 @@ function Invoke-OwcrInstallation {
       Installation instructions to be executed.
   #>
 
-  # This ensures that the script does not unnecessarily
-  # download a new installer if one is available in the
-  # current directory
+  # This ensures that the script does not unnecessarily download a new installer
+  # if one is available in the current directory
   $script:WINRAR_EXE = (Get-LocalWinrarInstaller)
 
   # if there are no installers, proceed to download one
@@ -230,16 +232,26 @@ function Invoke-OwcrInstallation {
       Stop-OcwrOperation -ExitType Complete
     }
   } else {
-    Write-Info "Found executable with version $(Format-Text (Format-VersionNumberFromExecutable $script:WINRAR_EXE) -Foreground White -Formatting Underline)"
+    # Whenever an executable is found, the installing version will reflect the
+    # version of the installer being used. To prevent this version change, and
+    # especially in the event where there are multiple installers available in
+    # the current directory, the user needs to specify the version that is
+    # required for installation in the script name.
+    $_version = (Format-VersionNumberFromExecutable $script:WINRAR_EXE)
+    Write-Info "Found executable with version $(Format-Text $_version -Foreground White -Formatting Underline)"
     if ($script:DOWNLOAD_ONLY) {
       New-Toast -ToastTitle "Download Aborted" `
-                -ToastText  "An installer for WinRAR $(Format-VersionNumberFromExecutable $script:WINRAR_EXE) ($script:ARCH) already exists." `
+                -ToastText  "An installer for WinRAR $_version ($script:ARCH) already exists." `
                 -ToastText2 "Check the requested download version and try again."
-      Stop-OcwrOperation -ExitType Warning -Message "An installer for WinRAR $(Format-VersionNumberFromExecutable $script:WINRAR_EXE) ($script:ARCH) in $(Get-LanguageName) already exists"
+      Stop-OcwrOperation -ExitType Warning -Message "An installer for WinRAR $_version ($script:ARCH) in $(Get-LanguageName) already exists"
+    } else {
+      if ($_version -ne (Format-VersionNumber $script:RARVER)) {
+        Write-Info "Switching to using executable version $(Format-Text $_version -Foreground White -Formatting Underline)"
+      }
     }
   }
 
-  Invoke-Installer $script:WINRAR_EXE (Format-VersionNumberFromExecutable $script:WINRAR_EXE)
+  Invoke-Installer $script:WINRAR_EXE $_version
 
 #####INSTALLATION_SET_LOCATION#####
 }
