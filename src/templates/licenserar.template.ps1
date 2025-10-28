@@ -106,7 +106,7 @@ if ($CMD_NAME -ne $script_name) {
     }
   }
   # Verify custom license data --- this is a sanity check
-  if ($script:licensee.Length -eq 0 -or $script:license_type.Length -eq 0) {
+  if ($config.Count -gt 1 -and ($script:licensee.Length -eq 0 -or $script:license_type.Length -eq 0)) {
     &$Error_InvalidLicenseData
   }
 }
