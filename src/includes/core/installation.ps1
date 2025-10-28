@@ -19,18 +19,21 @@ function Get-LocalWinrarInstaller {
     $name_pattern = $winrar_name_pattern
   }
 
+  $list = @()
   $files = Get-ChildItem -Path $pwd | Where-Object { $_.Name -match $name_pattern }
 
   if ($script:CUSTOM_INSTALLATION) {
     $download_pattern = "$($name)$($script:RARVER)$($script:TAGS).exe"
     foreach ($file in $files) {
-      if ($file -match $download_pattern) { return $file }
+      if ($file -match $download_pattern) { $list += $file }
     }
   } else {
     foreach ($file in $files) {
-      if ($file -match $file_pattern) { return $file }
+      if ($file -match $file_pattern) { $list += $file }
     }
   }
+
+  return $($list | Sort-Object -Descending)[0]
 }
 
 function Get-WinrarInstaller {
