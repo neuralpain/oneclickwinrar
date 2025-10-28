@@ -2,7 +2,7 @@
 
 $Error_InvalidLicenseData = {
   New-Toast -ActionButtonUrl $link_namepattern -ToastTitle "Licensing error" -ToastText "Custom lincense data is invalid. Check the license data and try again."
-  Stop-OcwrOperation -ExitType Error -Message
+  Stop-OcwrOperation -ExitType Error -Message "Custom lincense data is invalid."
 }
 
 $Error_LicenseExists = {
