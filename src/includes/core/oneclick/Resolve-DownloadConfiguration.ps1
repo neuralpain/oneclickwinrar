@@ -1,4 +1,4 @@
-function Confirm-DownloadConfig {
+function Resolve-DownloadConfiguration {
   <#
     .DESCRIPTION
       Verify and validate download config data and reorder to correct data

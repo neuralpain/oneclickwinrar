@@ -32,7 +32,7 @@ function Get-LanguageName {
   # If the extracted language code is null or empty (e.g., if $script:TAGS was
   # "b1", Trim("b1") results in ""), then it's not a valid code to search for.
   if ([string]::IsNullOrEmpty($extractedLangCode)) {
-    # This verification will be handled by Confirm-DownloadConfig
+    # This verification will be handled by Resolve-DownloadConfiguration
     # In theory, this block should only be visited once throughout the runtime
     # of the program
     return &$defaultTags

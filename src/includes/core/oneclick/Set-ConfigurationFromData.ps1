@@ -1,4 +1,4 @@
-function Get-DataFromConfig {
+function Set-ConfigurationFromData {
   <#
     .SYNOPSIS
       Retrieve the config data.

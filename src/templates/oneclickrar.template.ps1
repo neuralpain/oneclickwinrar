@@ -149,7 +149,7 @@ $script:TAGS = $null                              # Other download types, i.e. b
 #region Data Processing
 #####LANG_PROCESSING#####
 #####ONECLICK_DATA_PROCESSING#####
-function Confirm-ConfigData {
+function Resolve-ScriptConfiguration {
   <#
     .SYNOPSIS
       Parse the script name and determine the type of operation.
@@ -164,13 +164,13 @@ function Confirm-ConfigData {
 
   $config = [regex]::matches($CMD_NAME, '[^_]+')
 
-  <# Step 1 #> Confirm-ScriptNamePosition $config
-  <# Step 2 #> Get-SpecialCode
-  <# Step 3 #> Confirm-SpecialSwitch
+  <# Step 1 #> Find-ScriptNamePosition $config
+  <# Step 2 #> Resolve-SpecialCode
+  <# Step 3 #> Resolve-OperationMode
   <# Step 4 #> Set-OcwrOperationMode
-  <# Step 5 #> Get-DataFromConfig $config
+  <# Step 5 #> Set-ConfigurationFromData $config
   if ($script:CUSTOM_INSTALLATION) {
-    <# Opt. #> Confirm-DownloadConfig
+    <# Opt. #> Resolve-DownloadConfiguration
   } else { Set-DefaultArchVersion }
 }
 #endregion
@@ -191,7 +191,7 @@ Get-InstalledWinrarLocations
 # Grab the name of the script file and process any
 # configuration data set by the user
 if ($CMD_NAME -ne $script_name) {
-  Confirm-ConfigData
+  Resolve-ScriptConfiguration
 } else {
   Set-DefaultArchVersion
 }
@@ -200,16 +200,16 @@ if ($script:LICENSE_ONLY) {
   Select-WinrarInstallation
 }
 elseif ($script:WINRAR_IS_INSTALLED -and ((-not $script:DOWNLOAD_ONLY) -or $script:OVERWRITE_LICENSE)) {
-  Select-CurrentWinrarInstallation
-  Confirm-CurrentWinrarInstallation
+  Set-InstallationTargetDirectory
+  Confirm-InstallationOverwrite
 }
 
 if (-not $script:LICENSE_ONLY) {
-  Invoke-OwcrInstallation
+  Start-WinrarInstallation
 }
 
 if (-not $script:SKIP_LICENSING) {
-  Invoke-OcwrLicensing
+  Start-WinrarLicensing
 }
 
 # --- SUCCESSFUL EXIT TOAST MESSAGES

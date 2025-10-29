@@ -12,7 +12,7 @@
             -Query "Do you want to install WinRAR version $(Format-VersionNumber $script:RARVER)?" `
             -ResultPositive {
               $script:LICENSE_ONLY = $false
-              Invoke-OwcrInstallation
+              Start-WinrarInstallation
             } `
             -ResultNegative { &$Error_WinrarNotInstalled }
         }
@@ -30,7 +30,7 @@
             -Query "Do you want to install WinRAR version $(Format-VersionNumber $script:RARVER)?" `
             -ResultPositive {
               $script:LICENSE_ONLY = $false
-              Invoke-OwcrInstallation
+              Start-WinrarInstallation
             } `
             -ResultNegative { &$Error_WinrarNotInstalled }
         }

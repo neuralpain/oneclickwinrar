@@ -80,7 +80,7 @@ $script:TAGS = $null                              # Other download types, i.e. b
 
 #region Data Processing
 #####LANG_PROCESSING#####
-function Confirm-DownloadConfig {
+function Resolve-DownloadConfiguration {
   <#
     .DESCRIPTION
       Verify and validate download config data and reorder to correct data
@@ -193,7 +193,7 @@ function Confirm-DownloadConfig {
   }
 }
 
-function Confirm-ConfigData {
+function Resolve-ScriptConfiguration {
   <#
     .DESCRIPTION
       Parse the script name and determine the type of operation.
@@ -212,7 +212,7 @@ function Confirm-ConfigData {
     Update-WinrarLatestVersion
   }
 
-  Confirm-DownloadConfig
+  Resolve-DownloadConfiguration
 }
 #endregion
 
@@ -230,18 +230,18 @@ Get-InstalledWinrarLocations
 # configuration data set by the user
 if ($CMD_NAME -ne $script_name) {
   $script:CUSTOM_INSTALLATION = $true
-  Confirm-ConfigData
+  Resolve-ScriptConfiguration
 } else {
   Update-WinrarLatestVersion
   Set-DefaultArchVersion
 }
 
 if ($script:WINRAR_IS_INSTALLED) {
-  Select-CurrentWinrarInstallation
-  Confirm-CurrentWinrarInstallation
+  Set-InstallationTargetDirectory
+  Confirm-InstallationOverwrite
 }
 
-Invoke-OwcrInstallation
+Start-WinrarInstallation
 
 New-Toast -Url "https://ko-fi.com/neuralpain" -ToastTitle "WinRAR installed successfully" -ToastText2 "Thanks for using oneclickwinrar!"
 Stop-OcwrOperation -ExitType Complete

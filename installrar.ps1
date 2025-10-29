@@ -10,7 +10,7 @@
     installrar.cmd for use within the terminal.
 
   .NOTES
-    Last updated: 2025/08/23
+    Last updated: 2025/10/29
 #>
 
 [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor [System.Net.SecurityProtocolType]::Tls12
@@ -399,7 +399,7 @@ function Get-WinrarInstaller {
   } else { &$Error_NoInternetConnection }
 }
 
-function Select-CurrentWinrarInstallation {
+function Set-InstallationTargetDirectory {
   <#
     .DESCRIPTION
       Select WinRAR installation directory based on the proposed installation
@@ -423,7 +423,7 @@ function Select-CurrentWinrarInstallation {
   Write-Info "Installation directory: $(Format-Text $($script:WINRAR_INSTALLED_LOCATION) -Foreground White -Formatting Underline)"
 }
 
-function Confirm-CurrentWinrarInstallation {
+function Confirm-InstallationOverwrite {
   <#
     .DESCRIPTION
       Verify and confirm the current WinRAR installation to be worked on.
@@ -465,7 +465,7 @@ function Invoke-Installer($x, $v) {
   }
 }
 
-function Invoke-OwcrInstallation {
+function Start-WinrarInstallation {
   <#
     .DESCRIPTION
       Installation instructions to be executed.
@@ -507,11 +507,11 @@ Get-InstalledWinrarLocations
 Set-DefaultArchVersion
 
 if ($script:WINRAR_IS_INSTALLED) {
-  Select-CurrentWinrarInstallation
-  Confirm-CurrentWinrarInstallation
+  Set-InstallationTargetDirectory
+  Confirm-InstallationOverwrite
 }
 
-Invoke-OwcrInstallation
+Start-WinrarInstallation
 
 New-Toast -Url "https://ko-fi.com/neuralpain" -ToastTitle "WinRAR installed successfully" -ToastText2 "Thanks for using oneclickwinrar!"
 Stop-OcwrOperation -ExitType Complete

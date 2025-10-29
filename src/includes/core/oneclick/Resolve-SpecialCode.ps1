@@ -1,4 +1,4 @@
-function Get-SpecialCode {
+function Resolve-SpecialCode {
   <#
     .SYNOPSIS
       Enable or execute actions based on a specified code.

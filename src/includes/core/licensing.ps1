@@ -1,4 +1,4 @@
-function Invoke-OcwrLicensing {
+function Start-WinrarLicensing {
   <#
     .DESCRIPTION
       Licensing instructions to be executed.
@@ -46,7 +46,7 @@ function Invoke-OcwrLicensing {
       -Query "Do you want to overwrite the current license?" `
       -ResultPositive {
         $script:OVERWRITE_LICENSE = $true
-        Invoke-OcwrLicensing
+        Start-WinrarLicensing
       } `
       -ResultNegative {
 #####EXISTING_LICENSE_ERROR#####

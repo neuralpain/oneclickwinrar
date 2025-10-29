@@ -6,11 +6,11 @@ function Set-OcwrOperationMode {
     .DESCRIPTION
       This function determines the primary operation mode based on
       $script:custom_name, which would have been standardized by
-      `Confirm-SpecialSwitch` if it was a variant.
+      `Resolve-OperationMode` if it was a variant.
 
       If $script:custom_name still contains a special code (e.g. "onecl0ckrar"),
       it will fall to the 'default' case here if not matched by specific
-      variants. The special code itself is handled by `Get-SpecialCode`.
+      variants. The special code itself is handled by `Resolve-SpecialCode`.
   #>
 
   switch ($script:custom_name) {

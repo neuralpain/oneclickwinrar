@@ -19,12 +19,12 @@ UTILITIES_MODULES=(
 )
 
 ONECLICK_DATA_PROCESSING=(
-  "$SRC_DIR/includes/core/oneclick/Get-SpecialCode.ps1"
-  "$SRC_DIR/includes/core/oneclick/Confirm-ScriptNamePosition.ps1"
-  "$SRC_DIR/includes/core/oneclick/Confirm-SpecialSwitch.ps1"
-  "$SRC_DIR/includes/core/oneclick/Get-DataFromConfig.ps1"
+  "$SRC_DIR/includes/core/oneclick/Find-ScriptNamePosition.ps1"
+  "$SRC_DIR/includes/core/oneclick/Resolve-DownloadConfiguration.ps1"
+  "$SRC_DIR/includes/core/oneclick/Resolve-OperationMode.ps1"
+  "$SRC_DIR/includes/core/oneclick/Resolve-SpecialCode.ps1"
+  "$SRC_DIR/includes/core/oneclick/Set-ConfigurationFromData.ps1"
   "$SRC_DIR/includes/core/oneclick/Set-OcwrOperationMode.ps1"
-  "$SRC_DIR/includes/core/oneclick/Confirm-DownloadConfig.ps1"
 )
 
 DATA_PROCESSING_MODULES=(

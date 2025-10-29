@@ -26,7 +26,7 @@ function Find-LocalWinrarInstallers {
   return $list
 }
 
-function Select-LocalWinrarInstaller {
+function Resolve-LocalInstaller {
   <#
     .DESCRIPTION
       Select the appropriate WinRAR installer to use.
@@ -98,7 +98,7 @@ function Get-WinrarInstaller {
   } else { $script:OCWR_ERROR = [ConnectionStatus]::Disconnected }  # throw an error; fill the error variable
 }
 
-function Select-CurrentWinrarInstallation {
+function Set-InstallationTargetDirectory {
   <#
     .DESCRIPTION
       Select WinRAR installation directory based on the proposed installation
@@ -122,7 +122,7 @@ function Select-CurrentWinrarInstallation {
   Write-Info "Installation directory: $(Format-Text $($script:WINRAR_INSTALLED_LOCATION) -Foreground White -Formatting Underline)"
 }
 
-function Confirm-CurrentWinrarInstallation {
+function Confirm-InstallationOverwrite {
   <#
     .DESCRIPTION
       Verify and confirm the current WinRAR installation to be worked on.
@@ -218,7 +218,7 @@ function Invoke-DownloadWinrarExecutable {
   }
 }
 
-function Invoke-OwcrInstallation {
+function Start-WinrarInstallation {
   <#
     .DESCRIPTION
       Installation instructions to be executed.
@@ -226,19 +226,19 @@ function Invoke-OwcrInstallation {
 
   # This ensures that the script does not unnecessarily download a new installer
   # if one is available in the current directory
-  $script:WINRAR_EXE = (Select-LocalWinrarInstaller)
+  $script:WINRAR_EXE = (Resolve-LocalInstaller)
 
   # if there are no installers, proceed to download one
   if ($null -eq $script:WINRAR_EXE) {
     Invoke-DownloadWinrarExecutable
     if (-not $script:DOWNLOAD_ONLY) {
-      Invoke-OwcrInstallation; break
+      Start-WinrarInstallation; break
     }
     else {
       New-Toast -ToastTitle "Download Complete" `
                 -ToastText  "WinRAR $($local:version) ($script:ARCH) was successfully downloaded." `
                 -ToastText2 "Run this script again if you ever need to install it."
-      $script:WINRAR_EXE = (Select-LocalWinrarInstaller)
+      $script:WINRAR_EXE = (Resolve-LocalInstaller)
       Write-Info "Download saved to $(Format-Text "'$(Format-Text "$pwd\$script:WINRAR_EXE" -Formatting Underline)'" -Foreground White)"
       Stop-OcwrOperation -ExitType Complete
     }

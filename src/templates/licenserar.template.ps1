@@ -111,7 +111,7 @@ if ($CMD_NAME -ne $script_name) {
   }
 }
 
-Invoke-OcwrLicensing
+Start-WinrarLicensing
 
 if ($script:CUSTOM_LICENSE) {
   Write-Host "`nLicensee:`t$($script:licensee)`nLicense:`t$($script:license_type)`n"

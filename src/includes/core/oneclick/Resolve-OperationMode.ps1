@@ -1,4 +1,4 @@
-function Confirm-SpecialSwitch {
+function Resolve-OperationMode {
   <#
     .SYNOPSIS
       Verify and enable special functions.

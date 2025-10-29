@@ -10,7 +10,7 @@
     licenserar.cmd for use within the terminal.
 
   .NOTES
-    Last updated: 2025/08/22
+    Last updated: 2025/10/29
 #>
 
 #region Variables
@@ -117,7 +117,7 @@ function Select-WinrarInstallation {
 #endregion
 
 #region Licensing
-function Invoke-OcwrLicensing {
+function Start-WinrarLicensing {
   <#
     .DESCRIPTION
       Licensing instructions to be executed.
@@ -144,7 +144,7 @@ function Invoke-OcwrLicensing {
       -Query "Do you want to overwrite the current license?" `
       -ResultPositive {
         $script:OVERWRITE_LICENSE = $true
-        Invoke-OcwrLicensing
+        Start-WinrarLicensing
       } `
       -ResultNegative { &$Error_LicenseExists }
   }
@@ -159,7 +159,7 @@ if (-not $script:WINRAR_IS_INSTALLED) {
   Stop-OcwrOperation -ExitType Error -Message "WinRAR is not installed."
 }
 
-Invoke-OcwrLicensing
+Start-WinrarLicensing
 
 New-Toast -Url "https://ko-fi.com/neuralpain" -ToastTitle "WinRAR licensed successfully" -ToastText "Thanks for using oneclickwinrar!"
 Stop-OcwrOperation -ExitType Complete

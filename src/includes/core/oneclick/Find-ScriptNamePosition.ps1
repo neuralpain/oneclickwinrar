@@ -1,4 +1,4 @@
-function Confirm-ScriptNamePosition {
+function Find-ScriptNamePosition {
   <#
     .SYNOPSIS
       Verify and validate the script name.

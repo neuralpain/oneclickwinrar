@@ -10,7 +10,7 @@
     oneclickrar.cmd for use within the terminal.
 
   .NOTES
-    Last updated: 2025/08/23
+    Last updated: 2025/10/29
 #>
 
 [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor [System.Net.SecurityProtocolType]::Tls12
@@ -429,7 +429,7 @@ function Select-WinrarInstallation {
   Write-Info "Selected WinRAR installation: $(Format-Text $($script:WINRAR_INSTALLED_LOCATION) -Foreground White -Formatting Underline)"
 }
 
-function Select-CurrentWinrarInstallation {
+function Set-InstallationTargetDirectory {
   <#
     .DESCRIPTION
       Select WinRAR installation directory based on the proposed installation
@@ -453,7 +453,7 @@ function Select-CurrentWinrarInstallation {
   Write-Info "Installation directory: $(Format-Text $($script:WINRAR_INSTALLED_LOCATION) -Foreground White -Formatting Underline)"
 }
 
-function Confirm-CurrentWinrarInstallation {
+function Confirm-InstallationOverwrite {
   <#
     .DESCRIPTION
       Verify and confirm the current WinRAR installation to be worked on.
@@ -495,7 +495,7 @@ function Invoke-Installer($x, $v) {
   }
 }
 
-function Invoke-OwcrInstallation {
+function Start-WinrarInstallation {
   <#
     .DESCRIPTION
       Installation instructions to be executed.
@@ -533,7 +533,7 @@ function Invoke-OwcrInstallation {
 #endregion
 
 #region Licensing
-function Invoke-OcwrLicensing {
+function Start-WinrarLicensing {
   <#
     .DESCRIPTION
       Licensing instructions to be executed (if not disabled).
@@ -550,7 +550,7 @@ function Invoke-OcwrLicensing {
       -Query "Do you want to overwrite the current license?" `
       -ResultPositive {
         $script:OVERWRITE_LICENSE = $true
-        Invoke-OcwrLicensing
+        Start-WinrarLicensing
       } `
       -ResultNegative { &$Error_ButLicenseExists }
   }
@@ -562,12 +562,12 @@ Get-InstalledWinrarLocations
 Set-DefaultArchVersion
 
 if ($script:WINRAR_IS_INSTALLED) {
-  Select-CurrentWinrarInstallation
-  Confirm-CurrentWinrarInstallation
+  Set-InstallationTargetDirectory
+  Confirm-InstallationOverwrite
 }
 
-Invoke-OwcrInstallation
-Invoke-OcwrLicensing
+Start-WinrarInstallation
+Start-WinrarLicensing
 
 New-Toast -Url $link_freedom_universe_yt -ToastTitle "WinRAR installed and licensed successfully" -ToastText  "Freedom throughout the universe!"
 Stop-OcwrOperation -ExitType Complete
