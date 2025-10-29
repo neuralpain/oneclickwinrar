@@ -197,7 +197,7 @@ function Get-WinrarLatestVersion {
 
   try {
     $htmlContent = Invoke-WebRequest -Uri $url -UserAgent $userAgent -UseBasicParsing | Select-Object -ExpandProperty Content
-    $_matches = [regex]::Matches($htmlContent, '(?i)Version\s+(\d+\.\d+)')
+    $_matches = [regex]::Matches($htmlContent, '(?i)Version\s+(\d+\.\d+)(?!\s+beta)')
 
     if (-not $_matches.Count) {
       Write-Err "Unable to find latest version. The page content might have changed or the request was blocked."
