@@ -40,7 +40,7 @@ function Get-LanguageName {
 
   # idiot prevention
   if ($extractedLangCode -eq 'en') {
-    $script:TAGS = if ($betaCodeMatch.Count -gt 0) { $betaCodeMatch[0].Value } else { $null }
+    # $script:TAGS = if ($betaCodeMatch.Count -gt 0) { $betaCodeMatch[0].Value } else { $null }
     return 'English'
   }
 
