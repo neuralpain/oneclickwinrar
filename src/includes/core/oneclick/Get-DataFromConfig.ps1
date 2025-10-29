@@ -6,9 +6,6 @@ function Get-DataFromConfig {
     .DESCRIPTION
       Copy custom specified license and installation configuration data
       based on the position of the script name.
-
-    .NOTES
-      Single reference within `Confirm-ConfigData`.
   #>
   Param($Config)
 

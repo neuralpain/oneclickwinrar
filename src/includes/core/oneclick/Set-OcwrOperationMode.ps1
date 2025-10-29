@@ -11,9 +11,6 @@ function Set-OcwrOperationMode {
       If $script:custom_name still contains a special code (e.g. "onecl0ckrar"),
       it will fall to the 'default' case here if not matched by specific
       variants. The special code itself is handled by `Get-SpecialCode`.
-
-    .NOTES
-      Single reference within `Confirm-ConfigData`.
   #>
 
   switch ($script:custom_name) {

@@ -17,9 +17,6 @@ function Get-SpecialCode {
       one-cl0ckrar.cmd
         --- No further action will be taken after uninstallation is completed
       onecl3ckrar_620.cmd   --- WinRAR 6.20 will not be installed
-
-    .NOTES
-      Single reference within `Confirm-ConfigData`.
   #>
 
   if ($script:custom_name -match 'click' -and -not [string]::IsNullOrEmpty([regex]::matches($script:custom_name, '\d+')[0].Value)) {

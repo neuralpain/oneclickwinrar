@@ -85,9 +85,6 @@ function Confirm-DownloadConfig {
     .DESCRIPTION
       Verify and validate download config data and reorder to correct data
       positions before executing any subsequent actions.
-
-    .NOTES
-      Single reference within `Confirm-ConfigData`.
   #>
 
   # 1. Verify ARCH data. Copy the config to the correct variables (LIFO)

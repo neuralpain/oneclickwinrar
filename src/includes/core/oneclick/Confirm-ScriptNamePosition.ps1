@@ -7,9 +7,6 @@ function Confirm-ScriptNamePosition {
       Verifies the position of the script name from a custom config.
       The script name is at either position [0] or position [2].
       Extra verification is done to ensure that a valid script name exists.
-
-    .NOTES
-      Single reference within `Confirm-ConfigData`.
   #>
   Param($Config)
 

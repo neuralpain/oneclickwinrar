@@ -6,9 +6,6 @@ function Confirm-SpecialSwitch {
     .DESCRIPTION
       Verifies whether or not an special function was specified by `-one-` or
       `-rar` and then enables the respective function.
-
-    .NOTES
-      Single reference within `Confirm-ConfigData`.
   #>
 
   $switch_one = ([regex]::matches($script:custom_name, 'one-')).Count -gt 0
