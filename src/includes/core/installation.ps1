@@ -1,39 +1,50 @@
-function Get-LocalWinrarInstaller {
+function Find-LocalWinrarInstallers {
   <#
     .DESCRIPTION
       Find any WinRAR installer executables in the current directory.
   #>
-  $name = $null
-  $file_pattern = $null
-  $name_pattern = $null
-
-  if ($script:ARCH -eq 'x32' -and $script:RARVER -lt $LATEST_OLD_WRAR) {
-    $script:FETCH_WRAR = $true
-    $name = $wrar_name
-    $file_pattern = $wrar_file_pattern
-    $name_pattern = $wrar_name_pattern
-  } else {
-    $script:FETCH_WINRAR = $true
-    $name = "$winrar_name-$($script:ARCH)-"
-    $file_pattern = $winrar_file_pattern
-    $name_pattern = $winrar_name_pattern
-  }
+  Param(
+    [Parameter(Mandatory=$true)]$Name,
+    [Parameter(Mandatory=$true)]$FilePattern,
+    [Parameter(Mandatory=$true)]$NamePattern
+  )
 
   $list = @()
   $files = Get-ChildItem -Path $pwd | Where-Object { $_.Name -match $name_pattern }
 
   if ($script:CUSTOM_INSTALLATION) {
-    $download_pattern = "$($name)$($script:RARVER)$($script:TAGS).exe"
+    $download_pattern = "$($Name)$($script:RARVER)$($script:TAGS).exe"
     foreach ($file in $files) {
       if ($file -match $download_pattern) { $list += $file }
     }
   } else {
     foreach ($file in $files) {
-      if ($file -match $file_pattern) { $list += $file }
+      if ($file -match $FilePattern) { $list += $file }
     }
   }
 
-  return $($list | Sort-Object -Descending)[0]
+  return $list
+}
+
+function Select-LocalWinrarInstaller {
+  <#
+    .DESCRIPTION
+      Select the appropriate WinRAR installer to use.
+  #>
+
+  if ($script:ARCH -eq 'x32' -and $script:RARVER -lt $LATEST_OLD_WRAR) {
+    $script:FETCH_WRAR = $true
+  }
+
+  $list = @()
+  $list32 = Find-LocalWinrarInstallers -Name $wrar_name -NamePattern $wrar_file_pattern -FilePattern $wrar_name_pattern
+  $list64 = Find-LocalWinrarInstallers -Name "$winrar_name-$($script:ARCH)-" -NamePattern $winrar_file_pattern -FilePattern $winrar_name_pattern
+
+  if ($null -ne $list32) { $list = $($list32 | Sort-Object -Descending)[0] }
+  # simply overwrite the list with 64-bit installers if they exist
+  if ($null -ne $list64) { $list = $($list64 | Sort-Object -Descending)[0] }
+
+  return $list
 }
 
 function Get-WinrarInstaller {
@@ -215,7 +226,7 @@ function Invoke-OwcrInstallation {
 
   # This ensures that the script does not unnecessarily download a new installer
   # if one is available in the current directory
-  $script:WINRAR_EXE = (Get-LocalWinrarInstaller)
+  $script:WINRAR_EXE = (Select-LocalWinrarInstaller)
 
   # if there are no installers, proceed to download one
   if ($null -eq $script:WINRAR_EXE) {
@@ -227,7 +238,7 @@ function Invoke-OwcrInstallation {
       New-Toast -ToastTitle "Download Complete" `
                 -ToastText  "WinRAR $($local:version) ($script:ARCH) was successfully downloaded." `
                 -ToastText2 "Run this script again if you ever need to install it."
-      $script:WINRAR_EXE = (Get-LocalWinrarInstaller)
+      $script:WINRAR_EXE = (Select-LocalWinrarInstaller)
       Write-Info "Download saved to $(Format-Text "'$(Format-Text "$pwd\$script:WINRAR_EXE" -Formatting Underline)'" -Foreground White)"
       Stop-OcwrOperation -ExitType Complete
     }
