@@ -10,7 +10,7 @@
     installrar.cmd for use within the terminal.
 
   .NOTES
-    Last updated: 2025/10/29
+    Last updated: 2025/11/05
 #>
 
 [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor [System.Net.SecurityProtocolType]::Tls12
@@ -30,6 +30,9 @@ $server1_host = "www.rarlab.com"
 $server1      = "https://$server1_host/rar"
 $server2_host = "www.win-rar.com"
 $server2      = @("https://$server2_host/fileadmin/winrar-versions", "https://$server2_host/fileadmin/winrar-versions/winrar")
+
+$KNOWN_VERSIONS = @(713)
+$LATEST = $KNOWN_VERSIONS[0]
 #endregion
 
 #region Utility
@@ -74,7 +77,7 @@ $Error_UnableToConnectToDownload = {
 #endregion
 
 #region WinRAR Updates
-function Find-AnyNewWinRarVersions {
+function Test-WinrarVersionAvailability {
   <#
     .SYNOPSIS
       Checks a list of URLs to verify if they likely point to valid
@@ -89,7 +92,7 @@ function Find-AnyNewWinRarVersions {
       An array of strings, where each string is a URL to check.
 
     .EXAMPLE
-      Find-AnyNewWinRarVersions -URLs @(
+      Test-WinrarVersionAvailability -URLs @(
           "https://www.rarlab.com/rar/winrar-x64-{version}.exe",
           "https://www.win-rar.com/fileadmin/winrar-versions/winrar-x64-{version}.exe"
           "https://www.win-rar.com/fileadmin/winrar-versions/winrar/winrar-x64-{version}.exe"
@@ -119,7 +122,7 @@ function Find-AnyNewWinRarVersions {
   }
 }
 
-function Get-WinRarUpdates {
+function Find-WinrarUpdates {
   <#
     .SYNOPSIS
       Checks for new versions of WinRAR available for download.
@@ -155,7 +158,7 @@ function Get-WinRarUpdates {
     if ($j -gt $minor) { $patch = 0 }
     for ($k = $patch; $k -lt 10; $k++) {
       $testVersion = $major*100 + $j*10 + $k
-      if ((Find-AnyNewWinRarVersions -URLs @("$server1/winrar-x64-$($testVersion).exe","$($server2[0])/winrar-x64-$($testVersion).exe","$($server2[1])/winrar-x64-$($testVersion).exe"))) {
+      if ((Test-WinrarVersionAvailability -URLs @("$server1/winrar-x64-$($testVersion).exe","$($server2[0])/winrar-x64-$($testVersion).exe","$($server2[1])/winrar-x64-$($testVersion).exe"))) {
         $newVersions += $testVersion
       }
     }
@@ -198,7 +201,6 @@ function Get-WinrarLatestVersion {
   try {
     $htmlContent = Invoke-WebRequest -Uri $url -UserAgent $userAgent -UseBasicParsing | Select-Object -ExpandProperty Content
     $_matches = [regex]::Matches($htmlContent, '(?i)Version\s+(\d+\.\d+)(?!\s+beta)')
-
     if (-not $_matches.Count) {
       Write-Err "Unable to find latest version. The page content might have changed or the request was blocked."
       return 0
@@ -223,31 +225,50 @@ function Get-WinrarLatestVersion {
     return $latestVersion
   }
   catch {
-    Write-Error "An error occurred during the web request: $($_.Exception.Message)"
+    Write-Err "$($_.Exception.Message)"
+    return 2 # skip updates
   }
 }
 
-$KNOWN_VERSIONS = @(713, 712, 711, 710, 701, 700, 624, 623, 622, 621, 620, 611, 610, 602, 601, 600, 591, 590, 580, 571, 570, 561, 560, 550, 540, 531, 530, 521, 520, 511, 510, 501, 500, 420, 411, 410, 401, 400, 393, 390, 380, 371, 370, 360, 350, 340, 330, 320, 310, 300, 290)
-$LATEST = $KNOWN_VERSIONS[0]
+function Add-ToKnownVersionsList {
+  Param([string]$Version)
+  $script:KNOWN_VERSIONS += $Version
+  $script:KNOWN_VERSIONS = $script:KNOWN_VERSIONS | Sort-Object -Descending
+}
 
-if (Test-Connection $server1_host -Count 2 -Quiet) {
-  $local:lv = (Get-WinrarLatestVersion)
+function Update-KnownVersionsList {
+  $local:vl = Find-WinrarUpdates -kvList $script:KNOWN_VERSIONS
+  if ($null -ne $local:vl) {
+    Add-ToKnownVersionsList -Version $local:vl
+  }
+}
 
-  if ($local:lv -eq 0) {
-    $local:update = Get-WinRarUpdates -kvList $KNOWN_VERSIONS
+function Update-WinrarLatestVersion {
+  if (Test-Connection $server1_host -Count 2 -Quiet) {
+    $local:v = (Get-WinrarLatestVersion)
 
-    if ($null -ne $local:update) {
-      $KNOWN_VERSIONS += $local:update
-      $KNOWN_VERSIONS = $KNOWN_VERSIONS | Sort-Object -Descending
+    switch ($local:v) {
+      0 {
+        Update-KnownVersionsList
+      }
+      2 {
+        Write-Info "Skipping update checks..."
+      }
+      $script:LATEST {
+        Write-Info "Default version is the latest version."
+      }
+      Default {
+        Add-ToKnownVersionsList -Version $local:v
+        Write-Info "Updated default version to latest version."
+      }
     }
 
-    $LATEST = $KNOWN_VERSIONS[0]
+    $script:LATEST = $script:KNOWN_VERSIONS[0]
   } else {
-    if ($local:lv -eq $LATEST) {
-      Write-Info "Default version is the latest version."
-    } else { $LATEST = $local:lv }
+    Write-Info "No internet connection found."
+    Write-Info "Skipping update checks..."
   }
-} else { &$Error_NoInternetConnection }
+}
 #endregion
 
 #region Switch Configs
@@ -503,6 +524,8 @@ function Start-WinrarInstallation {
 #endregion
 
 #region Begin Execution
+# Update-WinrarLatestVersion
+
 Get-InstalledWinrarLocations
 Set-DefaultArchVersion
 
