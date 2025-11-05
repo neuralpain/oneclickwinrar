@@ -96,25 +96,27 @@ function Test-WinrarVersionAvailability {
       download.
 
     .DESCRIPTION
-      This script takes an array of URLs as input. For each URL, it performs an
+      This script takes a version number as input. For each URL, it performs an
       HTTP HEAD request to retrieve the headers. It then analyzes the StatusCode
       header to determine if the URL is accessible to download files.
 
-    .PARAMETER URLs
-      An array of strings, where each string is a URL to check.
+    .PARAMETER Version
+      A version number to test for validation.
 
     .EXAMPLE
-      Test-WinrarVersionAvailability -URLs @(
-          "https://www.rarlab.com/rar/winrar-x64-{version}.exe",
-          "https://www.win-rar.com/fileadmin/winrar-versions/winrar-x64-{version}.exe"
-          "https://www.win-rar.com/fileadmin/winrar-versions/winrar/winrar-x64-{version}.exe"
-        )
+      Test-WinrarVersionAvailability -Version 712
 
     .OUTPUTS
       System.Boolean. The function returns $true if at least one URL returns a
       200 OK status code. Otherwise, it implicitly returns $null.
   #>
-  Param([Parameter(Mandatory = $true)][string[]]$URLs)
+  Param([Parameter(Mandatory = $true)][int]$Version)
+
+  $URLs = $(
+    "$server1/winrar-x64-${Version}.exe",
+    "$($server2[0])/winrar-x64-${Version}.exe",
+    "$($server2[1])/winrar-x64-${Version}.exe"
+  )
 
   foreach ($url in $URLs) {
     try {
@@ -170,7 +172,7 @@ function Find-WinrarUpdates {
     if ($j -gt $minor) { $patch = 0 }
     for ($k = $patch; $k -lt 10; $k++) {
       $testVersion = $major*100 + $j*10 + $k
-      if ((Test-WinrarVersionAvailability -URLs @("$server1/winrar-x64-$($testVersion).exe","$($server2[0])/winrar-x64-$($testVersion).exe","$($server2[1])/winrar-x64-$($testVersion).exe"))) {
+      if ((Test-WinrarVersionAvailability -Version $testVersion)) {
         $newVersions += $testVersion
       }
     }
@@ -204,7 +206,7 @@ function Get-WinrarLatestVersion {
       been found, the function returns `0`.
   #>
   # Public changelog
-  $url = "https://www.rarlab.com/rarnew.htm"
+  $url = "https://www.rarlab.com/WhatsNew.txt"
   # User agent to avoid being blocked
   $userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
 
@@ -212,15 +214,22 @@ function Get-WinrarLatestVersion {
 
   try {
     $htmlContent = Invoke-WebRequest -Uri $url -UserAgent $userAgent -UseBasicParsing | Select-Object -ExpandProperty Content
-    $_matches = [regex]::Matches($htmlContent, '(?i)Version\s+(\d+\.\d+)(?!\s+beta)')
+    $_matches = [regex]::Matches($htmlContent, '(?i)(?!\s+Version)\s+(\d+\.\d+)(?!\s+beta)')
+
     if (-not $_matches.Count) {
       Write-Err "Unable to find latest version. The page content might have changed or the request was blocked."
       return 0
     }
 
-    $versions = $_matches.Groups[1].Captures | Select-Object -Unique | ForEach-Object {
+    $versions = $_matches | Select-Object -Unique | ForEach-Object {
       try {
-        [version]$_.Value
+        $_version = [double]$_.Value * 100
+
+        if (Test-WinrarVersionAvailability $_version) {
+          $_version
+        } else {
+          0 # return '0' as version value
+        }
       }
       catch {
         # Skip any invalid version strings
@@ -233,7 +242,6 @@ function Get-WinrarLatestVersion {
     }
 
     $latestVersion = $versions | Sort-Object -Descending | Select-Object -First 1
-    $latestVersion = [int](($latestVersion.Major * 100) + $latestVersion.Minor)
     return $latestVersion
   }
   catch {
