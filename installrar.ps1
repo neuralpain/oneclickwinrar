@@ -532,7 +532,7 @@ function Start-WinrarInstallation {
 #endregion
 
 #region Begin Execution
-# Update-WinrarLatestVersion
+Update-WinrarLatestVersion
 
 Get-InstalledWinrarLocations
 Set-DefaultArchVersion

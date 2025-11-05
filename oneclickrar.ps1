@@ -587,7 +587,7 @@ function Start-WinrarLicensing {
 #endregion
 
 #region Begin Execution
-# Update-WinrarLatestVersion
+Update-WinrarLatestVersion
 
 Get-InstalledWinrarLocations
 Set-DefaultArchVersion
