@@ -11,7 +11,7 @@
             \ \ \ \ \ \ \/\ \ /' _ `\ \ ,  /\ \  __ \ \ ,  /                    
              \ \ \_/ \_\ \ \ \/\ \/\ \ \ \\ \\ \ \/\ \ \ \\ \                   
               \ `\___x___/\ \_\ \_\ \_\ \_\ \_\ \_\ \_\ \_\ \_\                 
-               '\/__//__/  \/_/\/_/\/_/\/_/\/ /\/_/\/_/\/_/\/ /  v0.13.1.713    
+               '\/__//__/  \/_/\/_/\/_/\/_/\/ /\/_/\/_/\/_/\/ /  v0.14.0.713    
 
 
 oneclickwinrar - install and license WinRAR
@@ -346,6 +346,18 @@ See the /bin/winrar-keygen/LICENSE file for more information.
 
 CHANGELOG
 ---------
+
+0.14.0.713
+
+  - Reorganize file structure for modular development along with a build system
+    for all included scripts in order to reduce duplicate messages and
+    functions and enforce consistency.
+  - Fix bugs with WinRAR update checks. Beta versions are now ignored and only
+    the version number is collected in the results.
+  - Fix: Indexing error in the 32-bit installer list.
+  - Fix: A false positive rejection during data processing.
+  - Code refactoring.
+  - Other minor bug fixes and improvements.
 
 0.13.1.713
 

@@ -1,5 +1,5 @@
 > [!TIP]
-> RARLAB® released WinRAR 7.13! Use [`installrar`](#installrarcmd) to stay up to date. 🚀
+> RARLAB® released WinRAR 7.20 for public testing! Use [`installrar_720_b1`](#installrarcmd) test it out. 🚀
 >
 > <details>
 > <summary>View changes</summary>
@@ -8,31 +8,55 @@
 >                WinRAR - What's new in the latest version
 >
 >
->  Version 7.13
+>  Version 7.20 beta 1
 >
->  1. Another directory traversal vulnerability, differing from that
->     in WinRAR 7.12, has been fixed.
+>  1. Performance improvements when deleting files in solid RAR archives:
 >
->     When extracting a file, previous versions of WinRAR, Windows versions
->     of RAR, UnRAR, portable UnRAR source code and UnRAR.dll can be tricked
->     into using a path, defined in a specially crafted archive,
->     instead of user specified path.
+>     a) if there are no non-zero files after deleted files, archive
+>        recompressing isn't performed;
 >
->     Unix versions of RAR, UnRAR, portable UnRAR source code
->     and UnRAR library, also as RAR for Android, are not affected.
+>     b) part of archive before deleted files is copied as is, without
+>        repacking. Its contents is unpacked to memory if necessary,
+>        but not recompressed;
 >
->     We are thankful to Anton Cherepanov, Peter Kosinar, and Peter Strycek
->     from ESET for letting us know about this security issue.
+>     c) semi-solid archive processing involves only solid blocks containing
+>        deleted files. Unaffected solid blocks are copied as is.
 >
->  2. Bugs fixed:
+>  2. "Generate archive name by mask" archiving option and -ag command line
+>      switch:
 >
->     a) WinRAR 7.12 "Import settings from file" command failed to restore
->        settings, saved by WinRAR versions preceding 7.12;
+>     a) new 'K' format character defines the current day of week
+>        name as a text string;
 >
->     b) WinRAR 7.12 set a larger than specified recovery size for compression
->        profiles, created by WinRAR 5.21 and older.
+>     b) new 'O' format character defines the current month name as a text
+>        string regardless of format character number. Unlike "MMM" mask,
+>        it allows to use shorter or longer than 3 character names,
+>        such as -agOO;
+>
+>     c) excessive format characters exceeding the available field width
+>        are now ignored instead of appending to archive name.
+>        So it is possible to use full month or week day names by providing
+>        format characters in the amount equal or exceeding the longest name,
+>        such as -agKKKKKKKKKK for day of week names.
+>
+>  3. Command line -s switch:
+>
+>     a) switch -s accepts the optional parameter preceded by '=' character.
+>
+>        Switches -s<N>, -se, -sv, -sv-, -s- are replaced by -s=<N>f, -s=e,
+>        -s=v, -s=d, -s=-. Previous versions of these switches are still
+>        supported in the current version, but can be removed in the future.
+>
+>        It is allowed to combine multiple modifiers in the same switch,
+>        such as -s=e100f.
+>
+>     b) new switch -s=r resets the solid statistics before adding new files
+>        to existing archive.
+>
+> ----------------------------------------------
+> Read more: https://www.rarlab.com/WhatsNew.txt
+>
 > ```
->
 > </details>
 
 > [!IMPORTANT]
