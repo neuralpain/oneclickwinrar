@@ -232,7 +232,7 @@ function Start-WinrarInstallation {
   if ($null -eq $script:WINRAR_EXE) {
     Invoke-DownloadWinrarExecutable
     if (-not $script:DOWNLOAD_ONLY) {
-      Start-WinrarInstallation; break
+      Start-WinrarInstallation; return
     }
     else {
       New-Toast -ToastTitle "Download Complete" `
