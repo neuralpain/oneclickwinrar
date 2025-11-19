@@ -86,6 +86,7 @@ function Get-WinrarInstaller {
     }
     catch {
       Write-Error -Message "Unable to download." -ErrorId "404" -Category NotSpecified 2>$null
+      $script:OCWR_ERROR = [ConnectionStatus]::DownloadAborted
     }
 
     if ($responseCode -eq 200) {
@@ -94,6 +95,7 @@ function Get-WinrarInstaller {
     }
     else {
       Write-Error -Message "Download unavailable." -ErrorId "404" -Category NotSpecified 2>$null
+      $script:OCWR_ERROR = [ConnectionStatus]::DownloadAborted
     }
   } else { $script:OCWR_ERROR = [ConnectionStatus]::Disconnected }  # throw an error; fill the error variable
 }
