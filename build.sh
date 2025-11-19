@@ -90,6 +90,7 @@ apply_patches() {
       ;; # END
 
     "installrar")
+      patch "$file_to_patch" '#####RESOLVE_DOWNLOAD_CONFIG#####' "$SRC_DIR/includes/core/oneclick/Resolve-DownloadConfiguration.ps1"
       patch "$file_to_patch" '#####KNOWN_VERSION_LIST#####' "$SRC_DIR/includes/patches/winrar_version_list.ps1"
       patch "$file_to_patch" '#####KNOWN_LANGUAGE_LIST#####' "$SRC_DIR/includes/patches/winrar_language_list.ps1"
       patch "$file_to_patch" '#####STATUS_CODES#####' "$SRC_DIR/includes/patches/status_codes.ps1"
