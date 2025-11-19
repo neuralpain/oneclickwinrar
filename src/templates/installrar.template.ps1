@@ -97,11 +97,11 @@ function Resolve-ScriptConfiguration {
   $script:RARVER = $config[2].Value
   $script:TAGS = $config[3].Value
 
-  if (($null -or 'x64') -eq $script:ARCH) {
+  Resolve-DownloadConfiguration
+
+  if ($null -eq $script:RARVER -and ($null -or 'x64') -eq $script:ARCH) {
     Update-WinrarLatestVersion
   }
-
-  Resolve-DownloadConfiguration
 }
 #endregion
 
@@ -121,8 +121,8 @@ if ($CMD_NAME -ne $script_name) {
   $script:CUSTOM_INSTALLATION = $true
   Resolve-ScriptConfiguration
 } else {
-  Update-WinrarLatestVersion
   Set-DefaultArchVersion
+  Update-WinrarLatestVersion
 }
 
 if ($script:WINRAR_IS_INSTALLED) {
