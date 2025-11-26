@@ -1,13 +1,24 @@
 > [!TIP]
-> RARLAB® released WinRAR 7.20 for public testing! Use [`installrar_720_b1`](#installrarcmd) test it out. 🚀
+> RARLAB® released WinRAR 7.20 for public testing! Use [`installrar_720_b2`](#installrarcmd) test it out. 🚀
 >
 > <details>
 > <summary>View changes</summary>
 >
 > ```
 >                WinRAR - What's new in the latest version
->
->
+>  
+>  
+>  Version 7.20 beta 2
+>  
+>  1. Overwrite prompt is displayed instead of error message,
+>     if destination file exists when renaming a file outside of archive.
+>  
+>  2. Bugs fixed:
+>  
+>     a) beta 1 could display wrong packed size values for folders
+>        inside of .7z archives.
+>  
+>  
 >  Version 7.20 beta 1
 >
 >  1. Performance improvements when deleting files in solid RAR archives:
@@ -39,23 +50,8 @@
 >        format characters in the amount equal or exceeding the longest name,
 >        such as -agKKKKKKKKKK for day of week names.
 >
->  3. Command line -s switch:
->
->     a) switch -s accepts the optional parameter preceded by '=' character.
->
->        Switches -s<N>, -se, -sv, -sv-, -s- are replaced by -s=<N>f, -s=e,
->        -s=v, -s=d, -s=-. Previous versions of these switches are still
->        supported in the current version, but can be removed in the future.
->
->        It is allowed to combine multiple modifiers in the same switch,
->        such as -s=e100f.
->
->     b) new switch -s=r resets the solid statistics before adding new files
->        to existing archive.
->
 > ----------------------------------------------
 > Read more: https://www.rarlab.com/WhatsNew.txt
->
 > ```
 > </details>
 
