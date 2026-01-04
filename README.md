@@ -1,5 +1,5 @@
 > [!TIP]
-> RARLAB® released WinRAR 7.20 for public testing! Use [`installrar_720_b2`](#installrarcmd) test it out. 🚀
+> RARLAB® released WinRAR 7.20 for public testing! Use [`installrar_720_b3`](#installrarcmd) test it out. 🚀
 >
 > <details>
 > <summary>View changes</summary>
@@ -8,6 +8,28 @@
 >                WinRAR - What's new in the latest version
 >  
 >  
+>  Version 7.20 beta 3
+>
+>  1. Original and packed file size column widths in "l" and "v" commands
+>     are increased by 1 symbol, so 10 digit file sizes are also displayed
+>     aligned by these commands.
+>
+>  2. If "Reuse existing window" option is enabled when opening an archive,
+>     but another WinRAR copy is busy with archive processing, the archive
+>     is opened by current copy. Previously neither of copies opened it.
+>
+>  3. Bugs fixed:
+>
+>     a) previous beta failed to open archives in ZIP format with extra fields
+>        shorter than 4 bytes, such as some APK files;
+>
+>     b) "Ask" option in WinRAR "Settings/Viewer/Viewer type" didn't display
+>        the viewer type prompt for PNG files and several other image formats;
+>
+>     c) -ag switch 'k' modifier used English week day names even
+>        in localized versions.
+>
+>
 >  Version 7.20 beta 2
 >  
 >  1. Overwrite prompt is displayed instead of error message,
