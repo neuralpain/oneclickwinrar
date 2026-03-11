@@ -69,7 +69,7 @@ function Get-WinrarInstaller {
   Write-Host "Connecting to $HostUri... "
   if (Test-Connection "$HostUri" -Count 2 -Quiet) {
     # Verify that connection to the host is good for downloading
-    try { Invoke-WebRequest -Uri $HostUri | Out-Null }
+    try { Invoke-WebRequest -Uri $HostUri -UseBasicParsing | Out-Null }
     catch { $script:OCWR_ERROR = [ConnectionStatus]::DownloadAborted }
 
     Write-Host "Verifying download... "
