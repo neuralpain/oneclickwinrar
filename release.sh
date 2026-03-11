@@ -18,17 +18,17 @@ files_list=(
   "build/unlicenserar.cmd"
 )
 
-complete_release=$name-$version.zip
+complete_release="$name-$version.zip"
 
-mkdir dist
+mkdir ./dist
 
-cp ./LICENSE ./VERSION ./README.txt dist
+cp ./LICENSE ./VERSION ./README.txt ./dist
 
 for file in "${files_list[@]}"; do
-  cp $file dist
+  cp "$file" ./dist
 done
 
-cp -r bin dist
+cp -r ./bin ./dist
 
 cd dist
 
@@ -41,12 +41,12 @@ cd dist
 #         2.1. Download `bzip2-1.0.5-bin.zip`
 #         2.2. In the zipped file, in the bin folder, find the file `bzip2.dll`
 #         2.3. Extract `bzip2.dll` to your `mingw64\bin` folder (same folder as above: `C:\Program Files\Git\mingw64\bin`)
-zip -q $complete_release -r * || (echo -e "$return error: Failed to create archive." && return)
+zip -q $complete_release -r * || (echo "error: Failed to create archive." && return)
 
 cd ..
 
-mv ./dist/$complete_release ./release/$complete_release
+mv "./dist/$complete_release" "./release/$complete_release"
 
-[[ -f $complete_release ]] && echo -e "$return Archived success."
+[[ -f "./release/$complete_release" ]] && echo "Release archived successfully."
 
-rm -rf dist
+rm -rf ./dist
