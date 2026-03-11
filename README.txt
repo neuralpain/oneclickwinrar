@@ -11,7 +11,7 @@
             \ \ \ \ \ \ \/\ \ /' _ `\ \ ,  /\ \  __ \ \ ,  /                    
              \ \ \_/ \_\ \ \ \/\ \/\ \ \ \\ \\ \ \/\ \ \ \\ \                   
               \ `\___x___/\ \_\ \_\ \_\ \_\ \_\ \_\ \_\ \_\ \_\                 
-               '\/__//__/  \/_/\/_/\/_/\/_/\/ /\/_/\/_/\/_/\/ /  v0.14.0.713    
+               '\/__//__/  \/_/\/_/\/_/\/_/\/ /\/_/\/_/\/_/\/ /  v0.15.0.720    
 
 
 oneclickwinrar - install and license WinRAR
@@ -346,6 +346,11 @@ See the /bin/winrar-keygen/LICENSE file for more information.
 
 CHANGELOG
 ---------
+
+0.15.0.720
+
+  - Fix: Append `-UseBasicParsing` switch on Invoke-WebRequest to avoid
+    potential script code execution risks when parsing web page content.
 
 0.14.0.713
 

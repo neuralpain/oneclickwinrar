@@ -1,47 +1,14 @@
 > [!TIP]
-> RARLAB® released WinRAR 7.20 for public testing! Use [`installrar_720_b3`](#installrarcmd) test it out. 🚀
+> RARLAB® released WinRAR 7.20! Use [`installrar_720`](#installrarcmd) udpate the software. 🚀
 >
 > <details>
 > <summary>View changes</summary>
 >
 > ```
 >                WinRAR - What's new in the latest version
->  
->  
->  Version 7.20 beta 3
->
->  1. Original and packed file size column widths in "l" and "v" commands
->     are increased by 1 symbol, so 10 digit file sizes are also displayed
->     aligned by these commands.
->
->  2. If "Reuse existing window" option is enabled when opening an archive,
->     but another WinRAR copy is busy with archive processing, the archive
->     is opened by current copy. Previously neither of copies opened it.
->
->  3. Bugs fixed:
->
->     a) previous beta failed to open archives in ZIP format with extra fields
->        shorter than 4 bytes, such as some APK files;
->
->     b) "Ask" option in WinRAR "Settings/Viewer/Viewer type" didn't display
->        the viewer type prompt for PNG files and several other image formats;
->
->     c) -ag switch 'k' modifier used English week day names even
->        in localized versions.
 >
 >
->  Version 7.20 beta 2
->  
->  1. Overwrite prompt is displayed instead of error message,
->     if destination file exists when renaming a file outside of archive.
->  
->  2. Bugs fixed:
->  
->     a) beta 1 could display wrong packed size values for folders
->        inside of .7z archives.
->  
->  
->  Version 7.20 beta 1
+>  Version 7.20
 >
 >  1. Performance improvements when deleting files in solid RAR archives:
 >
@@ -71,6 +38,83 @@
 >        So it is possible to use full month or week day names by providing
 >        format characters in the amount equal or exceeding the longest name,
 >        such as -agKKKKKKKKKK for day of week names.
+>
+>  3. Command line -s switch:
+>
+>     a) switch -s accepts the optional parameter preceded by '=' character.
+>
+>        Switches -s<N>, -se, -sv, -sv-, -s- are replaced by -s=<N>f, -s=e,
+>        -s=v, -s=d, -s=-. Previous versions of these switches are still
+>        supported in the current version, but can be removed in the future.
+>
+>        It is allowed to combine multiple modifiers in the same switch,
+>        such as -s=e100f.
+>
+>     b) new switch -s=r resets the solid statistics before adding new files
+>        to existing archive.
+>
+>  4. Switch -tk now accepts the optional date parameter in YYYYMMDDHHMMSS
+>     format. If used without parameter when modifying an archive,
+>     it preserves the original archive time. If optional parameter
+>     is present, it is assigned to archive modification time.
+>
+>     It is allowed to insert separators like '-' or ':' to the date string
+>     and omit trailing fields. For example, switch -tk2025-06-01 is correct.
+>
+>  5. "Specified time" is added to "Set archive time to" options on "Time"
+>     page of archiving dialog. It allows to assign the manually entered time
+>     to newly created or modified archives.
+>
+>  6. UTF-8 output format and byte order mark options are added to
+>     "Generate report" command.
+>
+>  7. "Cloud files" option is added to "Where to check for SFX archives"
+>     group in "Settings/Integration/Context menu items..." dialog.
+>
+>     If this option is off, WinRAR shell extension will not attempt
+>     to detect if archive is self-extracting, when right clicking
+>     an executable cloud file not available locally. This detection
+>     involves data read and can be slow for such files.
+>
+>     This option relies on file attributes returned by a cloud storage
+>     provider and can be ignored if required attribute isn't supported
+>     by specific cloud service.
+>
+>  8. "Copy to clipboard" button at the bottom of "Search results" dialog
+>     places current results of "Find files" command to clipboard.
+>
+>  9. It takes less time to open a large archive with a lot of files
+>     and folders in WinRAR file list. This is most noticeable for ZIP
+>     archives containing millions of files.
+>
+> 10. Improved extraction speed of TAR and TAR based archives,
+>     such as .tar.gz or tar.xz. It is most visible for hard disk drives
+>     with slower seek time and large archives containing a lot of files.
+>
+> 11. SFX module sets sfxnamenoext environment variable, containing
+>     SFX archive name without path and extension. It allows to append
+>     the archive name to user defined destination path like:
+>
+>     Path=c:\Util\%sfxnamenoext%"
+>
+> 12. "minsize" parameter, defining the minimum file reference size
+>     in -oi[0-4][:<minsize>] switch, now can include an optional trailing
+>     unit size character. So -oi:1m is the equivalent of -oi:1048576.
+>
+> 13. Switch -x recognizes exclude paths with both Windows and Unix style
+>     path separators, so -xfolder\file and -xfolder/file do the same.
+>     Previously only -xfolder\file excluded the file.
+>
+> 14. Bugs fixed:
+>
+>     a) "Files to exclude" field of archiving dialog was ignored for all
+>        but first ZIP archives if "Put each file to separate archive"
+>        option was turned on;
+>
+>     b) when processing "Convert archives" command, "Use for all archives"
+>        option in the password prompt was available only for encrypted
+>        archives with file name encryption and couldn't be enabled
+>        when converting archives without encrypted file names.
 >
 > ----------------------------------------------
 > Read more: https://www.rarlab.com/WhatsNew.txt
