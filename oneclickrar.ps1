@@ -37,7 +37,7 @@ $server2      = @("https://$server2_host/fileadmin/winrar-versions", "https://$s
 
 $link_freedom_universe_yt = "https://youtu.be/OD_WIKht0U0?t=450"
 
-$KNOWN_VERSIONS = @(713)
+$KNOWN_VERSIONS = @(720)
 $LATEST = $KNOWN_VERSIONS[0]
 #endregion
 
