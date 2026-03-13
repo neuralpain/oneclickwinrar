@@ -1,5 +1,9 @@
 CHANGELOG
 
+0.15.1.720
+
+  - Update the known versions list with WinRAR 7.20 and WinRAR 7.21.
+
 0.15.0.720
 
   - Fix: Append `-UseBasicParsing` switch on Invoke-WebRequest to avoid
