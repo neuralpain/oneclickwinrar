@@ -1,5 +1,8 @@
 > [!TIP]
-> RARLAB® released WinRAR 7.20! Use [`installrar_720`](#installrarcmd) udpate the software. 🚀
+> ### RARLAB® Latest Release
+> **WinRAR 7.21 (Beta)**
+>
+> Use [`installrar_721_b1`](#install-only-pattern-supported-by-installrarcmd-oneclickrarcmd) udpate the software. 🚀
 >
 > <details>
 > <summary>View changes</summary>
@@ -7,6 +10,42 @@
 > ```
 >                WinRAR - What's new in the latest version
 >
+>
+>  Version 7.21 beta 1
+>
+>  1. WinRAR properly recognizes archives with a wrong file extension,
+>     containing an archive in another format stored without compression.
+>
+>     For example, if host.rar, storing nested.zip inside, was renamed to
+>     host.zip, previous versions could display nested.zip contents
+>     when opening such host.zip. This version displays host.zip contents.
+>
+>  2. Similarly to Windows Explorer, the first click on size and time columns
+>     in WinRAR file list sets the reverse sort mode with largest and latest
+>     files at the top.
+>
+>  3. Switch -s=e performs the case insensitive file extension comparison
+>     in Windows. Unlike previous versions, solid statistics isn't reset
+>     anymore for file extensions differing only by case.
+>
+>  4. If self-extracting archive attempts to extract files to a folder
+>     requring administrator rights and elevation prompt is cancelled by user,
+>     the archive quits silently instead of issuing the folder access error.
+>
+>  5. Bugs fixed:
+>
+>     a) WinRAR 7.20 couldn't unpack ZIP archives containing file comment
+>        fields;
+>
+>     b) switch -tl didn't set the latest time when used with RAR 7.20
+>        "ch" command;
+>
+>     c) extraction command didn't automatically replace device names
+>        like "aux", when unpacking archives containing such reserved names;
+>
+>     d) if folder shortcut was double clicked in "Save WinRAR settings as"
+>        dialog when exporting WinRAR settings, folder shortcut itself was
+>        overwritten with settings data instead of opening a target folder.
 >
 >  Version 7.20
 >
@@ -33,88 +72,7 @@
 >        it allows to use shorter or longer than 3 character names,
 >        such as -agOO;
 >
->     c) excessive format characters exceeding the available field width
->        are now ignored instead of appending to archive name.
->        So it is possible to use full month or week day names by providing
->        format characters in the amount equal or exceeding the longest name,
->        such as -agKKKKKKKKKK for day of week names.
->
->  3. Command line -s switch:
->
->     a) switch -s accepts the optional parameter preceded by '=' character.
->
->        Switches -s<N>, -se, -sv, -sv-, -s- are replaced by -s=<N>f, -s=e,
->        -s=v, -s=d, -s=-. Previous versions of these switches are still
->        supported in the current version, but can be removed in the future.
->
->        It is allowed to combine multiple modifiers in the same switch,
->        such as -s=e100f.
->
->     b) new switch -s=r resets the solid statistics before adding new files
->        to existing archive.
->
->  4. Switch -tk now accepts the optional date parameter in YYYYMMDDHHMMSS
->     format. If used without parameter when modifying an archive,
->     it preserves the original archive time. If optional parameter
->     is present, it is assigned to archive modification time.
->
->     It is allowed to insert separators like '-' or ':' to the date string
->     and omit trailing fields. For example, switch -tk2025-06-01 is correct.
->
->  5. "Specified time" is added to "Set archive time to" options on "Time"
->     page of archiving dialog. It allows to assign the manually entered time
->     to newly created or modified archives.
->
->  6. UTF-8 output format and byte order mark options are added to
->     "Generate report" command.
->
->  7. "Cloud files" option is added to "Where to check for SFX archives"
->     group in "Settings/Integration/Context menu items..." dialog.
->
->     If this option is off, WinRAR shell extension will not attempt
->     to detect if archive is self-extracting, when right clicking
->     an executable cloud file not available locally. This detection
->     involves data read and can be slow for such files.
->
->     This option relies on file attributes returned by a cloud storage
->     provider and can be ignored if required attribute isn't supported
->     by specific cloud service.
->
->  8. "Copy to clipboard" button at the bottom of "Search results" dialog
->     places current results of "Find files" command to clipboard.
->
->  9. It takes less time to open a large archive with a lot of files
->     and folders in WinRAR file list. This is most noticeable for ZIP
->     archives containing millions of files.
->
-> 10. Improved extraction speed of TAR and TAR based archives,
->     such as .tar.gz or tar.xz. It is most visible for hard disk drives
->     with slower seek time and large archives containing a lot of files.
->
-> 11. SFX module sets sfxnamenoext environment variable, containing
->     SFX archive name without path and extension. It allows to append
->     the archive name to user defined destination path like:
->
->     Path=c:\Util\%sfxnamenoext%"
->
-> 12. "minsize" parameter, defining the minimum file reference size
->     in -oi[0-4][:<minsize>] switch, now can include an optional trailing
->     unit size character. So -oi:1m is the equivalent of -oi:1048576.
->
-> 13. Switch -x recognizes exclude paths with both Windows and Unix style
->     path separators, so -xfolder\file and -xfolder/file do the same.
->     Previously only -xfolder\file excluded the file.
->
-> 14. Bugs fixed:
->
->     a) "Files to exclude" field of archiving dialog was ignored for all
->        but first ZIP archives if "Put each file to separate archive"
->        option was turned on;
->
->     b) when processing "Convert archives" command, "Use for all archives"
->        option in the password prompt was available only for encrypted
->        archives with file name encryption and couldn't be enabled
->        when converting archives without encrypted file names.
+> [ ... ]
 >
 > ----------------------------------------------
 > Read more: https://www.rarlab.com/WhatsNew.txt
