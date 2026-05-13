@@ -1,8 +1,8 @@
 > [!TIP]
 > ### RARLAB® Latest Release
-> **WinRAR 7.21 (Beta)**
+> **WinRAR 7.22**
 >
-> Use [`installrar_721_b1`](#install-only-pattern-supported-by-installrarcmd-oneclickrarcmd) udpate the software. 🚀
+> Use [`installrar_722`](#install-only-pattern-supported-by-installrarcmd-oneclickrarcmd) to udpate the software. 🚀
 >
 > <details>
 > <summary>View changes</summary>
@@ -11,14 +11,20 @@
 >                WinRAR - What's new in the latest version
 >
 >
->  Version 7.21 beta 1
+>  Version 7.22
+>
+>  1. Deleting from solid archives reverted to pre-7.20 state to finalize
+>     the fix in WinRAR 7.21 and avoid potential checksum errors.
+>
+>
+>  Version 7.21
 >
 >  1. WinRAR properly recognizes archives with a wrong file extension,
 >     containing an archive in another format stored without compression.
 >
 >     For example, if host.rar, storing nested.zip inside, was renamed to
->     host.zip, previous versions could display nested.zip contents
->     when opening such host.zip. This version displays host.zip contents.
+>     host.zip, WinRAR 7.20 could display nested.zip contents when opening
+>     such host.zip. This version displays host.zip contents.
 >
 >  2. Similarly to Windows Explorer, the first click on size and time columns
 >     in WinRAR file list sets the reverse sort mode with largest and latest
@@ -31,46 +37,6 @@
 >  4. If self-extracting archive attempts to extract files to a folder
 >     requring administrator rights and elevation prompt is cancelled by user,
 >     the archive quits silently instead of issuing the folder access error.
->
->  5. Bugs fixed:
->
->     a) WinRAR 7.20 couldn't unpack ZIP archives containing file comment
->        fields;
->
->     b) switch -tl didn't set the latest time when used with RAR 7.20
->        "ch" command;
->
->     c) extraction command didn't automatically replace device names
->        like "aux", when unpacking archives containing such reserved names;
->
->     d) if folder shortcut was double clicked in "Save WinRAR settings as"
->        dialog when exporting WinRAR settings, folder shortcut itself was
->        overwritten with settings data instead of opening a target folder.
->
->  Version 7.20
->
->  1. Performance improvements when deleting files in solid RAR archives:
->
->     a) if there are no non-zero files after deleted files, archive
->        recompressing isn't performed;
->
->     b) part of archive before deleted files is copied as is, without
->        repacking. Its contents is unpacked to memory if necessary,
->        but not recompressed;
->
->     c) semi-solid archive processing involves only solid blocks containing
->        deleted files. Unaffected solid blocks are copied as is.
->
->  2. "Generate archive name by mask" archiving option and -ag command line
->      switch:
->
->     a) new 'K' format character defines the current day of week
->        name as a text string;
->
->     b) new 'O' format character defines the current month name as a text
->        string regardless of format character number. Unlike "MMM" mask,
->        it allows to use shorter or longer than 3 character names,
->        such as -agOO;
 >
 > [ ... ]
 >

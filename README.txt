@@ -11,7 +11,7 @@
             \ \ \ \ \ \ \/\ \ /' _ `\ \ ,  /\ \  __ \ \ ,  /                    
              \ \ \_/ \_\ \ \ \/\ \/\ \ \ \\ \\ \ \/\ \ \ \\ \                   
               \ `\___x___/\ \_\ \_\ \_\ \_\ \_\ \_\ \_\ \_\ \_\                 
-               '\/__//__/  \/_/\/_/\/_/\/_/\/ /\/_/\/_/\/_/\/ /  v0.15.1.720    
+               '\/__//__/  \/_/\/_/\/_/\/_/\/ /\/_/\/_/\/_/\/ /  v0.15.2.722    
 
 
 oneclickwinrar - install and license WinRAR
@@ -347,9 +347,13 @@ See the /bin/winrar-keygen/LICENSE file for more information.
 CHANGELOG
 ---------
 
+0.15.2.722
+
+  - Update the known versions list with WinRAR 7.22.
+
 0.15.1.720
 
-  - Add version 7.20 to known versions list.
+  - Update the known versions list with WinRAR 7.20 and WinRAR 7.21.
 
 0.15.0.720
 
