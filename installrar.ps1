@@ -10,7 +10,7 @@
     installrar.cmd for use within the terminal.
 
   .NOTES
-    Last updated: 2026/05/13
+    Last updated: 2026/07/07
 #>
 
 [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor [System.Net.SecurityProtocolType]::Tls12
@@ -31,7 +31,7 @@ $server1      = "https://$server1_host/rar"
 $server2_host = "www.win-rar.com"
 $server2      = @("https://$server2_host/fileadmin/winrar-versions", "https://$server2_host/fileadmin/winrar-versions/winrar")
 
-$KNOWN_VERSIONS = @(722)
+$KNOWN_VERSIONS = @(723)
 $LATEST = $KNOWN_VERSIONS[0]
 #endregion
 

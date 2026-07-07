@@ -10,7 +10,7 @@
     oneclickrar.cmd for use within the terminal.
 
   .NOTES
-    Last updated: 2026/05/13
+    Last updated: 2026/07/07
 #>
 
 [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor [System.Net.SecurityProtocolType]::Tls12
@@ -37,7 +37,7 @@ $server2      = @("https://$server2_host/fileadmin/winrar-versions", "https://$s
 
 $link_freedom_universe_yt = "https://youtu.be/OD_WIKht0U0?t=450"
 
-$KNOWN_VERSIONS = @(722)
+$KNOWN_VERSIONS = @(723)
 $LATEST = $KNOWN_VERSIONS[0]
 #endregion
 

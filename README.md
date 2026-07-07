@@ -1,42 +1,38 @@
 > [!TIP]
 > ### RARLAB® Latest Release
-> **WinRAR 7.22**
+> **WinRAR 7.23**
 >
-> Use [`installrar_722`](#install-only-pattern-supported-by-installrarcmd-oneclickrarcmd) to update the software. 🚀
+> Use [`installrar_723`](#install-only-pattern-supported-by-installrarcmd-oneclickrarcmd) to update the software. 🚀
 >
 > <details>
 > <summary>View changes</summary>
 >
 > ```
->                WinRAR - What's new in the latest version
+>                 WinRAR - What's new in the latest version
 >
 >
->  Version 7.22
+>   Version 7.23
 >
->  1. Deleting from solid archives reverted to pre-7.20 state to finalize
->     the fix in WinRAR 7.21 and avoid potential checksum errors.
+>   1. Heap overflow vulnerability is fixed in RAR5 recovery volume
+>      data reconstruction code. It affects WinRAR, RAR and UnRAR.
+>      UnRAR.dll library doesn't include recovery volume processing,
+>      so it is not affected.
 >
+>      We are thankful to Arjun Basnet from Securin Labs for letting us know
+>      about this security issue.
 >
->  Version 7.21
+>   2. Symbolic link pointing outside of destination folder could be created
+>      even without -ola switch, when extracting a specially crafted
+>      RAR archive by WinRAR, RAR, UnRAR or UnRAR.dll library.
 >
->  1. WinRAR properly recognizes archives with a wrong file extension,
->     containing an archive in another format stored without compression.
+>      Further check in extraction code prevents placing files to such folder
+>      even in case of multiple extraction commands, excluding the possibility
+>      of path traversal attack for WinRAR, RAR or UnRAR based extraction.
+>      It limits the potential threat to a case where another tool uses this
+>      symbolic link to store files.
 >
->     For example, if host.rar, storing nested.zip inside, was renamed to
->     host.zip, WinRAR 7.20 could display nested.zip contents when opening
->     such host.zip. This version displays host.zip contents.
->
->  2. Similarly to Windows Explorer, the first click on size and time columns
->     in WinRAR file list sets the reverse sort mode with largest and latest
->     files at the top.
->
->  3. Switch -s=e performs the case insensitive file extension comparison
->     in Windows. Unlike previous versions, solid statistics isn't reset
->     anymore for file extensions differing only by case.
->
->  4. If self-extracting archive attempts to extract files to a folder
->     requring administrator rights and elevation prompt is cancelled by user,
->     the archive quits silently instead of issuing the folder access error.
+>      We are thankful to scofaild23-bnomran for letting us know about this
+>      security issue.
 >
 > [ ... ]
 >
